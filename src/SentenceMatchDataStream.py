@@ -66,7 +66,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training):
-    max_answer_size = 79
+    max_answer_size = 90
     min_answer_size = 0
     if is_training == False:
         max_answer_size = 20000
@@ -79,6 +79,9 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     all_count = 0 #wiki 20,360
     del_question_count = 0 #wiki 1,245 (59% of questions deleted, 873 question remaine)
     del_all_count = 0 #wiki 11,688 (57% of pairs deleted, 8,672 remaine(9.9 answer per question))
+    is_trec = False
+    if 'trec' in filename:
+        is_trec = True
     for line in data:
         line = line.decode('utf-8').strip()
         if line.startswith('-'): continue
@@ -98,7 +101,11 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         question_count += 1
         question_dic[key]["question"] = question_dic[key]["question"]
         question_dic[key]["answer"] = question_dic[key]["answer"]
-        if sum(question_dic[key]["label"]) <eps or (is_training == True and min_answer_size <=2 and len(question_dic[key]["question"]) == sum(question_dic[key]["label"])):
+        if sum(question_dic[key]["label"]) <eps or (is_training == True and len(question_dic[key]["question"]) == sum(question_dic[key]["label"])):
+            del_question_count += 1
+            del_all_count += len(question_dic[key]["question"])
+            del(question_dic[key])
+        elif is_trec == True and len(question_dic[key]["question"]) == sum(question_dic[key]["label"]):
             del_question_count += 1
             del_all_count += len(question_dic[key]["question"])
             del(question_dic[key])
@@ -151,6 +158,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             ans.append(
                 (my_label, x[0], x[1][j], label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2,
                  None, None, None, None))
+    print ("Questions: ",len(instances), " pairs: ", len(ans))
     return (ans, batches, candidate_answer_length)
 
 

@@ -473,7 +473,7 @@ def main(_):
         st_cuda = ''
         if FLAGS.is_server == True:
             st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
-        output_res_file = open('../result/' + '101.'+ st_cuda + str(output_res_index), 'wt')
+        output_res_file = open('../result/' + 'tr.'+ st_cuda + str(output_res_index), 'wt')
         output_res_index += 1
         output_res_file.write(str(FLAGS) + '\n\n')
         stt = str (FLAGS)
@@ -701,7 +701,7 @@ def main(_):
         output_res_file.close()
 
 if __name__ == '__main__':
-    is_trec = False
+    is_trec = True
     if is_trec == True:
         qa_path = 'trecqa/'
     else:
@@ -710,11 +710,14 @@ if __name__ == '__main__':
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
+    bs = 40
+    if is_trec == True:
+        bs = 100
 
-    parser.add_argument('--batch_size', type=int, default=40, help='Number of instances in each batch.')
+    parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, help='is answer selection or other sentence matching tasks?')
     parser.add_argument('--optimize_type', type=str, default='adam', help='Optimizer type.')
     parser.add_argument('--prediction_mode', default='hinge_wise', help = 'point_wise, list_wise, hinge_wise .'
