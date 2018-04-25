@@ -224,9 +224,9 @@ def dot_att_weight(passage_rep, question_rep,input_dim , overlap, question_mask,
 
         #z1_s = tf.reduce_sum(z1, -1, keep_dims=True) #[M, 1]
         #z1 = tf.divide(z1, z1_s) #[M,N]
-        print ('fuck you')
+        #print ('fuck you')
         if clip_att == True:
-            print ('fuck me')
+        #    print ('fuck me')
             # z1 = tf.expand_dims(z1, -1) #[M,N,1]
             # z_c = cal_wxb(z1, scope='clip', output_dim=1, input_dim=1, activation = 'tanh') #[M,N,1]
             # z_c = tf.reduce_sum(z_c, 2)  # [M, N] Just for removing the last dimension

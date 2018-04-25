@@ -473,7 +473,11 @@ def main(_):
         st_cuda = ''
         if FLAGS.is_server == True:
             st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
-        output_res_file = open('../result/' + 'tr.'+ st_cuda + str(output_res_index), 'wt')
+        if 'trec' in test_path:
+            ssst = 'tr1'
+        else:
+            ssst = 'wi1'
+        output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
         output_res_index += 1
         output_res_file.write(str(FLAGS) + '\n\n')
         stt = str (FLAGS)
@@ -606,11 +610,11 @@ def main(_):
 
                     _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                     total_loss += loss_value
-                    if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
-                        print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
-                                                   ,trainDataStream.answer_count(batch_index), loss_value))
+                    #if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
+                    #    print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
+                    #                               ,trainDataStream.answer_count(batch_index), loss_value))
 
-                    if step % 100==0:
+                    if step % 50==0:
                         print('{} '.format(step), end="")
                         sys.stdout.flush()
 
@@ -707,15 +711,15 @@ if __name__ == '__main__':
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
     parser = argparse.ArgumentParser()
-    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
-    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
+    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
+    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
-    bs = 40
+    bs =50
     if is_trec == True:
-        bs = 100
+        bs = 40
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, help='is answer selection or other sentence matching tasks?')
