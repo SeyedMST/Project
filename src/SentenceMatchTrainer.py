@@ -717,8 +717,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
-    bs =50
-    if is_trec == True:
+    bs =60
+    if is_trec == False:
         bs = 40
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
