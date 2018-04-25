@@ -1,0 +1,38 @@
+/home/lily/jd2392/anaconda2/envs/mrl/lib/python2.7/site-packages/h5py/__init__.py:34: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Configurations:
+0
+100000
+200000
+300000
+Collect words, chars and labels ...
+Number of words: 34746
+Number of labels: 2
+Number of chars: 259
+word_vocab shape is (300001, 300)
+tag_vocab shape is (3, 2)
+Build SentenceMatchDataStream ... 
+Number of instances in trainDataStream: 8651
+Number of instances in devDataStream: 1130
+Number of instances in testDataStream: 2351
+Number of batches in trainDataStream: 270
+Number of batches in devDataStream: 38
+Number of batches in testDataStream: 79
+2018-01-11 15:56:41.186331: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+2018-01-11 15:56:55.259371: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:8b:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-01-11 15:56:55.259449: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1120] Creating TensorFlow device (/device:GPU:0) -> (device: 0, name: Tesla K80, pci bus id: 0000:8b:00.0, compute capability: 3.7)
+Start the training loop.
+0 100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 trec_eval: input error: in trec_eval: 'malformed top results line' Illegal parameter value - Quit
+Traceback (most recent call last):
+  File "SentenceMatchTrainer.py", line 662, in <module>
+    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  File "/home/lily/jd2392/anaconda2/envs/mrl/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 48, in run
+    _sys.exit(main(_sys.argv[:1] + flags_passthrough))
+  File "SentenceMatchTrainer.py", line 522, in main
+    POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+  File "SentenceMatchTrainer.py", line 152, in evaluate
+    my_map = float(p[2])
+IndexError: list index out of range
