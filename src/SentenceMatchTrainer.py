@@ -474,9 +474,9 @@ def main(_):
         if FLAGS.is_server == True:
             st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
         if 'trec' in test_path:
-            ssst = 'tr1'
+            ssst = 'tr2'
         else:
-            ssst = 'wi1'
+            ssst = 'wi2'
         output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
         output_res_index += 1
         output_res_file.write(str(FLAGS) + '\n\n')
@@ -717,7 +717,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
-    bs =60
+    bs =80
     if is_trec == False:
         bs = 40
 
@@ -734,10 +734,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--learning_rate', type=float, default=0.002, help='Learning rate.')
     parser.add_argument('--lambda_l2', type=float, default=0.0001, help='The coefficient of L2 regularizer.')
-    parser.add_argument('--dropout_rate', type=float, default=0.04, help='Dropout ratio.')
+    parser.add_argument('--dropout_rate', type=float, default=0.1, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
     parser.add_argument('--char_lstm_dim', type=int, default=50, help='Number of dimension for character-composed embeddings.')
-    parser.add_argument('--aggregation_lstm_dim', type=int, default=50, help='Number of dimension for aggregation layer.')
+    parser.add_argument('--aggregation_lstm_dim', type=int, default=150, help='Number of dimension for aggregation layer.')
     parser.add_argument('--max_char_per_word', type=int, default=10, help='Maximum number of characters for each word.')
     parser.add_argument('--max_sent_length', type=int, default=100, help='Maximum number of words within each sentence.')
     parser.add_argument('--aggregation_layer_num', type=int, default=1, help='Number of LSTM layers for aggregation layer.')
@@ -760,10 +760,10 @@ if __name__ == '__main__':
     parser.add_argument('--with_context_self_attention', default=False, help = 'are aggregation wieghts on both sides shared or not' )
 
 
-    parser.add_argument('--MP_dim', type=int, default=40, help='Number of perspectives for matching vectors.')
+    parser.add_argument('--MP_dim', type=int, default=50, help='Number of perspectives for matching vectors.')
     parser.add_argument('--context_layer_num', type=int, default=1, help='Number of LSTM layers for context representation layer.')
     parser.add_argument('--with_highway', default=True, help='Utilize highway layers.', action='store_true')
-    parser.add_argument('--context_lstm_dim', type=int, default=100, help='Number of dimension for context representation layer.')
+    parser.add_argument('--context_lstm_dim', type=int, default=150, help='Number of dimension for context representation layer.')
 
     parser.add_argument('--word_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--lemma_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )    #if (len (st) >=2 and st [1] == '.') : continue

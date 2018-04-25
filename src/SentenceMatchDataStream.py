@@ -66,7 +66,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training):
-    max_answer_size = 60
+    max_answer_size = 79
     min_answer_size = 0
     if is_training == False:
         max_answer_size = 20000
