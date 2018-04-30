@@ -474,7 +474,7 @@ def main(_):
         if FLAGS.is_server == True:
             st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
         if 'trec' in test_path:
-            ssst = 'tr2'
+            ssst = 'tr3'
         else:
             ssst = 'wi2'
         output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
@@ -711,8 +711,8 @@ if __name__ == '__main__':
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
     parser = argparse.ArgumentParser()
-    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
-    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
+    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
+    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
