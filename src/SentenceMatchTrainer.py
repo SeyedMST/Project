@@ -376,7 +376,12 @@ def main(_):
     #    print (FLAGS.is_aggregation_lstm, FLAGS.context_lstm_dim, FLAGS.context_layer_num, FLAGS. aggregation_lstm_dim, FLAGS.aggregation_layer_num, FLAGS.max_window_size, FLAGS.MP_dim)
 
     print('Configurations:')
+
+    if FLAGS.word_overlap == 'True':
+        FLAGS.word_overlap = True
+
     print(FLAGS)
+
 
 
     train_path = FLAGS.train_path
@@ -474,9 +479,9 @@ def main(_):
         if FLAGS.is_server == True:
             st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
         if 'trec' in test_path:
-            ssst = 'tr3'
+            ssst = 'tre' + FLAGS.run_id
         else:
-            ssst = 'wi2'
+            ssst = 'wik' + FLAGS.run_id
         output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
         output_res_index += 1
         output_res_file.write(str(FLAGS) + '\n\n')
@@ -711,8 +716,8 @@ if __name__ == '__main__':
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
     parser = argparse.ArgumentParser()
-    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
-    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
+    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
+    #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
@@ -734,10 +739,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--learning_rate', type=float, default=0.002, help='Learning rate.')
     parser.add_argument('--lambda_l2', type=float, default=0.0001, help='The coefficient of L2 regularizer.')
-    parser.add_argument('--dropout_rate', type=float, default=0.1, help='Dropout ratio.')
+    parser.add_argument('--dropout_rate', type=float, default=0.05, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
     parser.add_argument('--char_lstm_dim', type=int, default=50, help='Number of dimension for character-composed embeddings.')
-    parser.add_argument('--aggregation_lstm_dim', type=int, default=150, help='Number of dimension for aggregation layer.')
+    parser.add_argument('--aggregation_lstm_dim', type=int, default=100, help='Number of dimension for aggregation layer.')
     parser.add_argument('--max_char_per_word', type=int, default=10, help='Maximum number of characters for each word.')
     parser.add_argument('--max_sent_length', type=int, default=100, help='Maximum number of words within each sentence.')
     parser.add_argument('--aggregation_layer_num', type=int, default=1, help='Number of LSTM layers for aggregation layer.')
@@ -746,13 +751,13 @@ if __name__ == '__main__':
     parser.add_argument('--with_match_highway', default=False, help='Utilize highway layers for matching layer.', action='store_true')
     parser.add_argument('--with_aggregation_highway', default=False, help='Utilize highway layers for aggregation layer.', action='store_true')
     parser.add_argument('--wo_char', default=True, help='Without character-composed embeddings.', action='store_true')
-    parser.add_argument('--type1', default='w_mul', help='similrty function 1', action='store_true')
-    parser.add_argument('--type2', default= 'w_sub' , help='similrty function 2', action='store_true')
+    parser.add_argument('--type1', default= 'w_sub_mul', help='similrty function 1', action='store_true')
+    parser.add_argument('--type2', default= None , help='similrty function 2', action='store_true')
     parser.add_argument('--type3', default= None , help='similrty function 3', action='store_true')
     parser.add_argument('--wo_lstm_drop_out', default=  True , help='with out context lstm drop out', action='store_true')
     parser.add_argument('--wo_agg_self_att', default= True , help='with out aggregation lstm self attention', action='store_true')
     parser.add_argument('--is_shared_attention', default= False , help='are matching attention values shared or not', action='store_true')
-    parser.add_argument('--modify_loss', type=float, default=0.1, help='a parameter used for loss.')
+    parser.add_argument('--modify_loss', type=float, default=0, help='a parameter used for loss.')
     parser.add_argument('--is_aggregation_lstm', default=True, help = 'is aggregation lstm or aggregation cnn' )
     parser.add_argument('--max_window_size', type=int, default=2, help = '[1..max_window_size] convolution')
     parser.add_argument('--is_aggregation_siamese', default=True, help = 'are aggregation wieghts on both sides shared or not' )
@@ -763,7 +768,7 @@ if __name__ == '__main__':
     parser.add_argument('--MP_dim', type=int, default=50, help='Number of perspectives for matching vectors.')
     parser.add_argument('--context_layer_num', type=int, default=1, help='Number of LSTM layers for context representation layer.')
     parser.add_argument('--with_highway', default=True, help='Utilize highway layers.', action='store_true')
-    parser.add_argument('--context_lstm_dim', type=int, default=150, help='Number of dimension for context representation layer.')
+    parser.add_argument('--context_lstm_dim', type=int, default=100, help='Number of dimension for context representation layer.')
 
     parser.add_argument('--word_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--lemma_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )    #if (len (st) >=2 and st [1] == '.') : continue
@@ -794,6 +799,9 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('--fix_word_vec', default=True, help='Fix pre-trained word embeddings during training.', action='store_true')
 
+
+
+    parser.add_argument('--run_id', default='10' , help = 'run_id')
 
     #     print("CUDA_VISIBLE_DEVICES " + os.environ['CUDA_VISIBLE_DEVICES'])
     sys.stdout.flush()
