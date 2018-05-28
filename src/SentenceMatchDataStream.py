@@ -51,6 +51,7 @@ def pad_2d_matrix(in_val, max_length=None, dtype=np.int32):
     return out_val
 
 def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
+    print('x')
     if max_length1 is None: max_length1 = np.max([len(cur_in_val) for cur_in_val in in_val])
     if max_length2 is None: max_length2 = np.max([np.max([len(val) for val in cur_in_val]) for cur_in_val in in_val])
     batch_size = len(in_val)
@@ -63,6 +64,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
             kept_length = len(cur_in_val)
             if kept_length>max_length2: kept_length = max_length2
             out_val[i, j, :kept_length] = cur_in_val[:kept_length]
+    print('y')
     return out_val
 
 
@@ -383,8 +385,7 @@ class SentenceMatchDataStream(object):
 
                 overlap_batch.append(add_overlap(word_idx_1,word_idx_2,sentence1, sentence2, word_vocab, is_word_overlap,
                                                  is_lemma_overlap))
-
-                if POS_vocab is not None: 
+                if POS_vocab is not None:
                     POS_idx_1_batch.append(POS_idx_1)
                     POS_idx_2_batch.append(POS_idx_2)
 
@@ -392,7 +393,7 @@ class SentenceMatchDataStream(object):
                     NER_idx_1_batch.append(NER_idx_1)
                     NER_idx_2_batch.append(NER_idx_2)
                 
-                
+            print ('z1')
             cur_batch_size = len(label_batch)
             if cur_batch_size ==0: continue
 
