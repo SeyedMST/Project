@@ -42,7 +42,7 @@ def pad_2d_matrix(in_val, max_length=None, dtype=np.int32):
     if max_length is None: max_length = np.max([len(cur_in_val) for cur_in_val in in_val])
     batch_size = len(in_val)
     out_val = np.zeros((batch_size, max_length), dtype=dtype)
-    for i in xrange(batch_size):
+    for i in range(batch_size):
         cur_in_val = in_val[i]
         kept_length = len(cur_in_val)
         if kept_length>max_length: kept_length = max_length
@@ -54,10 +54,10 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
     if max_length2 is None: max_length2 = np.max([np.max([len(val) for val in cur_in_val]) for cur_in_val in in_val])
     batch_size = len(in_val)
     out_val = np.zeros((batch_size, max_length1, max_length2), dtype=dtype)
-    for i in xrange(batch_size):
+    for i in range(batch_size):
         cur_length1 = max_length1
         if len(in_val[i])<max_length1: cur_length1 = len(in_val[i])
-        for j in xrange(cur_length1):
+        for j in range(cur_length1):
             cur_in_val = in_val[i][j]
             kept_length = len(cur_in_val)
             if kept_length>max_length2: kept_length = max_length2
@@ -115,9 +115,9 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     label = list()
     pairs_count = 0
     for item in question_dic.values():
-        good_answer = [item["answer"][i] for i in xrange(len(item["question"])) if item["label"][i] == 1]
+        good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
         good_length = len(good_answer)
-        bad_answer = [item["answer"][i] for i in xrange(len(item["question"])) if item["label"][i] == 0]
+        bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
         if len(item["answer"]) > max_answer_size:
             good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
             temp_answer = good_answer
@@ -138,7 +138,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     label = np.array(label) #list of list of labels
 
     instances = []
-    for i in xrange(len(question)):
+    for i in range(len(question)):
         instances.append((question[i], answer[i], label[i]))
     instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
     if is_training == True:
@@ -149,7 +149,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     candidate_answer_length = []
     for x in (instances):
         candidate_answer_length.append(len(x[1]))
-        for j in xrange (len(x[1])):
+        for j in range (len(x[1])):
             label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2 = \
                 make_idx(label_vocab, x[2][j], word_vocab, x[0], x[1][j], char_vocab, max_sent_length, True)
             my_label = '0'
@@ -232,9 +232,9 @@ def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_voca
     # if (len(lemma1) != n or len (lemma2) != m):
     #     print ('fuck')
     ans = []
-    for i in xrange(n):
+    for i in range(n):
         l = []
-        for j in xrange(m):
+        for j in range(m):
             if is_word_overlap == True or is_lemma_overlap == True:
                 print ('fuck')
                 if is_lemma_overlap == False and sentence1_list[i] == sentence2_list[j]:
@@ -354,7 +354,7 @@ class SentenceMatchDataStream(object):
             NER_idx_2_batch = None
             if NER_vocab is not None: NER_idx_2_batch = []
 
-            for i in xrange(batch_start, batch_end):
+            for i in range(batch_start, batch_end):
                 (label, sentence1, sentence2, label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2,
                  POS_idx_1, POS_idx_2, NER_idx_1, NER_idx_2) = instances[i]
                 label_batch.append(label)

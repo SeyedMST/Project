@@ -334,7 +334,7 @@ def multi_bilinear_att (passage_rep, question_rep,num_att_type,input_dim , is_sh
     scope_name = 'bi_att_layer'
     if scope is not None: scope_name = scope
     h_rep_list = []
-    for i in xrange(num_att_type):
+    for i in range(num_att_type):
         if is_shared_attetention == True:
             cur_scope_name = scope_name + "-{}".format(i)
         else:
@@ -452,7 +452,7 @@ def multi_sim_layer (h_rep_list, passage_rep, mp_dim, sim_type_list, input_dim ,
     #scope_name = 'sim_layer'
     outputs = []
     #if scope is not None: scope_name = scope
-    for i in xrange (len(sim_type_list)):
+    for i in range (len(sim_type_list)):
         cur_scope_name = scope + "-{}".format(i)
         outputs.append(sim_layer(h_rep_list[i], passage_rep, mp_dim,
                                  cur_scope_name, sim_type_list[i], input_dim,activation))
@@ -549,7 +549,7 @@ def highway_layer(in_val, input_size, scope=None, output_size=-1, with_highway =
 def multi_highway_layer(in_val, output_size, num_layers, scope=None):
     scope_name = 'highway_layer'
     if scope is not None: scope_name = scope
-    for i in xrange(num_layers):
+    for i in range(num_layers):
         cur_scope_name = scope_name + "-{}".format(i)
         in_val = highway_layer(in_val, output_size, scope=cur_scope_name)
     return in_val
@@ -918,7 +918,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
     #         passage_aware_representatins.append(pa_max_attentive_rep)
     #         passage_aware_dim += MP_dim
     with tf.variable_scope('context_MP_matching'):
-        for i in xrange(context_layer_num): # support multiple context layer
+        for i in range(context_layer_num): # support multiple context layer
             with tf.variable_scope('layer-{}'.format(i)):
                 if with_input_highway == False:
                     with tf.variable_scope('context_represent'):
@@ -1039,7 +1039,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
     pa_aggregation_input = passage_aware_representatins
     with tf.variable_scope('aggregation_layer'):
         if is_aggregation_lstm == True:
-            for i in xrange(aggregation_layer_num): # support multiple aggregation layer
+            for i in range(aggregation_layer_num): # support multiple aggregation layer
                 my_scope = 'left_layer-{}'.format(i)
                 my_reuse = True
                 with tf.variable_scope(my_scope):
@@ -1187,7 +1187,7 @@ def conv_aggregate(qa_aggregation_input, aggregation_lstm_dim, mp_dim, sim_len, 
         passage_rep = [qa_aggregation_input]
     aggregation_dim = 0
     passage_cnn_output = []
-    for filter_size in xrange (1, max_window_size + 1):
+    for filter_size in range (1, max_window_size + 1):
         for i in range(len(passage_rep)):
             cur_scope_name = "-{}-{}".format(filter_size, i)
             if unstack_cnn == True:

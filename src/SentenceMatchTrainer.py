@@ -77,7 +77,7 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
     MRR = 0.0
     scores = []
     labels = []
-    for batch_index in xrange(dataStream.get_num_batch()):
+    for batch_index in range(dataStream.get_num_batch()):
         cur_dev_batch = dataStream.get_batch(batch_index)
         (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch, 
                                  char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch, 
@@ -182,7 +182,7 @@ def MAP_MRR(logit, gold, candidate_answer_length):
     c_1_j = 0.0 #map
     c_2_j = 0.0 #mrr
     visited = 0
-    for i in xrange(len(candidate_answer_length)):
+    for i in range(len(candidate_answer_length)):
         prob = logit[visited: visited + candidate_answer_length[i]]
         label = gold[visited: visited + candidate_answer_length[i]]
         visited += candidate_answer_length[i]
@@ -190,7 +190,7 @@ def MAP_MRR(logit, gold, candidate_answer_length):
         rank_index = list(reversed(rank_index))
         score = 0.0
         count = 0.0
-        for i in xrange(1, len(prob) + 1):
+        for i in range(1, len(prob) + 1):
             if label[rank_index[i - 1]] > eps:
                 count += 1
                 score += count / i
@@ -205,13 +205,13 @@ def MAP_MRR(logit, gold, candidate_answer_length):
 
 def ouput_prob1(probs, label_vocab, lable_true):
     out_string = ""
-    for i in xrange(probs.size):
+    for i in range(probs.size):
         if label_vocab.getWord(i) == lable_true:
             return probs[i]
 
 def output_probs(probs, label_vocab):
     out_string = ""
-    for i in xrange(probs.size):
+    for i in range(probs.size):
         out_string += " {}:{}".format(label_vocab.getWord(i), probs[i])
     return out_string.strip()
 
@@ -572,7 +572,7 @@ def main(_):
                 total_loss = 0.0
                 start_time = time.time()
 
-                for step in xrange(max_steps):
+                for step in range(max_steps):
                     # read data
                     cur_batch, batch_index = trainDataStream.nextBatch()
                     (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
