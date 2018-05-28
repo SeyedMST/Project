@@ -336,7 +336,10 @@ class SentenceMatchDataStream(object):
 
         self.num_instances = len(instances)
         self.batches = []
+        rf = 0
         for batch_index, (batch_start, batch_end) in enumerate(batch_spans):
+            rf += 1
+            print (rf)
             label_batch = []
             sent1_batch = []
             sent2_batch = []
@@ -439,6 +442,7 @@ class SentenceMatchDataStream(object):
         if self.isShuffle: np.random.shuffle(self.index_array) 
         self.isLoop = isLoop
         self.cur_pointer = 0
+        print ('finish')
 
 
     def answer_count (self, i):
