@@ -715,12 +715,15 @@ def main(_):
         output_res_file.close()
 
 if __name__ == '__main__':
-    is_trec = True
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--is_trec',default=True, help='do we have cuda visible devices?')
+    FLAGS, unparsed = parser.parse_known_args()
+    is_trec = FLAGS.is_trec
     if is_trec == True:
         qa_path = 'trecqa/'
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
-    parser = argparse.ArgumentParser()
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='do we have cuda visible devices?')
@@ -784,7 +787,7 @@ if __name__ == '__main__':
     parser.add_argument('--mean_max', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--clip_attention', default=False, help = 'are aggregation wieghts on both sides shared or not' )
 
-    parser.add_argument('--tanh', default=True , help = 'tanh before prediction.')
+    parser.add_argument('--tanh', default=False , help = 'just ignore. this is a shit')
 
 
 
