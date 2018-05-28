@@ -101,7 +101,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             negative_answers.append(item[1].lower())
         all_count += 1
     data.close()
-    for key in question_dic.keys():
+    #for key in question_dic.keys():
+    for key in list(question_dic):
         question_count += 1
         question_dic[key]["question"] = question_dic[key]["question"]
         question_dic[key]["answer"] = question_dic[key]["answer"]
