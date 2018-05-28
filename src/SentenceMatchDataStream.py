@@ -51,7 +51,7 @@ def pad_2d_matrix(in_val, max_length=None, dtype=np.int32):
     return out_val
 
 def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
-    print('x')
+    #print('x')
     if max_length1 is None: max_length1 = np.max([len(cur_in_val) for cur_in_val in in_val])
     if max_length2 is None: max_length2 = np.max([np.max([len(val) for val in cur_in_val]) for cur_in_val in in_val])
     batch_size = len(in_val)
@@ -64,7 +64,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
             kept_length = len(cur_in_val)
             if kept_length>max_length2: kept_length = max_length2
             out_val[i, j, :kept_length] = cur_in_val[:kept_length]
-    print('y')
+    #print('y')
     return out_val
 
 
@@ -235,7 +235,8 @@ def is_ci_lemma_stopword_set_match(sentence1, sentence2):
 def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_vocab, is_word_overlap, is_lemma_overlap):
     n = len(sentence1_list)
     m = len(sentence2_list)
-    lemma1, lemma2 = is_ci_lemma_stopword_set_match(sentence1, sentence2)
+    if is_word_overlap == True and is_lemma_overlap == True:
+        lemma1, lemma2 = is_ci_lemma_stopword_set_match(sentence1, sentence2)
     # if (len(lemma1) != n or len (lemma2) != m):
     #     print ('fuck')
     ans = []
@@ -400,7 +401,7 @@ class SentenceMatchDataStream(object):
             # padding
             max_sent1_length = np.max(sent1_length_batch)
             max_sent2_length = np.max(sent2_length_batch)
-
+            print (max_sent1_length, max_sent2_length)
             max_char_length1 = np.max([np.max(aa) for aa in sent1_char_length_batch])
             if max_char_length1>max_char_per_word: max_char_length1=max_char_per_word
 
