@@ -219,7 +219,7 @@ def output_probs(probs, label_vocab):
     return out_string.strip()
 
 def Generate_random_initialization(cnf):
-    if FLAGS.is_server == True:
+    if FLAGS.is_random_init == True:
         cnf = cnf % 4
         FLAGS.cnf = cnf
         type1 = ['w_mul']
@@ -520,7 +520,8 @@ def main(_):
                                                       context_lstm_dropout=not FLAGS.wo_lstm_drop_out,
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
-                                                      mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention)
+                                                      mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
+                                                      ,with_tanh=FLAGS.tanh)
                 tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
     #         with tf.name_scope("Valid"):
@@ -549,7 +550,8 @@ def main(_):
                                                       context_lstm_dropout=not FLAGS.wo_lstm_drop_out,
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
-                                                      mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention)
+                                                      mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
+                                                      ,with_tanh=FLAGS.tanh)
 
 
             initializer = tf.global_variables_initializer()
@@ -721,7 +723,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
-    parser.add_argument('--is_server',default=False, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--is_server',default=False, help='do we have cuda visible devices?')
+    parser.add_argument('--is_random_init',default=False, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
@@ -745,10 +748,8 @@ if __name__ == '__main__':
     parser.add_argument('--dropout_rate', type=float, default=0.05, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
     parser.add_argument('--char_lstm_dim', type=int, default=50, help='Number of dimension for character-composed embeddings.')
-    parser.add_argument('--aggregation_lstm_dim', type=int, default=100, help='Number of dimension for aggregation layer.')
     parser.add_argument('--max_char_per_word', type=int, default=10, help='Maximum number of characters for each word.')
     parser.add_argument('--max_sent_length', type=int, default=100, help='Maximum number of words within each sentence.')
-    parser.add_argument('--aggregation_layer_num', type=int, default=1, help='Number of LSTM layers for aggregation layer.')
     parser.add_argument('--highway_layer_num', type=int, default=0, help='Number of highway layers.')
     parser.add_argument('--suffix', type=str, default='normal', required=False, help='Suffix of the model name.')
     parser.add_argument('--with_match_highway', default=False, help='Utilize highway layers for matching layer.', action='store_true')
@@ -772,6 +773,9 @@ if __name__ == '__main__':
     parser.add_argument('--context_layer_num', type=int, default=1, help='Number of LSTM layers for context representation layer.')
     parser.add_argument('--with_highway', default=True, help='Utilize highway layers.', action='store_true')
     parser.add_argument('--context_lstm_dim', type=int, default=100, help='Number of dimension for context representation layer.')
+    parser.add_argument('--aggregation_lstm_dim', type=int, default=100, help='Number of dimension for aggregation layer.')
+    parser.add_argument('--aggregation_layer_num', type=int, default=1, help='Number of LSTM layers for aggregation layer.')
+
 
     parser.add_argument('--word_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--lemma_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )    #if (len (st) >=2 and st [1] == '.') : continue
@@ -779,6 +783,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--mean_max', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--clip_attention', default=False, help = 'are aggregation wieghts on both sides shared or not' )
+
+    parser.add_argument('--tanh', default=True , help = 'tanh before prediction.')
 
 
 

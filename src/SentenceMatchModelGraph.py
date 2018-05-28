@@ -19,7 +19,7 @@ class SentenceMatchModelGraph(object):
                  with_bilinear_att = 's', type1 = None, type2 = None, type3 = None, with_aggregation_attention = True,
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
-                 clip_attention = True, mean_max = True):
+                 clip_attention = True, mean_max = True, with_tanh = True):
 
         # ======word representation layer======
         in_question_repres = []
@@ -244,6 +244,8 @@ class SentenceMatchModelGraph(object):
                 alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
                 self.loss += modify_loss/alpha1
             else:
+                if with_tanh == True:
+                    logits = tf.tanh(logits)
                 self.prob = tf.reshape(logits, [-1])
                 #self.loss = self.hinge_loss(g1_matrix, logits)
                 self.loss = self.hinge_loss(self.hinge_truth, logits)
