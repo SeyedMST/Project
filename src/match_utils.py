@@ -404,7 +404,7 @@ def sim_w_sub_mul(h_rep, passage_rep, mp_dim, scope, input_dim,activation):
     in_mul = tf.multiply(h_rep, passage_rep)
     in_mul = cal_wxb(in_mul, scope, mp_dim, input_dim,activation)
     in_sub = sub(h_rep, passage_rep)
-    in_sub = cal_wxb(in_sub, scope + 'sub', mp_dim/2, input_dim,activation)
+    in_sub = cal_wxb(in_sub, scope + 'sub', mp_dim//2, input_dim,activation)
     in_val = tf.concat([in_mul, in_sub], 2) #[bs, M, 2d]
     return in_val
     #return cal_wxb(in_val, scope, mp_dim, 2*input_dim,activation)

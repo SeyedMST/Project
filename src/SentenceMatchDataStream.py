@@ -339,10 +339,7 @@ class SentenceMatchDataStream(object):
 
         self.num_instances = len(instances)
         self.batches = []
-        rf = 0
         for batch_index, (batch_start, batch_end) in enumerate(batch_spans):
-            rf += 1
-            print (rf)
             label_batch = []
             sent1_batch = []
             sent2_batch = []
@@ -394,14 +391,12 @@ class SentenceMatchDataStream(object):
                     NER_idx_1_batch.append(NER_idx_1)
                     NER_idx_2_batch.append(NER_idx_2)
                 
-            print ('z1')
             cur_batch_size = len(label_batch)
             if cur_batch_size ==0: continue
 
             # padding
             max_sent1_length = np.max(sent1_length_batch)
             max_sent2_length = np.max(sent2_length_batch)
-            print (max_sent1_length, max_sent2_length)
             max_char_length1 = np.max([np.max(aa) for aa in sent1_char_length_batch])
             if max_char_length1>max_char_per_word: max_char_length1=max_char_per_word
 
