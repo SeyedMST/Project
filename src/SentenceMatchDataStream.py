@@ -2,6 +2,7 @@ import numpy as np
 import re
 import random
 
+import sys
 eps = 1e-8
 
 def make_batches(size, batch_size):
@@ -83,8 +84,11 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     if 'trec' in filename:
         is_trec = True
     for line in data:
-        line = line.decode('utf-8').strip()
-        if line.startswith('-'): continue
+        if sys.version_info[0] < 3:
+            line = line.decode('utf-8').strip()
+        else:
+            line = line.strip()
+        #if line.startswith('-'): continue
         item = re.split("\t", line)
         question_dic.setdefault(str(item[0]),{})
         question_dic[str(item[0])].setdefault("question",[])
@@ -292,8 +296,11 @@ class SentenceMatchDataStream(object):
         else:
             infile = open(inpath, 'rt')
             for line in infile:
-                line = line.decode('utf-8').strip()
-                if line.startswith('-'): continue
+                if sys.version_info[0] < 3:
+                    line = line.decode('utf-8').strip()
+                else:
+                    line = line.strip()
+                #if line.startswith('-'): continue
                 items = re.split("\t", line)
                 label = items[2]
                 sentence1 = items[0].lower()

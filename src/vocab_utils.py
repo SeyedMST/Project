@@ -3,6 +3,7 @@ from __future__ import print_function
 import numpy as np
 import re
 
+import sys
 # import math
 class Vocab(object):
     def __init__(self, vec_path=None, dim=300, fileformat='txt',voc=None, word2id=None, word_vecs=None, unk_mapping_path=None):
@@ -70,7 +71,10 @@ class Vocab(object):
         self.word_dim = 300
         word_vecs = {}
         for line in vec_file:
-            line = line.decode('utf-8').strip()
+            if sys.version_info[0] < 3:
+                line = line.decode('utf-8').strip()
+            else:
+                line = line.strip()
             parts = line.split(' ')
             word = parts[0]
             if (voc is not None) and (word not in voc): continue
@@ -95,7 +99,10 @@ class Vocab(object):
         vec_file = open(vec_path, 'rt')
         word_vecs = {}
         for line in vec_file:
-            line = line.decode('utf-8').strip()
+            if sys.version_info[0] < 3:
+                line = line.decode('utf-8').strip()
+            else:
+                line = line.strip()
             parts = line.split('\t')
             cur_index = int(parts[0])
             word = parts[1]
@@ -127,7 +134,10 @@ class Vocab(object):
         tmp_dim = -1
         word_vecs = {}
         for line in vec_file:
-            line = line.decode('utf-8').strip()
+            if sys.version_info[0] < 3:
+                line = line.decode('utf-8').strip()
+            else:
+                line = line.strip()
             parts = line.split(' ')
             word = parts[0]
             self.word_dim = len(parts[1:])
@@ -163,7 +173,10 @@ class Vocab(object):
         self.vocab_size, self.word_dim = map(int, header.split())
         self.word_vecs = np.zeros((self.vocab_size+1, self.word_dim), dtype=np.float32) # the last dimension is all zero
         for line in vec_file:
-            line = line.decode('utf-8').strip()
+            if sys.version_info[0] < 3:
+                line = line.decode('utf-8').strip()
+            else:
+                line = line.strip()
             parts = line.split(' ')
             word = parts[0]
             if (voc is not None) and (word not in voc): continue
