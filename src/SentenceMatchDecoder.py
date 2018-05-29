@@ -82,6 +82,7 @@ if __name__ == '__main__':
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, 
                                               batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True, isSort=True, 
                                               max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length)
+
     print('Number of instances in testDataStream: {}'.format(testDataStream.get_num_instance()))
     print('Number of batches in testDataStream: {}'.format(testDataStream.get_num_batch()))
 

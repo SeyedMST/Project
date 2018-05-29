@@ -57,7 +57,7 @@ def collect_vocabs(train_path, with_POS=False, with_NER=False):
     return (all_words, all_chars, all_labels, all_POSs, all_NERs)
 
 def evaluate(dataStream, valid_graph, sess, outpath=None,
-             label_vocab=None, mode='trec',char_vocab=None, POS_vocab=None, NER_vocab=None):
+             label_vocab=None, mode='trec',char_vocab=None, POS_vocab=None, NER_vocab=None, flag_valid = False,word_vocab = None):
     outpath = ''
     #if outpath is not None: outfile = open(outpath, 'wt')
     #subfile = ''
@@ -80,6 +80,8 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
     MRR = 0.0
     scores = []
     labels = []
+    sent1s = [] # to print test sentence result
+    sent2s = [] # to print test sentence result
     for batch_index in range(dataStream.get_num_batch()):
         cur_dev_batch = dataStream.get_batch(batch_index)
         (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch, 
@@ -120,7 +122,7 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
 
         #total_tags += len(label_batch)
         #correct_tags += sess.run(valid_graph.get_eval_correct(), feed_dict=feed_dict)
-        if outpath is not None:
+        if outpath is not None: # hich vaght None nist khate aval meghdar dadam behesh :D
             #if mode =='prediction':
             #    predictions = sess.run(valid_graph.get_predictions(), feed_dict=feed_dict)
             #    for i in xrange(len(label_batch)):
@@ -130,6 +132,10 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
             if FLAGS.is_answer_selection == True:
                 scores.append(sess.run(valid_graph.get_score(), feed_dict=feed_dict))
                 labels.append (label_id_batch)
+                if flag_valid == True:
+                    sent1s.append(sent1_batch)
+                    sent2s.append(sent2_batch)
+
                 # for i in xrange(len(label_batch)):
                 #     if sent1_batch[i] != last_trec:
                 #         last_trec = sent1_batch[i]
@@ -154,7 +160,11 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
     if FLAGS.is_answer_selection == True:
         scores = np.concatenate(scores)
         labels = np.concatenate(labels)
-        (my_map, my_mrr) = MAP_MRR(scores, labels, dataStream.get_candidate_answer_length())
+        if flag_valid == True:
+            sent1s = np.concatenate(sent1s)
+            sent2s = np.concatenate(sent2s)
+        return MAP_MRR(scores, labels, dataStream.get_candidate_answer_length(), flag_valid
+                                   , sent1s, sent2s, word_vocab)
         # print (final_map, final_mrr)
         # for i in xrange(len (sub_list)):
         #     id_trec, doc_id_trec, prob1, label_gold = sub_list[i]
@@ -176,18 +186,21 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
         #print("map '{}' , mrr '{}'".format(my_map, my_mrr))
 
     #    print ('end')
-        return (my_map, my_mrr)
     #accuracy = correct_tags / total_tags * 100
     #return accuracy
 
 
-def MAP_MRR(logit, gold, candidate_answer_length):
+def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, word_vocab):
     c_1_j = 0.0 #map
     c_2_j = 0.0 #mrr
     visited = 0
+    output_sentences = []
     for i in range(len(candidate_answer_length)):
         prob = logit[visited: visited + candidate_answer_length[i]]
         label = gold[visited: visited + candidate_answer_length[i]]
+        if flag_valid == True:
+            question = sent1s[visited: visited + candidate_answer_length[i]]
+            answers = sent2s[visited: visited + candidate_answer_length[i]]
         visited += candidate_answer_length[i]
         rank_index = np.argsort(prob).tolist()
         rank_index = list(reversed(rank_index))
@@ -202,9 +215,20 @@ def MAP_MRR(logit, gold, candidate_answer_length):
                 c_2_j += 1 / float(i)
                 break
         c_1_j += score / count
+
+        if flag_valid == True:
+            output_sentences.append(word_vocab.to_word_in_sequence(question[0]) + "\n")
+            for jj in range(len(answers)):
+                output_sentences.append(str(label[rank_index[jj]]) + " " + str(prob[rank_index[jj]]) + "- " +
+                                        word_vocab.to_word_in_sequence(answers[rank_index[jj]]) + "\n")
+            output_sentences.append("AP: {} \n\n".format(score/count))
+
     my_map = c_1_j/len(candidate_answer_length)
     my_mrr = c_2_j/len(candidate_answer_length)
-    return (my_map,my_mrr)
+    if flag_valid == False:
+        return (my_map,my_mrr)
+    else:
+        return (my_map, my_mrr, output_sentences)
 
 def ouput_prob1(probs, label_vocab, lable_true):
     out_string = ""
@@ -449,13 +473,16 @@ def main(_):
                                               max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                               is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
                                              is_lemma_overlap= FLAGS.lemma_overlap)
+    is_list_wise = False
+    if FLAGS.prediction_mode == "list_wise":
+        is_list_wise = True
 
     trainDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, 
                                               batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True, isSort=True, 
                                               max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                               is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
-                                             is_lemma_overlap= FLAGS.lemma_overlap)
+                                             is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise)
                                     
     devDataStream = SentenceMatchDataStream(dev_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, 
@@ -486,6 +513,8 @@ def main(_):
         else:
             ssst = 'wik' + FLAGS.run_id
         output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
+        output_sentence_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
+        output_sentences = []
         output_res_index += 1
         output_res_file.write(str(FLAGS) + '\n\n')
         stt = str (FLAGS)
@@ -577,6 +606,8 @@ def main(_):
                 total_loss = 0.0
                 start_time = time.time()
 
+                max_valid = 0
+
                 for step in range(max_steps):
                     # read data
                     cur_batch, batch_index = trainDataStream.nextBatch()
@@ -637,7 +668,6 @@ def main(_):
                         output_res_file.write('Step %d: loss = %.2f (%.3f sec)\n' % (step, total_loss, duration))
                         total_loss = 0.0
 
-
                         #Evaluate against the validation set.
                         output_res_file.write('valid- ')
                         my_map, my_mrr = evaluate(devDataStream, valid_graph, sess,char_vocab=char_vocab,
@@ -652,12 +682,26 @@ def main(_):
                         #    saver.save(sess, best_path)
 
                         # Evaluate against the test set.
+                        flag_valid = False
+                        if my_map > max_valid:
+                            max_valid = my_map
+                            flag_valid = True
+
                         output_res_file.write ('test- ')
-                        my_map, my_mrr = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+                        if flag_valid == True:
+                            my_map, my_mrr, output_sentences = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid
+                                                                        ,word_vocab=word_vocab)
+                        else:
+                            my_map,my_mrr = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid)
+
                         output_res_file.write("map: '{}', mrr: '{}\n\n".format(my_map, my_mrr))
-                        if FLAGS.is_server == False:
-                            print ("test map: {}".format(my_map))
+
+
+                        flag_valid = False
+                        #if FLAGS.is_server == False:
+                        print ("test map: {}".format(my_map))
 
                         #Evaluate against the train set only for final epoch.
                         if (step + 1) == max_steps:
@@ -712,7 +756,17 @@ def main(_):
         #     accuracy, mrr = evaluate(testDataStream, valid_graph, sess,char_vocab=char_vocab,POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab
         #                         , mode='trec')
         #     output_res_file.write("map for test set is %.2f\n" % accuracy)
+
+
+        for zj in output_sentences:
+            if sys.version_info[0] < 3:
+                output_sentence_file.write(zj.encode('utf-8'))
+            else:
+                output_sentence_file.write(zj)
+
+        output_sentence_file.close()
         output_res_file.close()
+
 
 if __name__ == '__main__':
 
@@ -720,7 +774,7 @@ if __name__ == '__main__':
     parser.add_argument('--is_trec',default=True, help='do we have cuda visible devices?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
-    if is_trec == True:
+    if is_trec == 'True' or is_trec == True:
         qa_path = 'trecqa/'
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
@@ -728,7 +782,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=False, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=1, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
     bs =80
@@ -764,7 +818,7 @@ if __name__ == '__main__':
     parser.add_argument('--wo_lstm_drop_out', default=  True , help='with out context lstm drop out', action='store_true')
     parser.add_argument('--wo_agg_self_att', default= True , help='with out aggregation lstm self attention', action='store_true')
     parser.add_argument('--is_shared_attention', default= False , help='are matching attention values shared or not', action='store_true')
-    parser.add_argument('--modify_loss', type=float, default=0, help='a parameter used for loss.')
+    parser.add_argument('--modify_loss', type=float, default=0.1, help='a parameter used for loss.')
     parser.add_argument('--is_aggregation_lstm', default=True, help = 'is aggregation lstm or aggregation cnn' )
     parser.add_argument('--max_window_size', type=int, default=2, help = '[1..max_window_size] convolution')
     parser.add_argument('--is_aggregation_siamese', default=True, help = 'are aggregation wieghts on both sides shared or not' )

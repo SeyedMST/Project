@@ -313,6 +313,27 @@ class Vocab(object):
             seq.append(idx)
         return seq
 
+    def to_word_in_sequence(self, sentence):
+        sentence = sentence.strip()
+        seq_in = []
+        seq_word = ""
+        for word in re.split('\\s+', sentence):
+            idx = self.getIndex(word)
+            if idx == self.vocab_size:
+                idx = None
+            #if idx == None and self.__unk_mapping is not None and self.__unk_mapping.has_key(word):
+            if idx == None and self.__unk_mapping is not None and word in self.__unk_mapping:
+                simWord = self.__unk_mapping[word]
+                idx = self.getIndex(simWord)
+            st = ""
+            if idx == None:
+                seq_in.append(0)
+                st = "*"
+            else:
+                seq_in.append(1)
+            seq_word += word + st + " "
+        return seq_word#,seq_in
+
     def to_index_sequence_for_list(self, words):
         seq = []
         for word in words:
