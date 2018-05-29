@@ -50,7 +50,7 @@ parser.add_argument('--is_trec', default= True, help = 'is trec?')
 FLAGS, unparsed = parser.parse_known_args()
 
 w = 'wik'
-if FLAGS.is_trec == True:
+if FLAGS.is_trec == True or FLAGS.is_trec == 'True':
     w = 'tre'
 outcsv = w + FLAGS.run_id
 w = outcsv + '.'
