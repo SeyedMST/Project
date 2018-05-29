@@ -775,6 +775,8 @@ if __name__ == '__main__':
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
+        is_trec = True
+    if is_trec == True:
         qa_path = 'trecqa/'
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'

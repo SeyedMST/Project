@@ -73,17 +73,17 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     is_trec = False
     if 'trec' in filename:
         is_trec = True
-    if is_list_wise == True:
+    if is_training == True and is_list_wise == True:
         if is_trec == True:
-            min_answer_size = 10
-            max_answer_size = 50
+            min_answer_size = 15
+            max_answer_size = 60
         else:
-            min_answer_size = 10
-            max_answer_size = 30
-    else:
+            min_answer_size = 15
+            max_answer_size = 15
+    elif is_training == True:
         max_answer_size = 79
         min_answer_size = 0
-    if is_training == False:
+    else:
         max_answer_size = 20000
         min_answer_size = 0
         #print ("hahaha")
