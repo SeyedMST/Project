@@ -68,24 +68,31 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
     return out_val
 
 
-def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise):
+def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
+                   min_answer_size, max_answer_size):
 
     is_trec = False
     if 'trec' in filename:
         is_trec = True
-    if is_training == True and is_list_wise == True:
-        if is_trec == True:
-            min_answer_size = 15
-            max_answer_size = 60
-        else:
-            min_answer_size = 20
-            max_answer_size = 20
-    elif is_training == True:
-        max_answer_size = 79
+    # if is_training == True and is_list_wise == True:
+    #     if is_trec == True:
+    #         min_answer_size = 15
+    #         max_answer_size = 60
+    #     else:
+    #         min_answer_size = 15
+    #         max_answer_size = 30
+    # elif is_training == True:
+    #     max_answer_size = 79
+    #     min_answer_size = 0
+    # else:
+    #     max_answer_size = 20000
+    #     min_answer_size = 0
+
+    if is_training == False:
         min_answer_size = 0
-    else:
         max_answer_size = 20000
-        min_answer_size = 0
+
+
         #print ("hahaha")
     data = open(filename, 'rt')
     question_dic = {}
@@ -290,7 +297,8 @@ def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_voca
 class SentenceMatchDataStream(object):
     def __init__(self, inpath, word_vocab=None, char_vocab=None, POS_vocab=None, NER_vocab=None, label_vocab=None, batch_size=60, 
                  isShuffle=False, isLoop=False, isSort=True, max_char_per_word=10, max_sent_length=200, is_as = True,
-                 is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False):
+                 is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False,
+                 min_answer_size = 0, max_answer_size = 20000):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -298,7 +306,8 @@ class SentenceMatchDataStream(object):
         self.candidate_answer_length = []
         if (is_as == True):
             instances, r, self.candidate_answer_length = wikiQaGenerate(inpath,label_vocab, word_vocab, char_vocab, max_sent_length, batch_size,
-                                          is_training=isShuffle, is_list_wise=is_list_wise)
+                                          is_training=isShuffle, is_list_wise=is_list_wise, min_answer_size=min_answer_size,
+                                                                        max_answer_size = max_answer_size)
             if isShuffle == True:
                 batch_spans = r[0]
                 self.batch_question_count = r[1]

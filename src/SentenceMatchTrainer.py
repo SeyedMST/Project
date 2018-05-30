@@ -482,7 +482,8 @@ def main(_):
                                               batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True, isSort=True, 
                                               max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                               is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
-                                             is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise)
+                                             is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise,
+                                              min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size)
                                     
     devDataStream = SentenceMatchDataStream(dev_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, 
@@ -771,7 +772,7 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=False, help='do we have cuda visible devices?')
+    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
@@ -792,6 +793,8 @@ if __name__ == '__main__':
     bs =80
     #if is_trec == False:
     #    bs = 40
+    parser.add_argument('--min_answer_size', type=int, default= 5, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 20, help='Number of instances in each batch.')
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, help='is answer selection or other sentence matching tasks?')

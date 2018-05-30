@@ -147,10 +147,10 @@ class Vocab(object):
             if (voc is not None) and (word not in voc): continue
             vector = np.array(parts[1:], dtype='float32')
             cur_index = len(self.word2id)
-            if cur_index % 100000 == 0:
+            if cur_index % 50000 == 0:
                 print (cur_index)
-            if cur_index == 300000:
-                break
+            #if cur_index == 300000:
+            #    break
             self.word2id[word] = cur_index 
             self.id2word[cur_index] = word
             word_vecs[cur_index] = vector
@@ -462,17 +462,7 @@ def to_char_ngram_sequence(sentence, n=3):
         seq.extend(sub_words)
     return ' '.join(seq)
 
-def collectVoc(trainpath):
-    vocab = set()
-    inputFile = file(trainpath, 'rt')
-    for line in inputFile:
-        line = line.strip()
-        label, sentence = re.split('\t', line)
-        sentence = sentence.lower()
-        for word in re.split(' ', sentence):
-            vocab.add(word)
-    inputFile.close()
-    return vocab
+
 
 def collect_word_count(sentences, unk_num=1):
     word_count_map = {}
@@ -495,6 +485,7 @@ def collect_word_count(sentences, unk_num=1):
 #         print('{}\t{}'.format(word, count))
 #     return word_count_list
     return [word for count, word in word_count_list if count>unk_num ]
+
 
 def collect_word_count_with_max_vocab(sentences, max_vocab=600000):
     word_count_map = {}
@@ -578,7 +569,70 @@ def load_word_index(index_path):
     in_file.close()
     return (vocab_size, word_dim, word2id)
 
+
+
+def collectVoc(trainpath):
+    vocab = set()
+    data = file(trainpath, 'rt')
+    for line in data:
+        if sys.version_info[0] < 3:
+            line = line.decode('utf-8').strip()
+        else:
+            line = line.strip()
+        item = re.split("\t", line)
+        sentence = item[0] + ' ' + item[1]
+        sentence = sentence.lower()
+        for word in re.split(' ', sentence):
+            vocab.add(word)
+    data.close()
+    return vocab
+
+def make_data_glove(vec_path , sentence_path_list, out_file_path):
+    vocab = set()
+    for file_name in sentence_path_list:
+        vocab = vocab.union(collectVoc(file_name))
+
+    vec_file = open(vec_path, 'rt')
+    outfile = open (out_file_path, 'wt')
+    cnt = 0
+    i = 0
+    more_than_bef = 0
+    for line in vec_file:
+        i += 1
+        line_tmp = line
+        if sys.version_info[0] < 3:
+            line = line.decode('utf-8').strip()
+        else:
+            line = line.strip()
+        parts = line.split(' ')
+        word = parts[0]
+        if word in vocab:
+            outfile.write(line_tmp)
+            cnt += 1
+            if i>300000:
+                more_than_bef += 1
+    vec_file.close()
+    outfile.close()
+    print (more_than_bef)
+    print (cnt)
+    print (i)
+
 if __name__ == '__main__':
+
+    l = ['trecqa/', 'wikiqa/WikiQACorpus/WikiQA-']
+    sentence_path_list = []
+    for qa_path in l:
+        sentence_path_list.append('../data/' +qa_path +'train.txt')
+        sentence_path_list.append('../data/' + qa_path +'dev.txt')
+        sentence_path_list.append('../data/'+qa_path+'test.txt')
+
+    vec_path1 = '../data/glove/glove.6B.50d.txt'
+    vec_path2 = '../data/glove/glove.840B.300d.txt'
+
+    out_path1 = '../data/glove/my_glove.6B.50d.txt'
+    out_path2 = '../data/glove/my_glove.840B.300d.txt'
+    make_data_glove(vec_path1, sentence_path_list, out_path1)
+    make_data_glove(vec_path2, sentence_path_list, out_path2)
     '''# load word vectors
     print('Loading word vectors ... ', end='')
     vocab = Vocab(wordvec_path)
@@ -604,9 +658,6 @@ if __name__ == '__main__':
     '''
     
     # build word vec index
-    word_vec_path = '/home/mohsen/Final Project/BiMPM/data/glove/glove.840B.300d.txt/comp7.0/wordvec_crop.bin'
-    out_path ='/home/mohsen/Final Project/BiMPM/models/vocab' 
-    build_word_index_file(word_vec_path, out_path)
     print('DONE!')
 
 
