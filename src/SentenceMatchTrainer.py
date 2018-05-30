@@ -771,11 +771,13 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=True, help='do we have cuda visible devices?')
+    parser.add_argument('--is_trec',default=False, help='do we have cuda visible devices?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
         is_trec = True
+    else:
+        is_trec = False
     if is_trec == True:
         qa_path = 'trecqa/'
     else:
@@ -788,8 +790,8 @@ if __name__ == '__main__':
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
 
     bs =80
-    if is_trec == False:
-        bs = 40
+    #if is_trec == False:
+    #    bs = 40
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, help='is answer selection or other sentence matching tasks?')

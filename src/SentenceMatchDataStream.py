@@ -78,8 +78,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             min_answer_size = 15
             max_answer_size = 60
         else:
-            min_answer_size = 15
-            max_answer_size = 15
+            min_answer_size = 20
+            max_answer_size = 20
     elif is_training == True:
         max_answer_size = 79
         min_answer_size = 0
