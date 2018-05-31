@@ -955,7 +955,7 @@ if __name__ == '__main__':
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
-    parser.add_argument('--use_model_neg_sample',default=True, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
     parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
 
@@ -966,11 +966,11 @@ if __name__ == '__main__':
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
 
-    bs =120
+    bs =80
     #if is_trec == False:
     #    bs = 40
-    parser.add_argument('--min_answer_size', type=int, default= 20, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 20, help='Number of instances in each batch.')
+    parser.add_argument('--min_answer_size', type=int, default= 15, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 15, help='Number of instances in each batch.')
 
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
