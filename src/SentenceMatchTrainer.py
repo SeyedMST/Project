@@ -600,7 +600,28 @@ def main(_):
                                                                                       , word_vocab=word_vocab,
                                                                                       first_on_best_model=True)
 
+                my_map, my_mrr, output_sent, output_attention_weights = evaluate(trainDataStream, train_graph, sess,
+                                                                                      char_vocab=char_vocab,
+                                                                                      POS_vocab=POS_vocab,
+                                                                                      NER_vocab=NER_vocab,
+                                                                                      label_vocab=label_vocab,
+                                                                                      flag_valid=True
+                                                                                      ,word_vocab=word_vocab,
+                                                                                      )
+
+
                 print ("train map on pretrain:", my_map)
+
+                output_neg_file = open ("neg_file"+'run_id', 'wt')
+
+                for zj in output_sent:
+                    if sys.version_info[0] < 3:
+                        output_neg_file.write(zj.encode('utf-8'))
+                    else:
+                        output_neg_file.write(zj)
+
+                output_neg_file.close()
+
 
                 trainDataStream = SentenceMatchDataStream(output_sentences, word_vocab=word_vocab, char_vocab=char_vocab,
                                                           POS_vocab=POS_vocab, NER_vocab=NER_vocab,
