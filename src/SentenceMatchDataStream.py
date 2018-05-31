@@ -69,11 +69,13 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
-                   min_answer_size, max_answer_size):
+                   min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path):
 
     is_trec = False
-    if 'trec' in filename:
-        is_trec = True
+
+    if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
+        if 'trec' in filename:
+            is_trec = True
     # if is_training == True and is_list_wise == True:
     #     if is_trec == True:
     #         min_answer_size = 15
@@ -94,7 +96,10 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
 
         #print ("hahaha")
-    data = open(filename, 'rt')
+    if train_from_path == True:
+        data = open(filename, 'rt')
+    else:
+        data = filename
     question_dic = {}
     negative_answers = []
     question_count = 0 #wiki 2,118
@@ -103,7 +108,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     del_all_count = 0 #wiki 11,688 (57% of pairs deleted, 8,672 remaine(9.9 answer per question))
 
     for line in data:
-        if sys.version_info[0] < 3:
+        if sys.version_info[0] < 3 and train_from_path == True:
             line = line.decode('utf-8').strip()
         else:
             line = line.strip()
@@ -119,7 +124,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         if int(item[2]) == 0:
             negative_answers.append(item[1].lower())
         all_count += 1
-    data.close()
+    if train_from_path == True:
+        data.close()
     #for key in question_dic.keys():
     for key in list(question_dic):
         question_count += 1
@@ -129,7 +135,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             del_question_count += 1
             del_all_count += len(question_dic[key]["question"])
             del(question_dic[key])
-        elif is_trec == True and len(question_dic[key]["question"]) == sum(question_dic[key]["label"]):
+        elif is_trec == True and len(question_dic[key]["question"]) == sum(question_dic[key]["label"]): #for trec we remove for both test and train
             del_question_count += 1
             del_all_count += len(question_dic[key]["question"])
             del(question_dic[key])
@@ -138,25 +144,43 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     answer = list()
     label = list()
     pairs_count = 0
-    for item in question_dic.values():
-        good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
-        good_length = len(good_answer)
-        bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
-        if len(item["answer"]) > max_answer_size:
-            good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
-            temp_answer = good_answer
-            temp_label = [1 / float(sum(item["label"])) for i in range(good_length)]
-            temp_label.extend([0.0 for i in range(max_answer_size-good_length)])
-        else:
+    if add_neg_sample_count == True:
+        for item in question_dic.values():
             temp_answer = item["answer"]
             temp_label = [x / float(sum(item["label"])) for x in item["label"]]
-            if min_answer_size-len(item["question"]) >= 1:
-                temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
-                temp_label.extend([0.0 for i in range(min_answer_size-len(item["question"]))])
-        label.append(temp_label) # label[i] = list of labels of question i
-        answer.append(temp_answer) # answer[i] = list of answers of question i
-        question += [([item["question"][0]])[0]] # question[i] = question i
-        pairs_count += len(temp_answer)
+            if neg_sample_count-len(item["question"]) >= 1:
+                temp_answer.extend(random.sample(negative_answers, neg_sample_count-len(item["question"])))
+                temp_label.extend([0.0 for i in range(neg_sample_count-len(item["question"]))])
+
+            label.append(temp_label) # label[i] = list of labels of question i
+            answer.append(temp_answer) # answer[i] = list of answers of question i
+            question += [([item["question"][0]])[0]] # question[i] = question i
+            pairs_count += len(temp_answer)
+    else:
+        for item in question_dic.values():
+            good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
+            good_length = len(good_answer)
+            bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
+            if len(item["answer"]) > max_answer_size:
+                if use_top_negs == False:
+                    good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
+                else:
+                    good_answer.extend(bad_answer [0:max_answer_size-good_length])
+                temp_answer = good_answer
+                temp_label = [1 / float(sum(item["label"])) for i in range(good_length)]
+                temp_label.extend([0.0 for i in range(max_answer_size-good_length)])
+            else:
+                temp_answer = item["answer"]
+                temp_label = [x / float(sum(item["label"])) for x in item["label"]]
+                if min_answer_size-len(item["question"]) >= 1:
+                    temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
+                    temp_label.extend([0.0 for i in range(min_answer_size-len(item["question"]))])
+            label.append(temp_label) # label[i] = list of labels of question i
+            answer.append(temp_answer) # answer[i] = list of answers of question i
+            question += [([item["question"][0]])[0]] # question[i] = question i
+            pairs_count += len(temp_answer)
+
+
     question = np.array(question) # list of questions
     answer = np.array(answer) # list of list of answers
     label = np.array(label) #list of list of labels
@@ -298,7 +322,8 @@ class SentenceMatchDataStream(object):
     def __init__(self, inpath, word_vocab=None, char_vocab=None, POS_vocab=None, NER_vocab=None, label_vocab=None, batch_size=60, 
                  isShuffle=False, isLoop=False, isSort=True, max_char_per_word=10, max_sent_length=200, is_as = True,
                  is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False,
-                 min_answer_size = 0, max_answer_size = 20000):
+                 min_answer_size = 0, max_answer_size = 20000, add_neg_sample_count = False, neg_sample_count = 50,
+                 use_top_negs = False, train_from_path = True):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -307,7 +332,12 @@ class SentenceMatchDataStream(object):
         if (is_as == True):
             instances, r, self.candidate_answer_length = wikiQaGenerate(inpath,label_vocab, word_vocab, char_vocab, max_sent_length, batch_size,
                                           is_training=isShuffle, is_list_wise=is_list_wise, min_answer_size=min_answer_size,
-                                                                        max_answer_size = max_answer_size)
+                                                                        max_answer_size = max_answer_size,
+                                                                        add_neg_sample_count=add_neg_sample_count
+                                                                        , neg_sample_count = neg_sample_count,
+                                                                        use_top_negs = use_top_negs,
+                                                                        train_from_path = train_from_path)
+
             if isShuffle == True:
                 batch_spans = r[0]
                 self.batch_question_count = r[1]

@@ -249,7 +249,7 @@ def dot_att_weight(passage_rep, question_rep,input_dim , overlap, question_mask,
 
 
 def dot_product(passage_rep, question_rep,input_dim , overlap, question_mask,clip_attention):
-    zz = dot_att_weight(passage_rep, question_rep,input_dim, overlap, question_mask, clip_attention)
+    zz = dot_att_weight(passage_rep, question_rep,input_dim, overlap, question_mask, clip_attention) #[bs, M, N]
     def single_instance (x):
         z1 = x[0] #[M,N]
         q1 = x[1] #[N,d]
@@ -492,11 +492,13 @@ def match_bilinear_sim (passage_rep, question_rep, mp_dim, input_dim,
     p = tf.multiply(passage_rep, o)
     p = cal_wxb(p,'mp_overlap' + str(num_call), 5, input_dim,activation='relu') #[bs, M, 10]
 
+    attention_weights = alph
+
     alph = p
     #alph = tf.multiply(alph, p) #[bs, M, 10]
         #alph = tf.reduce_sum(alph, 2, keep_dims=True) #[bs, M, 5]
     l.append(alph)
-    return tf.concat(l, 2) #[bs, M, d+10]
+    return tf.concat(l, 2), attention_weights #[bs, M, d+10]
 
 
 
@@ -622,11 +624,11 @@ def match_passage_with_question(passage_context_representation_fw, passage_conte
                                                            question_context_representation_bw], 2)
             passage_context_representation_fw_bw = tf.concat([passage_context_representation_fw,
                                                           passage_context_representation_bw], 2)
-            outputs = match_bilinear_sim(passage_context_representation_fw_bw, question_context_representation_fw_bw,
+            outputs, attention_weights = match_bilinear_sim(passage_context_representation_fw_bw, question_context_representation_fw_bw,
                            MP_dim,context_lstm_dim*2,type1, type2, type3, is_shared_attetention, num_call, with_bilinear_att, with_match_highway
                                      ,overlap,question_mask ,clip_attention)
         else:
-            outputs = match_bilinear_sim(passage_context_representation_fw, question_context_representation_fw,
+            outputs, attention_weights = match_bilinear_sim(passage_context_representation_fw, question_context_representation_fw,
                                          MP_dim, context_lstm_dim, type1, type2, type3, is_shared_attetention,
                                          num_call, with_bilinear_att, with_match_highway
                                          , overlap, question_mask,clip_attention)
@@ -698,7 +700,7 @@ def match_passage_with_question(passage_context_representation_fw, passage_conte
         # #all_question_aware_representatins.append(tf.reduce_max(backward_relevancy_matrix, axis=2,keep_dims=True))
         # #all_question_aware_representatins.append(tf.reduce_mean(backward_relevancy_matrix, axis=2,keep_dims=True))
         # #dim += 4
-    return (all_question_aware_representatins, dim)
+    return (all_question_aware_representatins, dim, attention_weights)
 # def unidirectional_matching(in_question_repres, in_passage_repres,question_lengths, passage_lengths,
 #                             question_mask, mask, MP_dim, input_dim, with_filter_layer, context_layer_num,
 #                             context_lstm_dim,is_training,dropout_rate,with_match_highway,aggregation_layer_num,
@@ -972,7 +974,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
 
                 # Multi-perspective matching
                 with tf.variable_scope('MP_matching'):
-                    (matching_vectors, matching_dim) = match_passage_with_question(passage_context_representation_fw, 
+                    (matching_vectors, matching_dim, attention_weights) = match_passage_with_question(passage_context_representation_fw,
                                 passage_context_representation_bw, mask,
                                 question_context_representation_fw, question_context_representation_bw,question_mask,
                                 MP_dim, context_lstm_dim, scope=None,
@@ -991,7 +993,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                 #if is_shared_attetention == True:
                 #    right_scope = 'left_MP_matching'
                 #with tf.variable_scope('MP_matching', reuse=is_shared_attetention):
-                    (matching_vectors, matching_dim) = match_passage_with_question(question_context_representation_fw, 
+                    (matching_vectors, matching_dim, attention_weights) = match_passage_with_question(question_context_representation_fw,
                                 question_context_representation_bw, question_mask,
                                 passage_context_representation_fw, passage_context_representation_bw,mask,
                                 MP_dim, context_lstm_dim, scope=None,
@@ -1145,7 +1147,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
             aggregation_representation = tf.reshape(aggregation_representation, [batch_size, aggregation_dim])
 
 
-    return (aggregation_representation, aggregation_dim)
+    return (aggregation_representation, aggregation_dim, attention_weights)
 
 
 def get_mean_max (passage_rep, passage_length, mask):

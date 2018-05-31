@@ -187,7 +187,7 @@ class SentenceMatchModelGraph(object):
                                                                   output_size=context_lstm_dim)
         
         # ========Bilateral Matching=====
-        (match_representation, match_dim) = match_utils.bilateral_match_func2(in_question_repres, in_passage_repres,
+        (match_representation, match_dim, self.attention_weights) = match_utils.bilateral_match_func2(in_question_repres, in_passage_repres,
                         self.question_lengths, self.passage_lengths, question_mask, mask, MP_dim, input_dim, 
                         with_filter_layer, context_layer_num, context_lstm_dim,is_training,dropout_rate,
                         with_match_highway,aggregation_layer_num, aggregation_lstm_dim,highway_layer_num,
@@ -465,6 +465,9 @@ class SentenceMatchModelGraph(object):
     def get_prob(self):
         return self.__prob
 
+    def get_attention_weights (self):
+        return self.__attention_weights
+
 
     def get_prediction(self):
         return self.__prediction
@@ -556,6 +559,9 @@ class SentenceMatchModelGraph(object):
 
     def set_prob(self, value):
         self.__prob = value
+
+    def set_attention_weights (self, value):
+        self.__attention_weights = value
 
 
     def set_prediction(self, value):
@@ -649,6 +655,8 @@ class SentenceMatchModelGraph(object):
     def del_prob(self):
         del self.__prob
 
+    def del_attention_weights(self):
+        del self.__attention_weights
 
     def del_prediction(self):
         del self.__prediction
@@ -687,6 +695,7 @@ class SentenceMatchModelGraph(object):
     in_passage_chars = property(get_in_passage_chars, set_in_passage_chars, del_in_passage_chars, "in_passage_chars's docstring")
     char_embedding = property(get_char_embedding, set_char_embedding, del_char_embedding, "char_embedding's docstring")
     prob = property(get_prob, set_prob, del_prob, "prob's docstring")
+    attention_weights = property(get_attention_weights, set_attention_weights, del_attention_weights, "prob's docstring")
     prediction = property(get_prediction, set_prediction, del_prediction, "prediction's docstring")
     loss = property(get_loss, set_loss, del_loss, "loss's docstring")
     train_op = property(get_train_op, set_train_op, del_train_op, "train_op's docstring")
