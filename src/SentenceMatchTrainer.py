@@ -600,27 +600,27 @@ def main(_):
                                                                                       , word_vocab=word_vocab,
                                                                                       first_on_best_model=True)
 
-                my_map, my_mrr, output_sent, output_attention_weights = evaluate(trainDataStream, train_graph, sess,
-                                                                                      char_vocab=char_vocab,
-                                                                                      POS_vocab=POS_vocab,
-                                                                                      NER_vocab=NER_vocab,
-                                                                                      label_vocab=label_vocab,
-                                                                                      flag_valid=True
-                                                                                      ,word_vocab=word_vocab,
-                                                                                      )
+                # my_map, my_mrr, output_sent, output_attention_weights = evaluate(trainDataStream, train_graph, sess,
+                #                                                                       char_vocab=char_vocab,
+                #                                                                       POS_vocab=POS_vocab,
+                #                                                                       NER_vocab=NER_vocab,
+                #                                                                       label_vocab=label_vocab,
+                #                                                                       flag_valid=True
+                #                                                                       ,word_vocab=word_vocab,
+                #                                                                       )
 
 
                 print ("train map on pretrain:", my_map)
 
-                output_neg_file = open ("neg_file"+'run_id', 'wt')
-
-                for zj in output_sent:
-                    if sys.version_info[0] < 3:
-                        output_neg_file.write(zj.encode('utf-8'))
-                    else:
-                        output_neg_file.write(zj)
-
-                output_neg_file.close()
+                # output_neg_file = open ("neg_file"+'run_id', 'wt')
+                #
+                # for zj in output_sent:
+                #     if sys.version_info[0] < 3:
+                #         output_neg_file.write(zj.encode('utf-8'))
+                #     else:
+                #         output_neg_file.write(zj)
+                #
+                # output_neg_file.close()
 
 
                 trainDataStream = SentenceMatchDataStream(output_sentences, word_vocab=word_vocab, char_vocab=char_vocab,
@@ -955,9 +955,9 @@ if __name__ == '__main__':
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
-    parser.add_argument('--use_model_neg_sample',default=True, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--neg_sample_count',default=50, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
 
 
 
@@ -966,7 +966,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
 
-    bs =8
+    bs =120
     #if is_trec == False:
     #    bs = 40
     parser.add_argument('--min_answer_size', type=int, default= 20, help='Number of instances in each batch.')
@@ -976,7 +976,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, type =bool, help='is answer selection or other sentence matching tasks?')
     parser.add_argument('--optimize_type', type=str, default='adam', help='Optimizer type.')
-    parser.add_argument('--prediction_mode', default='list_wise', help = 'point_wise, list_wise, hinge_wise .'
+    parser.add_argument('--prediction_mode', default='hinge_wise', help = 'point_wise, list_wise, hinge_wise .'
                                                                           'point wise is only used for non answer selection tasks')
 
     parser.add_argument('--train_path', type=str,default = '../data/' +qa_path +'train.txt', help='Path to the train set.')
