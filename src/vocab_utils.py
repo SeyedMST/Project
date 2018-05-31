@@ -417,7 +417,8 @@ class Vocab(object):
             cur_id = self.word2id[word]
             cur_vector = self.getVector(word)
 #             print(word)
-            word= word.encode('utf-8')
+            if sys.version_info[0] < 3:
+                word= word.encode('utf-8')
             outline = "{}\t{}\t{}".format(cur_id, word, vec2string(cur_vector))
             outfile.write(outline + "\n")
         outfile.close()
@@ -426,7 +427,8 @@ class Vocab(object):
         outfile = open(outpath, 'wt')
         for word in self.word2id.keys():
             cur_vector = self.getVector(word)
-            word= word.encode('utf-8')
+            if sys.version_info[0] < 3:
+                word= word.encode('utf-8')
             outline = word + " {}".format(vec2string(cur_vector))
             outfile.write(outline + "\n")
         outfile.close()

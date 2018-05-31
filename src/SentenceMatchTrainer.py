@@ -456,7 +456,7 @@ def main(_):
     NER_vocab = None
 
     #if os.path.exists(best_path):
-    if FLAGS.use_model_neg_sample == True:
+    if False == True:
         #has_pre_trained_model = True
         label_vocab = Vocab(label_path, fileformat='txt2')
         char_vocab = Vocab(char_path, fileformat='txt2')
@@ -826,7 +826,7 @@ def main(_):
                             my_map, my_mrr, output_sentences, output_attention_weights = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                  POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid
                                                                         ,word_vocab=word_vocab)
-                            if my_map > best_test_acc:
+                            if my_map > best_test_acc and FLAGS.store_best == True:
                                 best_test_acc = my_map
                                 saver.save(sess, best_path)
                         else:
@@ -931,12 +931,13 @@ if __name__ == '__main__':
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=False, type = bool, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
-    parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]', action='store_true')
+    parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
-    parser.add_argument('--store_best_model',default=True, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--use_model_neg_sample',default=True, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=50, type= int, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
+
 
 
 
