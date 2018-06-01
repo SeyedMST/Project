@@ -12,6 +12,7 @@ def make_batches(size, batch_size):
     return [(i*batch_size, min(size, (i+1)*batch_size)) for i in range(0, nb_batch)]
 
 def make_batches_as (instances, batch_size, min_random_param, is_training):
+
     ans = []
     ans_len = []
     question_count = []
@@ -199,12 +200,6 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         print ("box count:", len (box_dic))
 
 
-
-
-
-
-
-
                             #biger_than_max += len (item["answer"]) - max_answer_size
 
 
@@ -248,7 +243,12 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                 temp_answer = item["answer"]
                 temp_label = [x / float(sum(item["label"])) for x in item["label"]]
                 if min_answer_size-len(item["question"]) >= 1:
-                    temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
+                    #temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
+                    neg_sam = []
+                    for u in range (min_answer_size - len (item ["question"])):
+                        neg_sam.extend(random.sample (bad_answer, 1))
+                    temp_answer.extend (neg_sam)
+
                     temp_label.extend([0.0 for i in range(min_answer_size-len(item["question"]))])
             label.append(temp_label) # label[i] = list of labels of question i
             answer.append(temp_answer) # answer[i] = list of answers of question i

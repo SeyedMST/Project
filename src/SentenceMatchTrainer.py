@@ -955,7 +955,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=False, type = bool, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -966,6 +966,8 @@ if __name__ == '__main__':
 
 
     parser.add_argument('--use_box',default=True, type= bool, help='do we have cuda visible devices?')
+
+    parser.add_argument('--equal_question_per_batch',default=False, type= bool, help='do we have cuda visible devices?')
 
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
@@ -1006,7 +1008,7 @@ if __name__ == '__main__':
     parser.add_argument('--wo_lstm_drop_out', default=  True , help='with out context lstm drop out', action='store_true')
     parser.add_argument('--wo_agg_self_att', default= True , help='with out aggregation lstm self attention', action='store_true')
     parser.add_argument('--is_shared_attention', default= False , help='are matching attention values shared or not', action='store_true')
-    parser.add_argument('--modify_loss', type=float, default=0.1, help='a parameter used for loss.')
+    parser.add_argument('--modify_loss', type=float, default=0, help='a parameter used for loss.')
     parser.add_argument('--is_aggregation_lstm', default=True, help = 'is aggregation lstm or aggregation cnn' )
     parser.add_argument('--max_window_size', type=int, default=2, help = '[1..max_window_size] convolution')
     parser.add_argument('--is_aggregation_siamese', default=True, help = 'are aggregation wieghts on both sides shared or not' )
