@@ -1,6 +1,8 @@
 import numpy as np
 import re
 import random
+import math
+
 
 import sys
 eps = 1e-8
@@ -69,10 +71,10 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
-                   min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path):
+                   min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
+                   use_box):
 
     is_trec = False
-
     if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
         if 'trec' in filename:
             is_trec = True
@@ -93,7 +95,6 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     if is_training == False:
         min_answer_size = 0
         max_answer_size = 20000
-
 
         #print ("hahaha")
     if train_from_path == True:
@@ -140,10 +141,80 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             del_all_count += len(question_dic[key]["question"])
             del(question_dic[key])
 
+
+    print ("Question count before boxing" ,len (question_dic))
+    if use_box == True:
+        box_dic = {}
+        box_id = 0
+        for item in question_dic.values():
+            good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
+            good_length = len(good_answer)
+            bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
+            random.shuffle (bad_answer) #random works inplace and returns None
+            bad_length = len (bad_answer)
+
+            if len(item["answer"]) <= max_answer_size:
+                box_dic.setdefault(box_id, {})
+                box_dic[box_id].setdefault("question", [])
+                box_dic[box_id].setdefault("answer", [])
+                box_dic[box_id].setdefault("label", [])
+                box_dic[box_id]["question"] = item["question"]
+                box_dic[box_id]["answer"] = item ["answer"]
+                box_dic[box_id]["label"] = item ["label"]
+                box_id += 1
+            else:
+                if use_top_negs == False: #very kosher!
+                    #good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
+                    capacity = max_answer_size - good_length
+                    box_needed = bad_length // capacity
+                    if bad_length % capacity >0:
+                        box_needed += 1
+                    box_needed = int (box_needed)
+                    neg_per_box = int(bad_length // box_needed)
+                    extra_negs = bad_length % box_needed
+                    negs_idx = 0
+                    for i in range (box_needed):
+                        box_dic.setdefault(box_id, {})
+                        box_dic[box_id].setdefault("question", [])
+                        box_dic[box_id].setdefault("answer", [])
+                        box_dic[box_id].setdefault("label", [])
+                        for j in range (good_length):
+                            box_dic[box_id]["question"].append (item ["question"][0])
+                            box_dic[box_id]["answer"].append (good_answer[j])
+                            box_dic[box_id]["label"].append (1)
+                        if extra_negs > 0:
+                            neg_for_this_box = neg_per_box + 1
+                            extra_negs -= 1
+                        else:
+                            neg_for_this_box = neg_per_box
+                        for j in range (neg_for_this_box):
+                            box_dic[box_id]["question"].append (item ["question"][0])
+                            box_dic[box_id]["answer"].append (bad_answer [negs_idx])
+                            box_dic[box_id]["label"].append (0)
+                            negs_idx += 1
+                        box_id += 1
+        question_dic = box_dic
+
+
+        print ("box count:", len (box_dic))
+
+
+
+
+
+
+
+
+                            #biger_than_max += len (item["answer"]) - max_answer_size
+
+
+
     question = list()
     answer = list()
     label = list()
     pairs_count = 0
+    pos_neg_pair_count = 0
+    total_pair_count = 0
     if add_neg_sample_count == True:
         for item in question_dic.values():
             temp_answer = item["answer"]
@@ -157,13 +228,17 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             question += [([item["question"][0]])[0]] # question[i] = question i
             pairs_count += len(temp_answer)
     else:
+        biger_than_max = 0
         for item in question_dic.values():
             good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
             good_length = len(good_answer)
             bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
+            pos_neg_pair_count += good_length * len (bad_answer)
+            total_pair_count += good_length + len(bad_answer)
             if len(item["answer"]) > max_answer_size:
                 if use_top_negs == False:
                     good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
+                    biger_than_max += len (item["answer"]) - max_answer_size
                 else:
                     good_answer.extend(bad_answer [0:max_answer_size-good_length])
                 temp_answer = good_answer
@@ -180,6 +255,10 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             question += [([item["question"][0]])[0]] # question[i] = question i
             pairs_count += len(temp_answer)
 
+
+
+    print ("total_pair_count ",total_pair_count , " pos_neg_pair_count ", pos_neg_pair_count,
+           'biger_than_max', biger_than_max)
 
     question = np.array(question) # list of questions
     answer = np.array(answer) # list of list of answers
@@ -323,7 +402,7 @@ class SentenceMatchDataStream(object):
                  isShuffle=False, isLoop=False, isSort=True, max_char_per_word=10, max_sent_length=200, is_as = True,
                  is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False,
                  min_answer_size = 0, max_answer_size = 20000, add_neg_sample_count = False, neg_sample_count = 50,
-                 use_top_negs = False, train_from_path = True):
+                 use_top_negs = False, train_from_path = True, use_box = False):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -336,7 +415,7 @@ class SentenceMatchDataStream(object):
                                                                         add_neg_sample_count=add_neg_sample_count
                                                                         , neg_sample_count = neg_sample_count,
                                                                         use_top_negs = use_top_negs,
-                                                                        train_from_path = train_from_path)
+                                                                        train_from_path = train_from_path, use_box=use_box)
 
             if isShuffle == True:
                 batch_spans = r[0]

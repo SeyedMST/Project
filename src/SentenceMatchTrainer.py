@@ -490,12 +490,7 @@ def main(_):
 
     print('Build SentenceMatchDataStream ... ')
 
-    testDataStream = SentenceMatchDataStream(test_path, word_vocab=word_vocab, char_vocab=char_vocab,
-                                              POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
-                                              batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True, isSort=True,
-                                              max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
-                                              is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
-                                             is_lemma_overlap= FLAGS.lemma_overlap)
+
     is_list_wise = False
     if FLAGS.prediction_mode == "list_wise":
         is_list_wise = True
@@ -507,7 +502,16 @@ def main(_):
                                                   max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                                   is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
                                                  is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise,
-                                                  min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size)
+                                                  min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
+                                                  use_box = FLAGS.use_box) # box is just used for training
+
+    testDataStream = SentenceMatchDataStream(test_path, word_vocab=word_vocab, char_vocab=char_vocab,
+                                              POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
+                                              batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True, isSort=True,
+                                              max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
+                                              is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
+                                             is_lemma_overlap= FLAGS.lemma_overlap)
+
                                     
     devDataStream = SentenceMatchDataStream(dev_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, 
@@ -961,7 +965,7 @@ if __name__ == '__main__':
 
 
 
-
+    parser.add_argument('--use_box',default=True, type= bool, help='do we have cuda visible devices?')
 
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')

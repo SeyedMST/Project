@@ -55,7 +55,7 @@ if FLAGS.is_trec == True or FLAGS.is_trec == 'True':
 outcsv = w + FLAGS.run_id
 w = outcsv + '.'
 w = list (w)
-mypath = 'result/' #+ st + FLAGS.run_id + "."
+mypath = 's-result/' #+ st + FLAGS.run_id + "."
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
 print (FLAGS)
