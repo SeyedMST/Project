@@ -234,9 +234,9 @@ class SentenceMatchModelGraph(object):
                 # q: prediction
                 # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
                 # loss = mean(H(p,q)) for p,q in batch
-                logits = tf.nn.softmax(logits) #[question_count, answer_count]
                 self.prob = tf.reshape(logits, [-1]) #[bs]
                 if new_list_wise == False:
+                    logits = tf.nn.softmax(logits)  # [question_count, answer_count]
                     self.loss = tf.reduce_mean(tf.reduce_sum(
                         tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
                         , axis=1))
@@ -244,13 +244,13 @@ class SentenceMatchModelGraph(object):
                     alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
                     self.loss += modify_loss / alpha1
                 else:
-                    pos_mask = g1_matrix
-                    neg_mask = 1 - g1_matrix
+                    pos_mask = g1_matrix #[q, a]
+                    neg_mask = 1 - g1_matrix #[q, a]
                     neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]
                     pos_count = tf.reduce_sum(pos_mask, axis=1) #[q]
-                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a, a]
+                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[q, a]
                     neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
-                    avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count), #[q, 1]
+                    avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
                     neg_exp_sum = tf.add(neg_exp_sum, avg_neg_exp_sum) #[q, 1]
                     pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
                     fi = -tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
