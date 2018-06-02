@@ -354,8 +354,8 @@ def Generate_random_initialization(cnf):
         #
         # with_context_self_attention = [False]
         #modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
-        prediction_mode = ['list_wise']#, 'list_wise', 'hinge_wise']
-        new_list_wise = [True, False]
+        prediction_mode = ['list_wise', 'hinge_wise']#, 'list_wise', 'hinge_wise']
+        new_list_wise = [True]
         #if cnf == 2:
         # unstack_cnn = [False]
         # #else:
@@ -958,7 +958,7 @@ if __name__ == '__main__':
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--is_random_init',default=False, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
