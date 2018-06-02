@@ -353,8 +353,9 @@ def Generate_random_initialization(cnf):
         # #     with_context_self_attention = [False]
         #
         # with_context_self_attention = [False]
-        modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
-        prediction_mode = ['list_wise', 'list_wise', 'hinge_wise']
+        #modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
+        prediction_mode = ['list_wise']#, 'list_wise', 'hinge_wise']
+        new_list_wise = [True, False]
         #if cnf == 2:
         # unstack_cnn = [False]
         # #else:
@@ -382,8 +383,9 @@ def Generate_random_initialization(cnf):
         # FLAGS.wo_lstm_drop_out = random.choice(wo_lstm_drop_out)
         # FLAGS.wo_agg_self_att = random.choice(wo_agg_self_att)
         # FLAGS.is_shared_attention = random.choice(is_shared_attention)
-        FLAGS.modify_loss = random.choice(modify_loss)
+        #FLAGS.modify_loss = random.choice(modify_loss)
         FLAGS.prediction_mode = random.choice(prediction_mode)
+        FLAGS.new_list_wise = random.choice(new_list_wise)
         # FLAGS.with_match_highway = random.choice(with_match_highway)
         # FLAGS.with_highway = random.choice(with_highway)
         # FLAGS.highway_layer_num = random.choice(highway_layer_num)
@@ -709,7 +711,7 @@ def main(_):
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                       mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
-                                                      ,with_tanh=FLAGS.tanh)
+                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise)
                 tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
     #         with tf.name_scope("Valid"):
@@ -739,7 +741,7 @@ def main(_):
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                       mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
-                                                      ,with_tanh=FLAGS.tanh)
+                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise)
 
 
             initializer = tf.global_variables_initializer()
@@ -872,6 +874,7 @@ def main(_):
                             my_map, my_mrr = evaluate(trainDataStream, valid_graph, sess, char_vocab=char_vocab,
                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
                             output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
+                            print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
 
         # print("Best accuracy on dev set is %.2f" % best_accuracy)
         # # decoding
@@ -955,7 +958,7 @@ if __name__ == '__main__':
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--is_random_init',default=True, type = bool, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
     parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
@@ -968,6 +971,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_box',default=True, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--nsfq',default=True, help='negative sample from question')
+    parser.add_argument('--new_list_wise', default=True, help='do we have cuda visible devices?')
+
     #FLAGS, unparsed = parser.parse_known_args()
 
 

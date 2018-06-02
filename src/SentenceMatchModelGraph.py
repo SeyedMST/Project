@@ -19,7 +19,7 @@ class SentenceMatchModelGraph(object):
                  with_bilinear_att = 's', type1 = None, type2 = None, type3 = None, with_aggregation_attention = True,
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
-                 clip_attention = True, mean_max = True, with_tanh = True):
+                 clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True):
 
         # ======word representation layer======
         in_question_repres = []
@@ -234,15 +234,29 @@ class SentenceMatchModelGraph(object):
                 # q: prediction
                 # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
                 # loss = mean(H(p,q)) for p,q in batch
-
                 logits = tf.nn.softmax(logits) #[question_count, answer_count]
                 self.prob = tf.reshape(logits, [-1]) #[bs]
-                self.loss = tf.reduce_mean(tf.reduce_sum(
-                    tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
-                    , axis=1))
-                #ModifyLoss:
-                alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
-                self.loss += modify_loss/alpha1
+                if new_list_wise == False:
+                    self.loss = tf.reduce_mean(tf.reduce_sum(
+                        tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
+                        , axis=1))
+                    #ModifyLoss:
+                    alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
+                    self.loss += modify_loss / alpha1
+                else:
+                    pos_mask = g1_matrix
+                    neg_mask = 1 - g1_matrix
+                    neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]
+                    pos_count = tf.reduce_sum(pos_mask, axis=1) #[q]
+                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a, a]
+                    neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
+                    avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count), #[q, 1]
+                    neg_exp_sum = tf.add(neg_exp_sum, avg_neg_exp_sum) #[q, 1]
+                    pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
+                    fi = -tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
+                    fi = tf.reduce_sum(fi, axis=1) #[q]
+                    fi = tf.divide(fi,pos_count) #[q]
+                    self.loss = tf.reduce_mean(fi)
             else:
                 if with_tanh == True:
                     logits = tf.tanh(logits)
@@ -298,7 +312,7 @@ class SentenceMatchModelGraph(object):
         train_ops = [self.train_op] + extra_train_ops
         self.train_op = tf.group(*train_ops)
 
-    def hinge_loss (self, hinge_truth, logits):
+    def hinge_loss (self, hinge_truth, logits, soft_hinge=True):
         # hinge_loss:
         # loss = avg (max(0, 1 - (s+) + (s-))
         def singel_instance(x):
@@ -315,8 +329,13 @@ class SentenceMatchModelGraph(object):
             #compare each pair of neg and pos based on hinge loss
             l_p = tf.expand_dims(l, axis=0)
             l_n = tf.expand_dims(l, axis=-1)
-            l_final = tf.maximum(0.0, tf.subtract(l_n, l_p) + 1)
-            l_final =  tf.multiply(l_final, mask)
+            if soft_hinge == False:
+                l_final = tf.maximum(0.0, tf.subtract(l_n, l_p) + 1)
+            else:
+                l_final = tf.subtract(l_n, l_p)
+            l_final = tf.multiply(l_final, mask)
+            if soft_hinge == True:
+                l_final = tf.log(1 + tf.exp(l_final))
             mask = tf.reduce_sum(mask)
             l_final = tf.reduce_sum(l_final)
             return tf.divide(l_final, mask) #[0]
