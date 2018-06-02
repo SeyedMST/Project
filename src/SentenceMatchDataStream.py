@@ -73,7 +73,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
                    min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
-                   use_box):
+                   use_box, sample_neg_from_question):
 
     is_trec = False
     if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
@@ -243,11 +243,21 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                 temp_answer = item["answer"]
                 temp_label = [x / float(sum(item["label"])) for x in item["label"]]
                 if min_answer_size-len(item["question"]) >= 1:
-                    #temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
-                    neg_sam = []
-                    for u in range (min_answer_size - len (item ["question"])):
-                        neg_sam.extend(random.sample (bad_answer, 1))
-                    temp_answer.extend (neg_sam)
+                    if sample_neg_from_question == False:
+                        temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
+                    else:
+                        neg_sam = []
+                        # for u in range (min_answer_size - len (item ["question"])):
+                        #     neg_sam.extend(random.sample (bad_answer, 1))
+                        bad_answer_idx = 0
+                        for u in range(min_answer_size - len(item["question"])):
+                            if bad_answer_idx == len (bad_answer):
+                                bad_answer_idx = 0
+                            neg_sam.append(bad_answer [bad_answer_idx])
+                            bad_answer_idx += 1
+                        temp_answer.extend (neg_sam)
+
+
 
                     temp_label.extend([0.0 for i in range(min_answer_size-len(item["question"]))])
             label.append(temp_label) # label[i] = list of labels of question i
@@ -402,7 +412,8 @@ class SentenceMatchDataStream(object):
                  isShuffle=False, isLoop=False, isSort=True, max_char_per_word=10, max_sent_length=200, is_as = True,
                  is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False,
                  min_answer_size = 0, max_answer_size = 20000, add_neg_sample_count = False, neg_sample_count = 50,
-                 use_top_negs = False, train_from_path = True, use_box = False):
+                 use_top_negs = False, train_from_path = True, use_box = False,
+                 sample_neg_from_question = False):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -415,7 +426,8 @@ class SentenceMatchDataStream(object):
                                                                         add_neg_sample_count=add_neg_sample_count
                                                                         , neg_sample_count = neg_sample_count,
                                                                         use_top_negs = use_top_negs,
-                                                                        train_from_path = train_from_path, use_box=use_box)
+                                                                        train_from_path = train_from_path, use_box=use_box,
+                                                                        sample_neg_from_question=sample_neg_from_question)
 
             if isShuffle == True:
                 batch_spans = r[0]

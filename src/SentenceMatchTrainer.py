@@ -263,72 +263,72 @@ def output_probs(probs, label_vocab):
 
 def Generate_random_initialization(cnf):
     if FLAGS.is_random_init == True:
-        cnf = cnf % 4
-        FLAGS.cnf = cnf
-        type1 = ['w_mul']
-        type2 = ['w_sub',None]
-        type3 = [None]
-        FLAGS.type1 = random.choice(type1)
-        FLAGS.type2 = random.choice(type2)
-        FLAGS.type3 = random.choice(type3)
-        context_layer_num = [1]
-        aggregation_layer_num = [1]
-        FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
-        FLAGS.context_layer_num = random.choice(context_layer_num)
-        #if cnf == 1  or cnf == 4:
-        #    is_aggregation_lstm = [True]
-        #elif cnf == 2:
-        #    is_aggregation_lstm =  [False]
-        #else: #3
-        #is_aggregation_lstm = [True]#[True, False]
-        FLAGS.is_aggregation_lstm = True#random.choice(is_aggregation_lstm)
-        # max_window_size = [1] #[x for x in range (1, 4, 1)]
-        # FLAGS.max_window_size = random.choice(max_window_size)
+        # cnf = cnf % 4
+        # FLAGS.cnf = cnf
+        # type1 = ['w_mul']
+        # type2 = ['w_sub',None]
+        # type3 = [None]
+        # FLAGS.type1 = random.choice(type1)
+        # FLAGS.type2 = random.choice(type2)
+        # FLAGS.type3 = random.choice(type3)
+        # context_layer_num = [1]
+        # aggregation_layer_num = [1]
+        # FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
+        # FLAGS.context_layer_num = random.choice(context_layer_num)
+        # #if cnf == 1  or cnf == 4:
+        # #    is_aggregation_lstm = [True]
+        # #elif cnf == 2:
+        # #    is_aggregation_lstm =  [False]
+        # #else: #3
+        # #is_aggregation_lstm = [True]#[True, False]
+        # FLAGS.is_aggregation_lstm = True#random.choice(is_aggregation_lstm)
+        # # max_window_size = [1] #[x for x in range (1, 4, 1)]
+        # # FLAGS.max_window_size = random.choice(max_window_size)
+        # #
+        # # att_cnt = 0
+        # # if FLAGS.type1 != None:
+        # #     att_cnt += 1
+        # # if FLAGS.type2 != None:
+        # #     att_cnt += 1
+        # # if FLAGS.type3 != None:
+        # #     att_cnt += 1
         #
-        # att_cnt = 0
-        # if FLAGS.type1 != None:
-        #     att_cnt += 1
-        # if FLAGS.type2 != None:
-        #     att_cnt += 1
-        # if FLAGS.type3 != None:
-        #     att_cnt += 1
-
-
-        #context_lstm_dim:
-        if FLAGS.context_layer_num == 2:
-            context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
-        else:
-            context_lstm_dim = [50]#[x for x in range(50, 160, 10)]
-
-        if FLAGS.aggregation_layer_num == 2:
-            aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
-        else:
-            aggregation_lstm_dim = [50]#[x for x in range (50, 160, 10)]
-        # else: # CNN
-        #     if FLAGS.max_window_size == 1:
-        #         aggregation_lstm_dim = [100]#[x for x in range (50, 801, 10)]
-        #     elif FLAGS.max_window_size == 2:
-        #         aggregation_lstm_dim = [100]#[x for x in range (50, 510, 10)]
-        #     elif FLAGS.max_window_size == 3:
-        #         aggregation_lstm_dim = [50]#[x for x in range (50, 410, 10)]
-        #     elif FLAGS.max_window_size == 4:
-        #         aggregation_lstm_dim = [x for x in range (50, 210, 10)]
-        #     else: #5
-        #         aggregation_lstm_dim = [x for x in range (50, 110, 10)]
-
-
-        MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
-        learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.04]#[x/100.0 for x in xrange (2, 30, 2)]
-        char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
-        char_emb_dim = [40] #[x for x in range (20, 110, 10)]
-        wo_char = [True]
-        is_shared_attention = [True, False]#[False, True]
-        is_aggregation_siamese = [False, True]
-        clip_attention = [True]
-        mean_max = [True]
-        word_overlap = [True]
-        lemma_overlap = [True]
+        #
+        # #context_lstm_dim:
+        # if FLAGS.context_layer_num == 2:
+        #     context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
+        # else:
+        #     context_lstm_dim = [50]#[x for x in range(50, 160, 10)]
+        #
+        # if FLAGS.aggregation_layer_num == 2:
+        #     aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
+        # else:
+        #     aggregation_lstm_dim = [50]#[x for x in range (50, 160, 10)]
+        # # else: # CNN
+        # #     if FLAGS.max_window_size == 1:
+        # #         aggregation_lstm_dim = [100]#[x for x in range (50, 801, 10)]
+        # #     elif FLAGS.max_window_size == 2:
+        # #         aggregation_lstm_dim = [100]#[x for x in range (50, 510, 10)]
+        # #     elif FLAGS.max_window_size == 3:
+        # #         aggregation_lstm_dim = [50]#[x for x in range (50, 410, 10)]
+        # #     elif FLAGS.max_window_size == 4:
+        # #         aggregation_lstm_dim = [x for x in range (50, 210, 10)]
+        # #     else: #5
+        # #         aggregation_lstm_dim = [x for x in range (50, 110, 10)]
+        #
+        #
+        # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
+        # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
+        # dropout_rate = [0.04]#[x/100.0 for x in xrange (2, 30, 2)]
+        # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
+        # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
+        # wo_char = [True]
+        # is_shared_attention = [True, False]#[False, True]
+        # is_aggregation_siamese = [False, True]
+        # clip_attention = [True]
+        # mean_max = [True]
+        # word_overlap = [True]
+        # lemma_overlap = [True]
 
         #batch_size = [x for x in range (30, 80, 10)] we can not determine batch_size here
 
@@ -337,57 +337,57 @@ def Generate_random_initialization(cnf):
 
 
         # ************************ # we dont need tuning below parameters any more :
-
-        wo_lstm_drop_out = [True]
-        if cnf == 10:
-            wo_agg_self_att = [True]
-        else:
-            wo_agg_self_att = [True]
-        #if cnf == 1:
-        attention_type = ['dot_product']#['bilinear', 'linear', 'linear_p_bias', 'dot_product']
-        #else:
-        #attention_type = ['bilinear']
-        # if cnf == 20:
-        #     with_context_self_attention = [False, True]
+        #
+        # wo_lstm_drop_out = [True]
+        # if cnf == 10:
+        #     wo_agg_self_att = [True]
         # else:
-        #     with_context_self_attention = [False]
-
-        with_context_self_attention = [False]
-        modify_loss = [0.1]#[x/10.0 for x in range (0, 5, 1)]
-        prediction_mode = ['list_wise']
+        #     wo_agg_self_att = [True]
+        # #if cnf == 1:
+        # attention_type = ['dot_product']#['bilinear', 'linear', 'linear_p_bias', 'dot_product']
+        # #else:
+        # #attention_type = ['bilinear']
+        # # if cnf == 20:
+        # #     with_context_self_attention = [False, True]
+        # # else:
+        # #     with_context_self_attention = [False]
+        #
+        # with_context_self_attention = [False]
+        modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
+        prediction_mode = ['list_wise', 'list_wise', 'hinge_wise']
         #if cnf == 2:
-        unstack_cnn = [False]
-        #else:
-        #    unstack_cnn = [False, True]
-        with_highway = [False]
-        if FLAGS.is_aggregation_lstm == False:
-            with_match_highway = [False]
-        else:
-            with_match_highway = [False]
-        with_aggregation_highway = [False]
-        highway_layer_num = [1]
-        FLAGS.with_context_self_attention = random.choice(with_context_self_attention)
+        # unstack_cnn = [False]
+        # #else:
+        # #    unstack_cnn = [False, True]
+        # with_highway = [False]
+        # if FLAGS.is_aggregation_lstm == False:
+        #     with_match_highway = [False]
+        # else:
+        #     with_match_highway = [False]
+        # with_aggregation_highway = [False]
+        # highway_layer_num = [1]
+        # FLAGS.with_context_self_attention = random.choice(with_context_self_attention)
         #FLAGS.batch_size = random.choice(batch_size)
-        FLAGS.unstack_cnn = random.choice(unstack_cnn)
-        FLAGS.attention_type = random.choice(attention_type)
-        FLAGS.learning_rate = random.choice(learning_rate)
-        FLAGS.dropout_rate = random.choice(dropout_rate)
-        FLAGS.char_lstm_dim = random.choice(char_lstm_dim)
-        FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
-        FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
-        FLAGS.MP_dim = random.choice(MP_dim)
-        FLAGS.char_emb_dim = random.choice(char_emb_dim)
-        FLAGS.with_aggregation_highway = random.choice(with_aggregation_highway)
-        FLAGS.wo_char = random.choice(wo_char)
-        FLAGS.wo_lstm_drop_out = random.choice(wo_lstm_drop_out)
-        FLAGS.wo_agg_self_att = random.choice(wo_agg_self_att)
-        FLAGS.is_shared_attention = random.choice(is_shared_attention)
+        # FLAGS.unstack_cnn = random.choice(unstack_cnn)
+        # FLAGS.attention_type = random.choice(attention_type)
+        # FLAGS.learning_rate = random.choice(learning_rate)
+        # FLAGS.dropout_rate = random.choice(dropout_rate)
+        # FLAGS.char_lstm_dim = random.choice(char_lstm_dim)
+        # FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
+        # FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
+        # FLAGS.MP_dim = random.choice(MP_dim)
+        # FLAGS.char_emb_dim = random.choice(char_emb_dim)
+        # FLAGS.with_aggregation_highway = random.choice(with_aggregation_highway)
+        # FLAGS.wo_char = random.choice(wo_char)
+        # FLAGS.wo_lstm_drop_out = random.choice(wo_lstm_drop_out)
+        # FLAGS.wo_agg_self_att = random.choice(wo_agg_self_att)
+        # FLAGS.is_shared_attention = random.choice(is_shared_attention)
         FLAGS.modify_loss = random.choice(modify_loss)
         FLAGS.prediction_mode = random.choice(prediction_mode)
-        FLAGS.with_match_highway = random.choice(with_match_highway)
-        FLAGS.with_highway = random.choice(with_highway)
-        FLAGS.highway_layer_num = random.choice(highway_layer_num)
-        FLAGS.is_aggregation_siamese = random.choice(is_aggregation_siamese)
+        # FLAGS.with_match_highway = random.choice(with_match_highway)
+        # FLAGS.with_highway = random.choice(with_highway)
+        # FLAGS.highway_layer_num = random.choice(highway_layer_num)
+        # FLAGS.is_aggregation_siamese = random.choice(is_aggregation_siamese)
 
         #
         # FLAGS.MP_dim = FLAGS.MP_dim // (att_cnt*FLAGS.context_layer_num)
@@ -503,7 +503,8 @@ def main(_):
                                                   is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
                                                  is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise,
                                                   min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
-                                                  use_box = FLAGS.use_box) # box is just used for training
+                                                  use_box = FLAGS.use_box,
+                                                  sample_neg_from_question = FLAGS.nsfq) # box is just used for training
 
     testDataStream = SentenceMatchDataStream(test_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
@@ -954,8 +955,8 @@ if __name__ == '__main__':
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--is_random_init',default=False, type = bool, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
+    parser.add_argument('--is_random_init',default=True, type = bool, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -966,13 +967,17 @@ if __name__ == '__main__':
 
 
     parser.add_argument('--use_box',default=True, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--nsfq',default=True, help='negative sample from question')
+    #FLAGS, unparsed = parser.parse_known_args()
+
+
 
     parser.add_argument('--equal_question_per_batch',default=False, type= bool, help='do we have cuda visible devices?')
 
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
 
-    bs =80
+    bs =110
     #if is_trec == False:
     #    bs = 40
     parser.add_argument('--min_answer_size', type=int, default= 15, help='Number of instances in each batch.')
@@ -1063,5 +1068,9 @@ if __name__ == '__main__':
     #     print("CUDA_VISIBLE_DEVICES " + os.environ['CUDA_VISIBLE_DEVICES'])
     sys.stdout.flush()
     FLAGS, unparsed = parser.parse_known_args()
+    if FLAGS.nsfq == 'True' or  FLAGS.nsfq == True:
+        FLAGS.nsfq = True
+    else:
+        FLAGS.nsfq = False
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
 
