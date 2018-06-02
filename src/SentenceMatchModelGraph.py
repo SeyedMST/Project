@@ -254,7 +254,7 @@ class SentenceMatchModelGraph(object):
                     #avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
                     #neg_exp_sum = tf.add(neg_exp_sum, avg_neg_exp_sum) #[q, 1]
                     pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
-                    fi = -tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
+                    fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
                     fi = tf.multiply(fi, pos_mask)
                     fi = tf.reduce_sum(fi, axis=1) #[q]
                     fi = tf.divide(fi,pos_count) #[q]
