@@ -992,7 +992,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, type =bool, help='is answer selection or other sentence matching tasks?')
     parser.add_argument('--optimize_type', type=str, default='adam', help='Optimizer type.')
-    parser.add_argument('--prediction_mode', default='hinge_wise', help = 'point_wise, list_wise, hinge_wise .'
+    parser.add_argument('--prediction_mode', default='list_wise', help = 'point_wise, list_wise, hinge_wise .'
                                                                           'point wise is only used for non answer selection tasks')
 
     parser.add_argument('--train_path', type=str,default = '../data/' +qa_path +'train.txt', help='Path to the train set.')
