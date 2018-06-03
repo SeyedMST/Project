@@ -19,7 +19,7 @@ class SentenceMatchModelGraph(object):
                  with_bilinear_att = 's', type1 = None, type2 = None, type3 = None, with_aggregation_attention = True,
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
-                 clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True):
+                 clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15):
 
         # ======word representation layer======
         in_question_repres = []
@@ -254,8 +254,9 @@ class SentenceMatchModelGraph(object):
                     neg_exp = tf.multiply(neg_exp, neg_mask)
                     neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
                     avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
-                    avg_neg_exp_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
-                    neg_exp_sum = tf.add(neg_exp_sum, avg_neg_exp_sum) #[q, 1]
+                    less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
+                    pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
+                    neg_exp_sum = tf.add(neg_exp_sum, tf.add(less_than_box_sum, pos_effect_sum)) #[q, 1]
                     pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
                     fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
                     fi = tf.multiply(fi, pos_mask)

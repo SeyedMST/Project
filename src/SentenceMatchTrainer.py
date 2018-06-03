@@ -506,7 +506,8 @@ def main(_):
                                                  is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise,
                                                   min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
                                                   use_box = FLAGS.use_box,
-                                                  sample_neg_from_question = FLAGS.nsfq) # box is just used for training
+                                                  sample_neg_from_question = FLAGS.nsfq,
+                                                  equal_box_per_batch = FLAGS.equal_box_per_batch) # box is just used for training
 
     testDataStream = SentenceMatchDataStream(test_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                               POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
@@ -711,7 +712,8 @@ def main(_):
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                       mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
-                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise)
+                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
+                                                      max_answer_size=FLAGS.max_answer_size)
                 tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
     #         with tf.name_scope("Valid"):
@@ -977,7 +979,7 @@ if __name__ == '__main__':
 
 
 
-    parser.add_argument('--equal_question_per_batch',default=False, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--equal_box_per_batch',default=True, help='do we have cuda visible devices?')
 
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
@@ -985,7 +987,7 @@ if __name__ == '__main__':
     bs =110 #110
     #if is_trec == False:
     #    bs = 40
-    parser.add_argument('--min_answer_size', type=int, default= 15, help='Number of instances in each batch.')
+    parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
     parser.add_argument('--max_answer_size', type=int, default= 15, help='Number of instances in each batch.')
 
 

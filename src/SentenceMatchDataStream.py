@@ -11,7 +11,12 @@ def make_batches(size, batch_size):
     nb_batch = int(np.ceil(size/float(batch_size)))
     return [(i*batch_size, min(size, (i+1)*batch_size)) for i in range(0, nb_batch)]
 
-def make_batches_as (instances, batch_size, min_random_param, is_training):
+def make_batches_as (instances, batch_size, max_answer_size, is_training, equal_box_per_batch):
+
+    if equal_box_per_batch == True:
+        box_count_per_batch = batch_size // max_answer_size
+    else:
+        box_count_per_batch = 2000000
 
     ans = []
     ans_len = []
@@ -21,12 +26,15 @@ def make_batches_as (instances, batch_size, min_random_param, is_training):
     ss_tot = 0
     start = 0
     count = 0
+    smaller_than_count = 0
     for x in instances:
         if ss_tot == 0:
             last_size = len(x[1])
-        if (len(x[1]) == last_size and ss + len(x[1]) <= batch_size):
+        if (len(x[1]) == last_size and ss + len(x[1]) <= batch_size and count +1 <=box_count_per_batch):
             ss += len(x[1])
         else:
+            if count < box_count_per_batch:
+                smaller_than_count += 1
             ans.append((start, ss_tot))
             ans_len.append(last_size)
             question_count.append(count)
@@ -39,6 +47,8 @@ def make_batches_as (instances, batch_size, min_random_param, is_training):
     ans.append((start, ss_tot))
     ans_len.append(last_size)
     question_count.append(count)
+    if equal_box_per_batch == True:
+        print ("smaller than count ", smaller_than_count)
     return (ans, question_count, ans_len)
 
 
@@ -73,7 +83,7 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
                    min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
-                   use_box, sample_neg_from_question):
+                   use_box, sample_neg_from_question, equal_box_per_batch):
 
     is_trec = False
     if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
@@ -201,9 +211,6 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
 
                             #biger_than_max += len (item["answer"]) - max_answer_size
-
-
-
     question = list()
     answer = list()
     label = list()
@@ -279,7 +286,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         instances.append((question[i], answer[i], label[i]))
     instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
     if is_training == True:
-        batches = make_batches_as(instances, batch_size, min_answer_size, is_training)
+        batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
     ans = []
@@ -413,7 +420,7 @@ class SentenceMatchDataStream(object):
                  is_word_overlap = True, is_lemma_overlap = True, is_list_wise = False,
                  min_answer_size = 0, max_answer_size = 20000, add_neg_sample_count = False, neg_sample_count = 50,
                  use_top_negs = False, train_from_path = True, use_box = False,
-                 sample_neg_from_question = False):
+                 sample_neg_from_question = False, equal_box_per_batch = False):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -427,7 +434,8 @@ class SentenceMatchDataStream(object):
                                                                         , neg_sample_count = neg_sample_count,
                                                                         use_top_negs = use_top_negs,
                                                                         train_from_path = train_from_path, use_box=use_box,
-                                                                        sample_neg_from_question=sample_neg_from_question)
+                                                                        sample_neg_from_question=sample_neg_from_question,
+                                                                        equal_box_per_batch = equal_box_per_batch)
 
             if isShuffle == True:
                 batch_spans = r[0]
