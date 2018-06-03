@@ -249,6 +249,7 @@ class SentenceMatchModelGraph(object):
                     neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]
                     pos_count = tf.reduce_sum(pos_mask, axis=1) #[q]
                     pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
+                    pos_count_all = tf.reduce_sum(pos_mask) #[1]
                     neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[q, a]
                     neg_exp = tf.multiply(neg_exp, neg_mask)
                     neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
@@ -258,9 +259,12 @@ class SentenceMatchModelGraph(object):
                     pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
                     fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
                     fi = tf.multiply(fi, pos_mask)
-                    fi = tf.reduce_sum(fi, axis=1) #[q]
-                    fi = tf.divide(fi,pos_count) #[q]
-                    self.loss = tf.reduce_mean(fi)
+                    #fi = tf.reduce_sum(fi, axis=1) #[q]
+                    #fi = tf.divide(fi,pos_count) #[q]
+                    #self.loss = tf.reduce_mean(fi)
+
+                    fi = tf.reduce_sum(fi) #[1]
+                    self.loss = tf.divide(fi, pos_count_all) #[1]
             else:
                 if with_tanh == True:
                     logits = tf.tanh(logits)
@@ -340,12 +344,18 @@ class SentenceMatchModelGraph(object):
             l_final = tf.multiply(l_final, mask)
             if soft_hinge == True:
                 l_final = tf.log(1 + tf.exp(l_final))
-            mask = tf.reduce_sum(mask)
+                l_final = tf.multiply(l_final, mask)
             l_final = tf.reduce_sum(l_final)
-            return tf.divide(l_final, mask) #[0]
+            #return tf.divide(l_final, mask) #[0]
+            return l_final
 
         elems = (hinge_truth, logits)
-        return tf.reduce_mean(tf.map_fn(singel_instance, elems, dtype=tf.float32)) #[question_count] -> [0]
+        #return tf.reduce_mean(tf.map_fn(singel_instance, elems, dtype=tf.float32)) #[question_count] -> [0]
+
+        l_final = tf.map_fn(singel_instance, elems, dtype=tf.float32) #[q]
+        l_final = tf.reduce_sum(l_final)
+        mask = tf.reduce_sum(hinge_truth)
+        return tf.divide(l_final, mask)
 
     def get_hinge_truth(self):
         return self.__hinge_truth
