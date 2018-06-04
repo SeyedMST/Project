@@ -2,7 +2,8 @@ import numpy as np
 import re
 import random
 import math
-
+import matplotlib
+import matplotlib.pyplot as plt
 
 import sys
 eps = 1e-8
@@ -81,6 +82,99 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
     return out_val
 
 
+def solve_box (n, p, b, dp, next_dp):
+    if n == 0:
+        return 0
+    elif n+p <= b:
+        next_dp[(n, p)] = n
+        return n + p
+    elif (n,p) in dp:
+        return dp [(n,p)]
+    else:
+        Min = 1000000000
+        for i in range (1, n+1):
+            for j in range (1, p+1):
+                if (i + j) <= b: #fixed i and maximum j
+                    box_needed = p // j
+                    if p % j >= 1:
+                        box_needed += 1
+                    pos_per_box = p//box_needed
+                    pos_per_box_add = p%box_needed
+                    ans = 0
+                    for k in range (box_needed):
+                        pos_this_box = pos_per_box
+                        if pos_per_box_add > 0:
+                            pos_per_box_add -= 1
+                            pos_this_box +=1
+                        ans+=pos_this_box + i
+                    ans += solve_box(n-i, p, b, dp, next_dp)
+                    if ans <= Min: #less or equal for having more negs
+                        Min = ans
+                        next_dp[(n,p)] = i
+        dp [(n,p)] = Min
+        return Min
+
+def produce_box (next_dp, item, max_answer_size, box_id, box_dic, dp):
+    good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
+    bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
+    random.shuffle(bad_answer)  # random works inplace and returns None
+    random.shuffle(good_answer)  # random works inplace and returns None
+    n = len(bad_answer)
+    p = len (good_answer)
+    s_b = solve_box(n,p,max_answer_size, dp, next_dp)
+    if s_b > n*p*2:
+        ol = 3
+    passed_n = 0
+    while ((n-passed_n, p) in next_dp): #n - passed_n = 0
+        n_cnt = next_dp[(n-passed_n,p)]
+        capacity = max_answer_size - n_cnt
+        box_needed = p // capacity
+        if p % capacity > 0:
+            box_needed += 1
+        box_needed = int(box_needed)
+        pos_per_box = int(p // box_needed)
+        extra_poss = p % box_needed
+        poss_idx = 0
+        for i in range(box_needed):
+            box_dic.setdefault(box_id, {})
+            box_dic[box_id].setdefault("question", [])
+            box_dic[box_id].setdefault("answer", [])
+            box_dic[box_id].setdefault("label", [])
+            for j in range(passed_n, passed_n + n_cnt):
+                box_dic[box_id]["question"].append(item["question"][0])
+                box_dic[box_id]["answer"].append(bad_answer[j])
+                box_dic[box_id]["label"].append(0)
+            if extra_poss > 0:
+                pos_for_this_box = pos_per_box + 1
+                extra_poss -= 1
+            else:
+                pos_for_this_box = pos_per_box
+            for j in range(pos_for_this_box):
+                box_dic[box_id]["question"].append(item["question"][0])
+                box_dic[box_id]["answer"].append(good_answer[poss_idx])
+                box_dic[box_id]["label"].append(1)
+                poss_idx += 1
+            box_id += 1
+        passed_n += n_cnt
+    if (n-passed_n != 0):
+        print ("fuck", n - passed_n)
+    return box_dic, box_id, s_b
+
+def MakeBox (question_dic, max_answer_size, use_top_negs):
+    print ("Question count before boxing", len(question_dic))
+    dp = {}
+    next_dp = {}
+    box_dic = {}
+    box_id = 0
+    tot_pairs_solve = 0
+    for item in question_dic.values():
+        box_dic, box_id, s_b = \
+            produce_box(next_dp=next_dp, item=item, max_answer_size=max_answer_size, box_id=box_id, box_dic=box_dic, dp=dp)
+        tot_pairs_solve += s_b
+    question_dic = box_dic
+    print ("box count:", len(box_dic), "pairs_count", tot_pairs_solve)
+    return question_dic
+
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
                    min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
                    use_box, sample_neg_from_question, equal_box_per_batch):
@@ -152,65 +246,10 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             del_all_count += len(question_dic[key]["question"])
             del(question_dic[key])
 
-
-    print ("Question count before boxing" ,len (question_dic))
+    print ("pairs count", all_count - del_all_count)
     if use_box == True:
-        box_dic = {}
-        box_id = 0
-        for item in question_dic.values():
-            good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
-            good_length = len(good_answer)
-            bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
-            random.shuffle (bad_answer) #random works inplace and returns None
-            bad_length = len (bad_answer)
-
-            if len(item["answer"]) <= max_answer_size:
-                box_dic.setdefault(box_id, {})
-                box_dic[box_id].setdefault("question", [])
-                box_dic[box_id].setdefault("answer", [])
-                box_dic[box_id].setdefault("label", [])
-                box_dic[box_id]["question"] = item["question"]
-                box_dic[box_id]["answer"] = item ["answer"]
-                box_dic[box_id]["label"] = item ["label"]
-                box_id += 1
-            else:
-                if use_top_negs == False: #very kosher!
-                    #good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
-                    capacity = max_answer_size - good_length
-                    box_needed = bad_length // capacity
-                    if bad_length % capacity >0:
-                        box_needed += 1
-                    box_needed = int (box_needed)
-                    neg_per_box = int(bad_length // box_needed)
-                    extra_negs = bad_length % box_needed
-                    negs_idx = 0
-                    for i in range (box_needed):
-                        box_dic.setdefault(box_id, {})
-                        box_dic[box_id].setdefault("question", [])
-                        box_dic[box_id].setdefault("answer", [])
-                        box_dic[box_id].setdefault("label", [])
-                        for j in range (good_length):
-                            box_dic[box_id]["question"].append (item ["question"][0])
-                            box_dic[box_id]["answer"].append (good_answer[j])
-                            box_dic[box_id]["label"].append (1)
-                        if extra_negs > 0:
-                            neg_for_this_box = neg_per_box + 1
-                            extra_negs -= 1
-                        else:
-                            neg_for_this_box = neg_per_box
-                        for j in range (neg_for_this_box):
-                            box_dic[box_id]["question"].append (item ["question"][0])
-                            box_dic[box_id]["answer"].append (bad_answer [negs_idx])
-                            box_dic[box_id]["label"].append (0)
-                            negs_idx += 1
-                        box_id += 1
-        question_dic = box_dic
-
-
-        print ("box count:", len (box_dic))
-
-
-                            #biger_than_max += len (item["answer"]) - max_answer_size
+        question_dic = MakeBox(question_dic, max_answer_size, use_top_negs)
+                            #biger_than_max += len (item["answer"]) - maxanswer_size
     question = list()
     answer = list()
     label = list()
@@ -284,11 +323,29 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     instances = []
     for i in range(len(question)):
         instances.append((question[i], answer[i], label[i]))
+    random.shuffle(instances)  # random works inplace and returns None
+
     instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
     if is_training == True:
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
+    # show_plot = True
+    # if show_plot == True:
+    #     sum_len = np.zeros((max_answer_size-1))
+    #     for x in instances:
+    #         sum_len [len (x[1])-2] += 1
+    #     x = np.arange(2, max_answer_size+1)
+    #     fig, ax = plt.subplots()
+    #     ax.plot(x, sum_len)
+    #
+    #     ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+    #            title='About as simple as it gets, folks')
+    #     ax.grid()
+    #
+    #     fig.savefig("test.png")
+    #     plt.show()
+
     ans = []
     candidate_answer_length = []
     for x in (instances):
