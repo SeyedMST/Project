@@ -354,7 +354,7 @@ def Generate_random_initialization(cnf):
         #
         # with_context_self_attention = [False]
         #modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
-        prediction_mode = ['list_wise', 'hinge_wise']#, 'list_wise', 'hinge_wise']
+        prediction_mode = ['list_wise'] #, 'list_wise', 'hinge_wise']
         new_list_wise = [False]
         #if cnf == 2:
         # unstack_cnn = [False]
@@ -989,7 +989,7 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 2, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 8, help='Number of instances in each batch.')
 
     question_per_batch = 7
 
