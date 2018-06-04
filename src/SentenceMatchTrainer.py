@@ -995,7 +995,7 @@ if __name__ == '__main__':
 
     FLAGS, unparsed = parser.parse_known_args()
 
-    bs = FLAGS.max_answer_size
+    bs = FLAGS.max_answer_size * question_per_batch
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, type =bool, help='is answer selection or other sentence matching tasks?')
