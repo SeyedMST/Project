@@ -347,16 +347,16 @@ class SentenceMatchModelGraph(object):
                 l_final = tf.log(1 + tf.exp(l_final))
                 l_final = tf.multiply(l_final, mask)
             l_final = tf.reduce_sum(l_final)
-            #return tf.divide(l_final, mask) #[0]
-            return l_final
+            return tf.divide(l_final, mask) #[0]
+            #return l_final
 
         elems = (hinge_truth, logits)
-        #return tf.reduce_mean(tf.map_fn(singel_instance, elems, dtype=tf.float32)) #[question_count] -> [0]
+        return tf.reduce_mean(tf.map_fn(singel_instance, elems, dtype=tf.float32)) #[question_count] -> [0]
 
-        l_final = tf.map_fn(singel_instance, elems, dtype=tf.float32) #[q]
-        l_final = tf.reduce_sum(l_final)
-        mask = tf.reduce_sum(hinge_truth)
-        return tf.divide(l_final, mask)
+        #l_final = tf.map_fn(singel_instance, elems, dtype=tf.float32) #[q]
+        #l_final = tf.reduce_sum(l_final)
+        #mask = tf.reduce_sum(hinge_truth)
+        #return tf.divide(l_final, mask)
 
     def get_hinge_truth(self):
         return self.__hinge_truth
