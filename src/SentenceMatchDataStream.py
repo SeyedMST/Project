@@ -268,7 +268,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
     print ("pairs count", all_count - del_all_count)
     if use_box == True:
-        question_dic = MakeBox(question_dic, max_answer_size, use_top_negs, sa)
+        question_dic = MakeBox(question_dic, max_answer_size, use_top_negs, sample_neg_from_question)
                             #biger_than_max += len (item["answer"]) - maxanswer_size
     question = list()
     answer = list()
