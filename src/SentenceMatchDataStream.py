@@ -84,14 +84,15 @@ def pad_3d_tensor(in_val, max_length1=None, max_length2=None, dtype=np.int32):
 
 def solve_box (n, p, b, dp, next_dp):
     if n == 0:
-        return 0
+        return (0,0)
     elif n+p <= b:
         next_dp[(n, p)] = n
-        return n + p
+        return (n + p, b - (n+p))
     elif (n,p) in dp:
         return dp [(n,p)]
     else:
         Min = 1000000000
+        Min_empty = 1000000
         for i in range (1, n+1):
             for j in range (1, p+1):
                 if (i + j) <= b: #fixed i and maximum j
@@ -107,22 +108,27 @@ def solve_box (n, p, b, dp, next_dp):
                             pos_per_box_add -= 1
                             pos_this_box +=1
                         ans+=pos_this_box + i
-                    ans += solve_box(n-i, p, b, dp, next_dp)
-                    if ans <= Min: #less or equal for having more negs
+                        empty = b - (i + pos_this_box) #the last iteration has maximum epty of all boxes of this (i,j)
+                    s_b = solve_box(n-i, p, b, dp, next_dp)
+                    ans += s_b [0]
+                    if (s_b[1] > empty): # empty = min(empty, s_b[1])
+                        empty = s_b[1]
+                    if ans < Min or (ans == Min and empty <= Min_empty): #less or equal for having more negs
                         Min = ans
+                        Min_empty = empty
                         next_dp[(n,p)] = i
-        dp [(n,p)] = Min
-        return Min
+        dp [(n,p)] = (Min, Min_empty)
+        return (Min, Min_empty)
 
-def produce_box (next_dp, item, max_answer_size, box_id, box_dic, dp):
+def produce_box (next_dp, item, max_answer_size, box_id, box_dic, dp, sample_neg_from_question):
     good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
     bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
     random.shuffle(bad_answer)  # random works inplace and returns None
     random.shuffle(good_answer)  # random works inplace and returns None
     n = len(bad_answer)
     p = len (good_answer)
-    s_b = solve_box(n,p,max_answer_size, dp, next_dp)
-    if s_b > n*p*2:
+    s_b = solve_box(n,p,max_answer_size, dp, next_dp)[0]
+    if n + p > 15:
         ol = 3
     passed_n = 0
     while ((n-passed_n, p) in next_dp): #n - passed_n = 0
@@ -135,6 +141,8 @@ def produce_box (next_dp, item, max_answer_size, box_id, box_dic, dp):
         pos_per_box = int(p // box_needed)
         extra_poss = p % box_needed
         poss_idx = 0
+        # sample_neg_from_question
+
         for i in range(box_needed):
             box_dic.setdefault(box_id, {})
             box_dic[box_id].setdefault("question", [])
@@ -154,13 +162,24 @@ def produce_box (next_dp, item, max_answer_size, box_id, box_dic, dp):
                 box_dic[box_id]["answer"].append(good_answer[poss_idx])
                 box_dic[box_id]["label"].append(1)
                 poss_idx += 1
+            # if sample_neg_from_question == True and pos_for_this_box + n_cnt < min_answer_size:
+            #     neg_sam = []
+            #     bad_answer_idx = 0
+            #     bad_answer_tmp = bad_answer.copy()
+            #     random.shuffle(bad_answer_tmp)
+            #     for u in range(min_answer_size - len(item["question"])):
+            #         if bad_answer_idx == len(bad_answer_tmp):
+            #             bad_answer_idx = 0
+            #         neg_sam.append(bad_answer_tmp[bad_answer_idx])
+            #         bad_answer_idx += 1
+            #     temp_answer.extend(neg_sam)
+
+
             box_id += 1
         passed_n += n_cnt
-    if (n-passed_n != 0):
-        print ("fuck", n - passed_n)
     return box_dic, box_id, s_b
 
-def MakeBox (question_dic, max_answer_size, use_top_negs):
+def MakeBox (question_dic, max_answer_size, use_top_negs, sample_neg_from_question):
     print ("Question count before boxing", len(question_dic))
     dp = {}
     next_dp = {}
@@ -169,7 +188,8 @@ def MakeBox (question_dic, max_answer_size, use_top_negs):
     tot_pairs_solve = 0
     for item in question_dic.values():
         box_dic, box_id, s_b = \
-            produce_box(next_dp=next_dp, item=item, max_answer_size=max_answer_size, box_id=box_id, box_dic=box_dic, dp=dp)
+            produce_box(next_dp=next_dp, item=item, max_answer_size=max_answer_size, box_id=box_id, box_dic=box_dic, dp=dp,
+                        sample_neg_from_question=sample_neg_from_question)
         tot_pairs_solve += s_b
     question_dic = box_dic
     print ("box count:", len(box_dic), "pairs_count", tot_pairs_solve)
@@ -248,7 +268,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
     print ("pairs count", all_count - del_all_count)
     if use_box == True:
-        question_dic = MakeBox(question_dic, max_answer_size, use_top_negs)
+        question_dic = MakeBox(question_dic, max_answer_size, use_top_negs, sa)
                             #biger_than_max += len (item["answer"]) - maxanswer_size
     question = list()
     answer = list()
@@ -330,21 +350,21 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
-    # show_plot = True
-    # if show_plot == True:
-    #     sum_len = np.zeros((max_answer_size-1))
-    #     for x in instances:
-    #         sum_len [len (x[1])-2] += 1
-    #     x = np.arange(2, max_answer_size+1)
-    #     fig, ax = plt.subplots()
-    #     ax.plot(x, sum_len)
-    #
-    #     ax.set(xlabel='time (s)', ylabel='voltage (mV)',
-    #            title='About as simple as it gets, folks')
-    #     ax.grid()
-    #
-    #     fig.savefig("test.png")
-    #     plt.show()
+    show_plot = True
+    if show_plot == True:
+        sum_len = np.zeros((max_answer_size-1))
+        for x in instances:
+            sum_len [len (x[1])-2] += 1
+        x = np.arange(2, max_answer_size+1)
+        fig, ax = plt.subplots()
+        ax.plot(x, sum_len)
+
+        ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+               title='About as simple as it gets, folks')
+        ax.grid()
+
+        fig.savefig("test.png")
+        plt.show()
 
     ans = []
     candidate_answer_length = []
