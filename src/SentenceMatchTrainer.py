@@ -873,8 +873,19 @@ def main(_):
 
                         #Evaluate against the train set only for final epoch.
                         if (step + 1) == max_steps:
+                            t1_data_stream = SentenceMatchDataStream(train_path, word_vocab=word_vocab,
+                                                                     char_vocab=char_vocab,
+                                                                     POS_vocab=POS_vocab, NER_vocab=NER_vocab,
+                                                                     label_vocab=label_vocab,
+                                                                     batch_size=FLAGS.batch_size, isShuffle=False,
+                                                                     isLoop=True, isSort=True,
+                                                                     max_char_per_word=FLAGS.max_char_per_word,
+                                                                     max_sent_length=FLAGS.max_sent_length,
+                                                                     is_as=FLAGS.is_answer_selection,
+                                                                     is_word_overlap=FLAGS.word_overlap,
+                                                                     is_lemma_overlap=FLAGS.lemma_overlap)
                             output_res_file.write ('train- ')
-                            my_map, my_mrr = evaluate(trainDataStream, valid_graph, sess, char_vocab=char_vocab,
+                            my_map, my_mrr = evaluate(t1_data_stream, valid_graph, sess, char_vocab=char_vocab,
                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
                             output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
                             print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
