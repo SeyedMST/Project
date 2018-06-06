@@ -273,6 +273,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     question = list()
     answer = list()
     label = list()
+    real_answer_length = list()
     pairs_count = 0
     pos_neg_pair_count = 0
     total_pair_count = 0
@@ -297,6 +298,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             pos_neg_pair_count += good_length * len (bad_answer)
             total_pair_count += good_length + len(bad_answer)
             if len(item["answer"]) > max_answer_size:
+                real_answer_length.append(max_answer_size)
                 if use_top_negs == False:
                     good_answer.extend(random.sample(bad_answer,max_answer_size - good_length))
                     biger_than_max += len (item["answer"]) - max_answer_size
@@ -306,6 +308,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                 temp_label = [1 / float(sum(item["label"])) for i in range(good_length)]
                 temp_label.extend([0.0 for i in range(max_answer_size-good_length)])
             else:
+                real_answer_length.append(len (item ["question"]))
                 temp_answer = item["answer"]
                 temp_label = [x / float(sum(item["label"])) for x in item["label"]]
                 if min_answer_size-len(item["question"]) >= 1:
@@ -322,9 +325,6 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                             neg_sam.append(bad_answer [bad_answer_idx])
                             bad_answer_idx += 1
                         temp_answer.extend (neg_sam)
-
-
-
                     temp_label.extend([0.0 for i in range(min_answer_size-len(item["question"]))])
             label.append(temp_label) # label[i] = list of labels of question i
             answer.append(temp_answer) # answer[i] = list of answers of question i
@@ -339,10 +339,12 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     question = np.array(question) # list of questions
     answer = np.array(answer) # list of list of answers
     label = np.array(label) #list of list of labels
+    real_answer_length = np.array (real_answer_length)
+
 
     instances = []
     for i in range(len(question)):
-        instances.append((question[i], answer[i], label[i]))
+        instances.append((question[i], answer[i], label[i], real_answer_length[i]))
     random.shuffle(instances)  # random works inplace and returns None
 
     instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
@@ -368,8 +370,10 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
     ans = []
     candidate_answer_length = []
+    real_candidate_answer_length = []
     for x in (instances):
         candidate_answer_length.append(len(x[1]))
+        real_candidate_answer_length.append(x[3])
         for j in range (len(x[1])):
             label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2 = \
                 make_idx(label_vocab, x[2][j], word_vocab, x[0], x[1][j], char_vocab, max_sent_length, True)
@@ -380,7 +384,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                 (my_label, x[0], x[1][j], label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2,
                  None, None, None, None))
     print ("Questions: ",len(instances), " pairs: ", len(ans))
-    return (ans, batches, candidate_answer_length)
+    return (ans, batches, candidate_answer_length, real_candidate_answer_length)
 
 
 def make_idx (label_vocab, label, word_vocab, sentence1, sentence2, char_vocab, max_sent_length, is_as):
@@ -491,6 +495,21 @@ def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_voca
     return ans
 
 
+def mask_real_answer_length(real_answer_length, start, end, answer_count):
+    l = []
+    for i in range (start, end):
+        l.append(real_answer_length[i])
+    mask = np.zeros((len(l), answer_count), dtype=float)
+
+    for i in range (len(l)):
+        for j in range(l[i]):
+            mask [i][j] = 1.0
+    return mask
+
+
+
+
+
 class SentenceMatchDataStream(object):
     def __init__(self, inpath, word_vocab=None, char_vocab=None, POS_vocab=None, NER_vocab=None, label_vocab=None, batch_size=60, 
                  isShuffle=False, isLoop=False, isSort=True, max_char_per_word=10, max_sent_length=200, is_as = True,
@@ -503,8 +522,9 @@ class SentenceMatchDataStream(object):
         self.batch_as_len = []
         self.batch_question_count = []
         self.candidate_answer_length = []
+        self.real_candidate_answer_length = []
         if (is_as == True):
-            instances, r, self.candidate_answer_length = wikiQaGenerate(inpath,label_vocab, word_vocab, char_vocab, max_sent_length, batch_size,
+            instances, r, self.candidate_answer_length, real_answer_length = wikiQaGenerate(inpath,label_vocab, word_vocab, char_vocab, max_sent_length, batch_size,
                                           is_training=isShuffle, is_list_wise=is_list_wise, min_answer_size=min_answer_size,
                                                                         max_answer_size = max_answer_size,
                                                                         add_neg_sample_count=add_neg_sample_count
@@ -518,6 +538,12 @@ class SentenceMatchDataStream(object):
                 batch_spans = r[0]
                 self.batch_question_count = r[1]
                 self.batch_as_len = r[2]
+                start = 0
+                for i in range(len(self.batch_question_count)):
+                    x = self.batch_question_count[i]
+                    self.real_candidate_answer_length.append(mask_real_answer_length(
+                        real_answer_length, start, start + x,self.batch_as_len [i]))
+                    start += x
             else:
                 batch_spans = r
                 self.batch_question_count = 0
@@ -579,6 +605,8 @@ class SentenceMatchDataStream(object):
             sent2_char_length_batch = []
 
             overlap_batch = []
+            real_length_batch = []
+
 
             POS_idx_1_batch = None
             if POS_vocab is not None: POS_idx_1_batch = []
@@ -672,6 +700,9 @@ class SentenceMatchDataStream(object):
 
     def question_count (self, i):
         return self.batch_question_count[i]
+
+    def real_answer_count (self, i):
+        return self.real_candidate_answer_length[i]
 
     def get_candidate_answer_length (self):
         return self.candidate_answer_length

@@ -29,6 +29,7 @@ class SentenceMatchModelGraph(object):
         if is_answer_selection == True:
             self.truth = tf.placeholder(tf.float32, [None]) # [batch_size]
             self.hinge_truth = tf.placeholder(tf.float32, [None, None, None]) #[Q,A,A]
+            self.real_answer_count_mask = tf.placeholder(tf.float32, [None, None])
         else:
             self.truth = tf.placeholder(tf.int32, [None]) # [batch_size]
 
@@ -236,7 +237,9 @@ class SentenceMatchModelGraph(object):
                 # loss = mean(H(p,q)) for p,q in batch
                 self.prob = tf.reshape(logits, [-1]) #[bs]
                 if new_list_wise == False:
+                    logits = tf.multiply(logits, self.real_answer_count_mask)
                     logits = tf.nn.softmax(logits)  # [question_count, answer_count]
+                    logits = tf.multiply(logits, self.real_answer_count_mask)
                     self.loss = tf.reduce_mean(tf.reduce_sum(
                         tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
                         , axis=1))
@@ -385,6 +388,13 @@ class SentenceMatchModelGraph(object):
 
     def del_answer_count (self):
         del self.__answer_count
+
+    def get_real_answer_count_mask(self):
+        return self.__real_answer_count_mask
+    def set_real_answer_count_mask(self, value):
+        self.__real_answer_count_mask = value
+    def del_real_answer_count_mask(self):
+        del self.__real_answer_count_mask
 
     def get_overlap(self):
         return self.__overlap
@@ -742,5 +752,7 @@ class SentenceMatchModelGraph(object):
     overlap = property(get_overlap, set_overlap, del_overlap, "asdfas")
     score = property(get_score, set_score, del_score, "asdfasdfa")
     hinge_truth = property(get_hinge_truth, set_hinge_truth, del_hinge_truth, "asdfasdfa")
+    real_answer_count_mask = property(get_real_answer_count_mask, set_real_answer_count_mask,
+                                      del_real_answer_count_mask, "asdfasdfa")
 
     

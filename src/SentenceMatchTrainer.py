@@ -812,6 +812,7 @@ def main(_):
                         feed_dict[train_graph.get_hinge_truth()] = make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
                                                                                     trainDataStream.answer_count(
                                                                                         batch_index))
+                        feed_dict[train_graph.get_real_answer_count_mask()] = trainDataStream.real_answer_count(batch_index)
 
                     _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                     total_loss += loss_value
@@ -988,10 +989,10 @@ if __name__ == '__main__':
     #bs = 100 #135 #110
     #if is_trec == False:
     #    bs = 40
-    parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 30, help='Number of instances in each batch.')
+    parser.add_argument('--min_answer_size', type=int, default= 15, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 15, help='Number of instances in each batch.')
 
-    question_per_batch = 1
+    question_per_batch = 7
 
     FLAGS, unparsed = parser.parse_known_args()
 
