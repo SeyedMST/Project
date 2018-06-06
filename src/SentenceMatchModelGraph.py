@@ -239,7 +239,7 @@ class SentenceMatchModelGraph(object):
                 if new_list_wise == False:
                     logits = tf.multiply(logits, self.real_answer_count_mask)
                     logits = tf.nn.softmax(logits)  # [question_count, answer_count]
-                    logits = tf.multiply(logits, self.real_answer_count_mask)
+                    #logits = tf.multiply(logits, self.real_answer_count_mask)
                     self.loss = tf.reduce_mean(tf.reduce_sum(
                         tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
                         , axis=1))
