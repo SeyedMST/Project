@@ -277,6 +277,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     pairs_count = 0
     pos_neg_pair_count = 0
     total_pair_count = 0
+    sum_bikhod_added = 0
     if add_neg_sample_count == True:
         for item in question_dic.values():
             temp_answer = item["answer"]
@@ -312,6 +313,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
                 temp_answer = item["answer"]
                 temp_label = [x / float(sum(item["label"])) for x in item["label"]]
                 if min_answer_size-len(item["question"]) >= 1:
+                    sum_bikhod_added += min_answer_size-len(item["question"])
                     if sample_neg_from_question == False:
                         temp_answer.extend(random.sample(negative_answers, min_answer_size-len(item["question"])))
                     else:
@@ -336,6 +338,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     print ("total_pair_count ",total_pair_count , " pos_neg_pair_count ", pos_neg_pair_count,
            'biger_than_max', biger_than_max)
 
+    print ("sum bikhod added", sum_bikhod_added)
+
     question = np.array(question) # list of questions
     answer = np.array(answer) # list of list of answers
     label = np.array(label) #list of list of labels
@@ -352,7 +356,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
-    show_plot = False
+    show_plot = True
     if show_plot == True:
         sum_len = np.zeros((max_answer_size-1))
         for x in instances:

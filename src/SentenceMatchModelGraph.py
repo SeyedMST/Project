@@ -6,6 +6,14 @@ import match_utils
 
 eps = 1e-8
 
+
+def get_place_holder (q_count, type, shape):
+    ans = ()
+    for _ in range(q_count):
+        ans += (tf.placeholder(type, shape=shape),)
+    return ans
+
+
 class SentenceMatchModelGraph(object):
     def __init__(self, num_classes, word_vocab=None, char_vocab=None, POS_vocab=None, NER_vocab=None,
                  dropout_rate=0.5, learning_rate=0.001, optimize_type='adam', lambda_l2=1e-5,
@@ -19,273 +27,292 @@ class SentenceMatchModelGraph(object):
                  with_bilinear_att = 's', type1 = None, type2 = None, type3 = None, with_aggregation_attention = True,
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
-                 clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15):
+                 clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15,
+                 q_count=2):
 
         # ======word representation layer======
-        in_question_repres = []
-        in_passage_repres = []
-        self.question_lengths = tf.placeholder(tf.int32, [None])
-        self.passage_lengths = tf.placeholder(tf.int32, [None])
+
+        self.question_lengths = get_place_holder (q_count, tf.int32, [None])#tf.placeholder(tf.int32, [None])]
+        self.passage_lengths = get_place_holder (q_count, tf.int32, [None])#tf.placeholder(tf.int32, [None])]
         if is_answer_selection == True:
-            self.truth = tf.placeholder(tf.float32, [None]) # [batch_size]
-            self.hinge_truth = tf.placeholder(tf.float32, [None, None, None]) #[Q,A,A]
-            self.real_answer_count_mask = tf.placeholder(tf.float32, [None, None])
+            self.truth = get_place_holder (q_count, tf.float32, [None])#q_count*[tf.placeholder(tf.float32, [None])] # [batch_size]
+            self.hinge_truth = get_place_holder (q_count, tf.float32, [None, None, None])#q_count*[tf.placeholder(tf.float32, [None, None, None])] #[Q,A,A]
+            self.real_answer_count_mask = get_place_holder (q_count, tf.float32, [None, None])#q_count*[tf.placeholder(tf.float32, [None, None])]
         else:
-            self.truth = tf.placeholder(tf.int32, [None]) # [batch_size]
+            self.truth = get_place_holder (q_count, tf.int32, [None])#tf.placeholder(tf.int32, [None]) # [batch_size]
 
-        self.question_count = tf.placeholder(tf.int32, None)
-        self.answer_count = tf.placeholder(tf.int32, None)
+        self.question_count = get_place_holder (q_count, tf.int32, None)#q_count*[tf.placeholder(tf.int32, None)]
+        self.answer_count = get_place_holder (q_count, tf.int32, None)#q_count*[tf.placeholder(tf.int32, None)]
 
-        self.overlap = tf.placeholder(tf.float32, [None, None, None]) #[bs, N, M]
+        self.overlap = get_place_holder (q_count, tf.float32, [None, None, None])#q_count*[tf.placeholder(tf.float32, [None, None, None])] #[bs, N, M]
 
-        input_dim = 0
-        if with_word and word_vocab is not None: 
-            self.in_question_words = tf.placeholder(tf.int32, [None, None]) # [batch_size, question_len]
-            self.in_passage_words = tf.placeholder(tf.int32, [None, None]) # [batch_size, passage_len]
+        #if with_word and word_vocab is not None:
+        self.in_question_words = get_place_holder (q_count, tf.int32, [None, None])#q_count*[tf.placeholder(tf.int32, [None, None])] # [batch_size, question_len]
+        self.in_passage_words = get_place_holder (q_count, tf.int32, [None, None])#q_count*[tf.placeholder(tf.int32, [None, None])] # [batch_size, passage_len]
 #             self.word_embedding = tf.get_variable("word_embedding", shape=[word_vocab.size()+1, word_vocab.word_dim], initializer=tf.constant(word_vocab.word_vecs), dtype=tf.float32)
-            word_vec_trainable = True
-            cur_device = '/gpu:0'
-            if fix_word_vec: 
-                word_vec_trainable = False
-                cur_device = '/cpu:0'
-            with tf.device(cur_device):
-                self.word_embedding = tf.get_variable("word_embedding", trainable=word_vec_trainable, 
-                                                  initializer=tf.constant(word_vocab.word_vecs), dtype=tf.float32)
+        word_vec_trainable = True
+        cur_device = '/gpu:0'
+        if fix_word_vec:
+            word_vec_trainable = False
+            cur_device = '/cpu:0'
+        with tf.device(cur_device):
+            self.word_embedding = tf.get_variable("word_embedding", trainable=word_vec_trainable,
+                                              initializer=tf.constant(word_vocab.word_vecs), dtype=tf.float32)
 
-            in_question_word_repres = tf.nn.embedding_lookup(self.word_embedding, self.in_question_words) # [batch_size, question_len, word_dim]
-            in_passage_word_repres = tf.nn.embedding_lookup(self.word_embedding, self.in_passage_words) # [batch_size, passage_len, word_dim]
-            in_question_repres.append(in_question_word_repres)
-            in_passage_repres.append(in_passage_word_repres)
+        match_representation_list = []
+        loss_list = []
+        score_list = []
+        prob_list = []
+        with tf.variable_scope ('salamzendegi'):
+            for i in range (q_count):
+                input_dim = 0
+                in_question_repres = []
+                in_passage_repres = []
+                in_question_word_repres = tf.nn.embedding_lookup(self.word_embedding, self.in_question_words[i]) # [batch_size, question_len, word_dim]
+                in_passage_word_repres = tf.nn.embedding_lookup(self.word_embedding, self.in_passage_words[i]) # [batch_size, passage_len, word_dim]
+                in_question_repres.append(in_question_word_repres)
+                in_passage_repres.append(in_passage_word_repres)
 
-            input_shape = tf.shape(self.in_question_words)
-            batch_size = input_shape[0]
-            question_len = input_shape[1]
-            input_shape = tf.shape(self.in_passage_words)
-            passage_len = input_shape[1]
-            input_dim += word_vocab.word_dim
-            
-        if with_POS and POS_vocab is not None: 
-            self.in_question_POSs = tf.placeholder(tf.int32, [None, None]) # [batch_size, question_len]
-            self.in_passage_POSs = tf.placeholder(tf.int32, [None, None]) # [batch_size, passage_len]
-#             self.POS_embedding = tf.get_variable("POS_embedding", shape=[POS_vocab.size()+1, POS_vocab.word_dim], initializer=tf.constant(POS_vocab.word_vecs), dtype=tf.float32)
-            self.POS_embedding = tf.get_variable("POS_embedding", initializer=tf.constant(POS_vocab.word_vecs), dtype=tf.float32)
+                input_shape = tf.shape(self.in_question_words[i])
+                batch_size = input_shape[0]
+                question_len = input_shape[1]
+                input_shape = tf.shape(self.in_passage_words[i])
+                passage_len = input_shape[1]
+                input_dim += word_vocab.word_dim
 
-            in_question_POS_repres = tf.nn.embedding_lookup(self.POS_embedding, self.in_question_POSs) # [batch_size, question_len, POS_dim]
-            in_passage_POS_repres = tf.nn.embedding_lookup(self.POS_embedding, self.in_passage_POSs) # [batch_size, passage_len, POS_dim]
-            in_question_repres.append(in_question_POS_repres)
-            in_passage_repres.append(in_passage_POS_repres)
+    #         if with_POS and POS_vocab is not None:
+    #             self.in_question_POSs = tf.placeholder(tf.int32, [None, None]) # [batch_size, question_len]
+    #             self.in_passage_POSs = tf.placeholder(tf.int32, [None, None]) # [batch_size, passage_len]
+    # #             self.POS_embedding = tf.get_variable("POS_embedding", shape=[POS_vocab.size()+1, POS_vocab.word_dim], initializer=tf.constant(POS_vocab.word_vecs), dtype=tf.float32)
+    #             self.POS_embedding = tf.get_variable("POS_embedding", initializer=tf.constant(POS_vocab.word_vecs), dtype=tf.float32)
+    #
+    #             in_question_POS_repres = tf.nn.embedding_lookup(self.POS_embedding, self.in_question_POSs) # [batch_size, question_len, POS_dim]
+    #             in_passage_POS_repres = tf.nn.embedding_lookup(self.POS_embedding, self.in_passage_POSs) # [batch_size, passage_len, POS_dim]
+    #             in_question_repres.append(in_question_POS_repres)
+    #             in_passage_repres.append(in_passage_POS_repres)
+    #
+    #             input_shape = tf.shape(self.in_question_POSs)
+    #             batch_size = input_shape[0]
+    #             question_len = input_shape[1]
+    #             input_shape = tf.shape(self.in_passage_POSs)
+    #             passage_len = input_shape[1]
+    #             input_dim += POS_vocab.word_dim
+    #
+    #         if with_NER and NER_vocab is not None:
+    #             self.in_question_NERs = tf.placeholder(tf.int32, [None, None]) # [batch_size, question_len]
+    #             self.in_passage_NERs = tf.placeholder(tf.int32, [None, None]) # [batch_size, passage_len]
+    # #             self.NER_embedding = tf.get_variable("NER_embedding", shape=[NER_vocab.size()+1, NER_vocab.word_dim], initializer=tf.constant(NER_vocab.word_vecs), dtype=tf.float32)
+    #             self.NER_embedding = tf.get_variable("NER_embedding", initializer=tf.constant(NER_vocab.word_vecs), dtype=tf.float32)
+    #
+    #             in_question_NER_repres = tf.nn.embedding_lookup(self.NER_embedding, self.in_question_NERs) # [batch_size, question_len, NER_dim]
+    #             in_passage_NER_repres = tf.nn.embedding_lookup(self.NER_embedding, self.in_passage_NERs) # [batch_size, passage_len, NER_dim]
+    #             in_question_repres.append(in_question_NER_repres)
+    #             in_passage_repres.append(in_passage_NER_repres)
+    #
+    #             input_shape = tf.shape(self.in_question_NERs)
+    #             batch_size = input_shape[0]
+    #             question_len = input_shape[1]
+    #             input_shape = tf.shape(self.in_passage_NERs)
+    #             passage_len = input_shape[1]
+    #             input_dim += NER_vocab.word_dim
+    #
+    #         if with_char and char_vocab is not None:
+    #             self.question_char_lengths = tf.placeholder(tf.int32, [None,None]) # [batch_size, question_len]
+    #             self.passage_char_lengths = tf.placeholder(tf.int32, [None,None]) # [batch_size, passage_len]
+    #             self.in_question_chars = tf.placeholder(tf.int32, [None, None, None]) # [batch_size, question_len, q_char_len]
+    #             self.in_passage_chars = tf.placeholder(tf.int32, [None, None, None]) # [batch_size, passage_len, p_char_len]
+    #             input_shape = tf.shape(self.in_question_chars)
+    #             batch_size = input_shape[0]
+    #             question_len = input_shape[1]
+    #             q_char_len = input_shape[2]
+    #             input_shape = tf.shape(self.in_passage_chars)
+    #             passage_len = input_shape[1]
+    #             p_char_len = input_shape[2]
+    #             char_dim = char_vocab.word_dim
+    # #             self.char_embedding = tf.get_variable("char_embedding", shape=[char_vocab.size()+1, char_vocab.word_dim], initializer=tf.constant(char_vocab.word_vecs), dtype=tf.float32)
+    #             self.char_embedding = tf.get_variable("char_embedding", initializer=tf.constant(char_vocab.word_vecs), dtype=tf.float32)
+    #
+    #             in_question_char_repres = tf.nn.embedding_lookup(self.char_embedding, self.in_question_chars) # [batch_size, question_len, q_char_len, char_dim]
+    #             in_question_char_repres = tf.reshape(in_question_char_repres, shape=[-1, q_char_len, char_dim])
+    #             question_char_lengths = tf.reshape(self.question_char_lengths, [-1])
+    #             in_passage_char_repres = tf.nn.embedding_lookup(self.char_embedding, self.in_passage_chars) # [batch_size, passage_len, p_char_len, char_dim]
+    #             in_passage_char_repres = tf.reshape(in_passage_char_repres, shape=[-1, p_char_len, char_dim])
+    #             passage_char_lengths = tf.reshape(self.passage_char_lengths, [-1])
+    #             with tf.variable_scope('char_lstm'):
+    #                 # lstm cell
+    #                 #char_lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(char_lstm_dim)
+    #                 char_lstm_cell = tf.contrib.rnn.BasicLSTMCell(char_lstm_dim)
+    #                 # dropout
+    #                 #if is_training: char_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(char_lstm_cell, output_keep_prob=(1 - dropout_rate))
+    #                 #char_lstm_cell = tf.nn.rnn_cell.MultiRNNCell([char_lstm_cell])
+    #                 if is_training: char_lstm_cell = tf.contrib.rnn.DropoutWrapper(char_lstm_cell,
+    #                                                                                output_keep_prob=(1 - dropout_rate))
+    #                 char_lstm_cell = tf.contrib.rnn.MultiRNNCell([char_lstm_cell])
+    #
+    #                 # question_representation
+    #                 question_char_outputs = dynamic_rnn(char_lstm_cell, in_question_char_repres,
+    #                         sequence_length=question_char_lengths,dtype=tf.float32)[0] # [batch_size*question_len, q_char_len, char_lstm_dim]
+    #                 question_char_outputs = question_char_outputs[:,-1,:]
+    #                 question_char_outputs = tf.reshape(question_char_outputs, [batch_size, question_len, char_lstm_dim])
+    #
+    #                 tf.get_variable_scope().reuse_variables()
+    #                 # passage representation
+    #                 passage_char_outputs = dynamic_rnn(char_lstm_cell, in_passage_char_repres,
+    #                         sequence_length=passage_char_lengths,dtype=tf.float32)[0] # [batch_size*question_len, q_char_len, char_lstm_dim]
+    #                 passage_char_outputs = passage_char_outputs[:,-1,:]
+    #                 passage_char_outputs = tf.reshape(passage_char_outputs, [batch_size, passage_len, char_lstm_dim])
+    #
+    #             in_question_repres.append(question_char_outputs)
+    #             in_passage_repres.append(passage_char_outputs)
+    #
+    #             input_dim += char_lstm_dim
 
-            input_shape = tf.shape(self.in_question_POSs)
-            batch_size = input_shape[0]
-            question_len = input_shape[1]
-            input_shape = tf.shape(self.in_passage_POSs)
-            passage_len = input_shape[1]
-            input_dim += POS_vocab.word_dim
+                in_question_repres = tf.concat(in_question_repres, 2) # [batch_size, question_len, dim]
+                in_passage_repres = tf.concat(in_passage_repres, 2) # [batch_size, passage_len, dim]
 
-        if with_NER and NER_vocab is not None: 
-            self.in_question_NERs = tf.placeholder(tf.int32, [None, None]) # [batch_size, question_len]
-            self.in_passage_NERs = tf.placeholder(tf.int32, [None, None]) # [batch_size, passage_len]
-#             self.NER_embedding = tf.get_variable("NER_embedding", shape=[NER_vocab.size()+1, NER_vocab.word_dim], initializer=tf.constant(NER_vocab.word_vecs), dtype=tf.float32)
-            self.NER_embedding = tf.get_variable("NER_embedding", initializer=tf.constant(NER_vocab.word_vecs), dtype=tf.float32)
-
-            in_question_NER_repres = tf.nn.embedding_lookup(self.NER_embedding, self.in_question_NERs) # [batch_size, question_len, NER_dim]
-            in_passage_NER_repres = tf.nn.embedding_lookup(self.NER_embedding, self.in_passage_NERs) # [batch_size, passage_len, NER_dim]
-            in_question_repres.append(in_question_NER_repres)
-            in_passage_repres.append(in_passage_NER_repres)
-
-            input_shape = tf.shape(self.in_question_NERs)
-            batch_size = input_shape[0]
-            question_len = input_shape[1]
-            input_shape = tf.shape(self.in_passage_NERs)
-            passage_len = input_shape[1]
-            input_dim += NER_vocab.word_dim
-
-        if with_char and char_vocab is not None: 
-            self.question_char_lengths = tf.placeholder(tf.int32, [None,None]) # [batch_size, question_len]
-            self.passage_char_lengths = tf.placeholder(tf.int32, [None,None]) # [batch_size, passage_len]
-            self.in_question_chars = tf.placeholder(tf.int32, [None, None, None]) # [batch_size, question_len, q_char_len]
-            self.in_passage_chars = tf.placeholder(tf.int32, [None, None, None]) # [batch_size, passage_len, p_char_len]
-            input_shape = tf.shape(self.in_question_chars)
-            batch_size = input_shape[0]
-            question_len = input_shape[1]
-            q_char_len = input_shape[2]
-            input_shape = tf.shape(self.in_passage_chars)
-            passage_len = input_shape[1]
-            p_char_len = input_shape[2]
-            char_dim = char_vocab.word_dim
-#             self.char_embedding = tf.get_variable("char_embedding", shape=[char_vocab.size()+1, char_vocab.word_dim], initializer=tf.constant(char_vocab.word_vecs), dtype=tf.float32)
-            self.char_embedding = tf.get_variable("char_embedding", initializer=tf.constant(char_vocab.word_vecs), dtype=tf.float32)
-
-            in_question_char_repres = tf.nn.embedding_lookup(self.char_embedding, self.in_question_chars) # [batch_size, question_len, q_char_len, char_dim]
-            in_question_char_repres = tf.reshape(in_question_char_repres, shape=[-1, q_char_len, char_dim])
-            question_char_lengths = tf.reshape(self.question_char_lengths, [-1])
-            in_passage_char_repres = tf.nn.embedding_lookup(self.char_embedding, self.in_passage_chars) # [batch_size, passage_len, p_char_len, char_dim]
-            in_passage_char_repres = tf.reshape(in_passage_char_repres, shape=[-1, p_char_len, char_dim])
-            passage_char_lengths = tf.reshape(self.passage_char_lengths, [-1])
-            with tf.variable_scope('char_lstm'):
-                # lstm cell
-                #char_lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(char_lstm_dim)
-                char_lstm_cell = tf.contrib.rnn.BasicLSTMCell(char_lstm_dim)
-                # dropout
-                #if is_training: char_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(char_lstm_cell, output_keep_prob=(1 - dropout_rate))
-                #char_lstm_cell = tf.nn.rnn_cell.MultiRNNCell([char_lstm_cell])
-                if is_training: char_lstm_cell = tf.contrib.rnn.DropoutWrapper(char_lstm_cell,
-                                                                               output_keep_prob=(1 - dropout_rate))
-                char_lstm_cell = tf.contrib.rnn.MultiRNNCell([char_lstm_cell])
-
-                # question_representation
-                question_char_outputs = dynamic_rnn(char_lstm_cell, in_question_char_repres,
-                        sequence_length=question_char_lengths,dtype=tf.float32)[0] # [batch_size*question_len, q_char_len, char_lstm_dim]
-                question_char_outputs = question_char_outputs[:,-1,:]
-                question_char_outputs = tf.reshape(question_char_outputs, [batch_size, question_len, char_lstm_dim])
-             
-                tf.get_variable_scope().reuse_variables()
-                # passage representation
-                passage_char_outputs = dynamic_rnn(char_lstm_cell, in_passage_char_repres,
-                        sequence_length=passage_char_lengths,dtype=tf.float32)[0] # [batch_size*question_len, q_char_len, char_lstm_dim]
-                passage_char_outputs = passage_char_outputs[:,-1,:]
-                passage_char_outputs = tf.reshape(passage_char_outputs, [batch_size, passage_len, char_lstm_dim])
-                
-            in_question_repres.append(question_char_outputs)
-            in_passage_repres.append(passage_char_outputs)
-
-            input_dim += char_lstm_dim
-
-        in_question_repres = tf.concat(in_question_repres, 2) # [batch_size, question_len, dim]
-        in_passage_repres = tf.concat(in_passage_repres, 2) # [batch_size, passage_len, dim]
-
-        if is_training:
-            in_question_repres = tf.nn.dropout(in_question_repres, (1 - dropout_rate))
-            in_passage_repres = tf.nn.dropout(in_passage_repres, (1 - dropout_rate))
-        else:
-            in_question_repres = tf.multiply(in_question_repres, (1 - dropout_rate))
-            in_passage_repres = tf.multiply(in_passage_repres, (1 - dropout_rate))
-
-        mask = tf.sequence_mask(self.passage_lengths, passage_len, dtype=tf.float32) # [batch_size, passage_len]
-        question_mask = tf.sequence_mask(self.question_lengths, question_len, dtype=tf.float32) # [batch_size, question_len]
-
-        # ======Highway layer======
-        if with_input_highway:
-            with tf.variable_scope("input_highway"):
-                output_size = context_lstm_dim
-                flag_highway = False
-                if context_layer_num == 2:
-                    output_size = input_dim
-                    flag_highway = True
-                in_question_repres = match_utils.highway_layer(in_question_repres, input_size=input_dim, scope='s',
-                                                               output_size=output_size,with_highway=flag_highway)
-                tf.get_variable_scope().reuse_variables()
-                in_passage_repres = match_utils.highway_layer(in_passage_repres, input_size=input_dim, scope='s',
-                                                               output_size=output_size, with_highway=flag_highway)
-
-            if context_layer_num == 2:
-                with tf.variable_scope("input_highway2"):
-                    context_layer_num = 1
-                    in_question_repres = match_utils.highway_layer(in_question_repres, input_size=output_size, scope='s1',
-                                                                   output_size=context_lstm_dim)
-                    tf.get_variable_scope().reuse_variables()
-                    in_passage_repres = match_utils.highway_layer(in_passage_repres, input_size=output_size, scope='s1',
-                                                                  output_size=context_lstm_dim)
-        
-        # ========Bilateral Matching=====
-        (match_representation, match_dim, self.attention_weights) = match_utils.bilateral_match_func2(in_question_repres, in_passage_repres,
-                        self.question_lengths, self.passage_lengths, question_mask, mask, MP_dim, input_dim, 
-                        with_filter_layer, context_layer_num, context_lstm_dim,is_training,dropout_rate,
-                        with_match_highway,aggregation_layer_num, aggregation_lstm_dim,highway_layer_num,
-                        with_aggregation_highway,with_lex_decomposition,lex_decompsition_dim,
-                        with_full_match, with_maxpool_match, with_attentive_match, with_max_attentive_match,
-                        with_left_match, with_right_match, with_bilinear_att, type1, type2, type3, with_aggregation_attention
-                                                                              ,is_shared_attention, is_aggregation_lstm,
-                                                                              max_window_size, context_lstm_dropout,
-                                                                              is_aggregation_siamese,unstack_cnn, with_input_highway,with_context_self_attention,
-                                                                              self.overlap, mean_max, clip_attention)
-
-
-        #========Prediction Layer=========
-        pred_highway = True
-        if pred_highway == False:
-            w_0 = tf.get_variable("w_0", [match_dim, match_dim/2], dtype=tf.float32)
-            b_0 = tf.get_variable("b_0", [match_dim/2], dtype=tf.float32)
-            logits = tf.matmul(match_representation, w_0) + b_0
-            logits = tf.tanh(logits)
-        else:
-            logits=match_utils.highway_layer(in_val=tf.expand_dims(match_representation,0), input_size=match_dim,output_size=match_dim,with_highway=True
-                                      ,scope='pred_highway') #[1, bs, d]
-            logits = tf.reduce_sum(logits, 0) #[bs,d]
-            match_dim *= 2
-        if is_training:
-            logits = tf.nn.dropout(logits, (1 - dropout_rate))
-        else:
-            logits = tf.multiply(logits, (1 - dropout_rate))
-
-        sec_dim = 1
-        if prediction_mode == 'point_wise':
-            sec_dim = num_classes
-
-        w_1 = tf.get_variable("w_1", [match_dim/2, sec_dim],dtype=tf.float32)
-        b_1 = tf.get_variable("b_1", [sec_dim],dtype=tf.float32)
-        logits = tf.matmul(logits, w_1) + b_1
-        self.score = tf.reshape(logits, [-1])
-        if prediction_mode != 'point_wise':
-            logits = tf.reshape(logits, shape=[self.question_count, self.answer_count])
-            gold_matrix = tf.reshape(self.truth, shape=[self.question_count, self.answer_count])
-            g1_matrix = tf.ceil(gold_matrix - eps)
-            if prediction_mode == 'list_wise':
-                # p: truth label
-                # q: prediction
-                # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
-                # loss = mean(H(p,q)) for p,q in batch
-                self.prob = tf.reshape(logits, [-1]) #[bs]
-                if new_list_wise == False:
-                    logits = tf.multiply(logits, self.real_answer_count_mask)
-                    logits = tf.nn.softmax(logits)  # [question_count, answer_count]
-                    #logits = tf.multiply(logits, self.real_answer_count_mask)
-                    self.loss = tf.reduce_mean(tf.reduce_sum(
-                        tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
-                        , axis=1))
-                    #ModifyLoss:
-                    alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
-                    self.loss += modify_loss / alpha1
+                if is_training:
+                    in_question_repres = tf.nn.dropout(in_question_repres, (1 - dropout_rate))
+                    in_passage_repres = tf.nn.dropout(in_passage_repres, (1 - dropout_rate))
                 else:
-                    pos_mask = g1_matrix #[q, a]
-                    neg_mask = 1 - g1_matrix #[q, a]
-                    neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]
-                    pos_count = tf.reduce_sum(pos_mask, axis=1) #[q]
-                    pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
-                    pos_count_all = tf.reduce_sum(pos_mask) #[1]
-                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[q, a]
-                    neg_exp = tf.multiply(neg_exp, neg_mask)
-                    neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
-                    avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
-                    less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
-                    pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
-                    neg_exp_sum = tf.add(neg_exp_sum, tf.add(less_than_box_sum, pos_effect_sum)) #[q, 1]
-                    pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
-                    fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
-                    fi = tf.multiply(fi, pos_mask)
-                    #fi = tf.reduce_sum(fi, axis=1) #[q]
-                    #fi = tf.divide(fi,pos_count) #[q]
-                    #self.loss = tf.reduce_mean(fi)
+                    in_question_repres = tf.multiply(in_question_repres, (1 - dropout_rate))
+                    in_passage_repres = tf.multiply(in_passage_repres, (1 - dropout_rate))
 
-                    fi = tf.reduce_sum(fi) #[1]
-                    self.loss = tf.divide(fi, pos_count_all) #[1]
-            else:
-                if with_tanh == True:
+                mask = tf.sequence_mask(self.passage_lengths[i], passage_len, dtype=tf.float32) # [batch_size, passage_len]
+                question_mask = tf.sequence_mask(self.question_lengths[i], question_len, dtype=tf.float32) # [batch_size, question_len]
+
+            # ======Highway layer======
+                if with_input_highway:
+                    with tf.variable_scope("input_highway"):
+                        output_size = context_lstm_dim
+                        flag_highway = False
+                        if context_layer_num == 2:
+                            output_size = input_dim
+                            flag_highway = True
+                        in_question_repres = match_utils.highway_layer(in_question_repres, input_size=input_dim, scope='s',
+                                                                       output_size=output_size,with_highway=flag_highway)
+                        tf.get_variable_scope().reuse_variables()
+                        in_passage_repres = match_utils.highway_layer(in_passage_repres, input_size=input_dim, scope='s',
+                                                                       output_size=output_size, with_highway=flag_highway)
+                    # if context_layer_num == 2:
+                    #     with tf.variable_scope("input_highway2"):
+                    #         context_layer_num = 1
+                    #         in_question_repres = match_utils.highway_layer(in_question_repres, input_size=output_size, scope='s1',
+                    #                                                        output_size=context_lstm_dim)
+                    #         a1 = tf.get_variable("a1", [5, 3], dtype=tf.float32)
+                    #
+                    #         tf.get_variable_scope().reuse_variables()
+                    #         in_passage_repres = match_utils.highway_layer(in_passage_repres, input_size=output_size, scope='s1',
+                    #                                                           output_size=context_lstm_dim)
+            # ========Bilateral Matching=====
+
+                (match_representation, match_dim, self.attention_weights) = match_utils.bilateral_match_func2(in_question_repres, in_passage_repres,
+                                self.question_lengths[i], self.passage_lengths[i], question_mask, mask, MP_dim, input_dim,
+                                with_filter_layer, context_layer_num, context_lstm_dim,is_training,dropout_rate,
+                                with_match_highway,aggregation_layer_num, aggregation_lstm_dim,highway_layer_num,
+                                with_aggregation_highway,with_lex_decomposition,lex_decompsition_dim,
+                                with_full_match, with_maxpool_match, with_attentive_match, with_max_attentive_match,
+                                with_left_match, with_right_match, with_bilinear_att, type1, type2, type3, with_aggregation_attention
+                                                                                      ,is_shared_attention, is_aggregation_lstm,
+                                                                                      max_window_size, context_lstm_dropout,
+                                                                                      is_aggregation_siamese,unstack_cnn, with_input_highway,with_context_self_attention,
+                                                                                      self.overlap[i], mean_max, clip_attention)
+                #match_representation_list.append(match_representation)
+            #========Prediction Layer=========
+                pred_highway = True
+                if pred_highway == False:
+                    w_0 = tf.get_variable("w_0", [match_dim, match_dim/2], dtype=tf.float32)
+                    b_0 = tf.get_variable("b_0", [match_dim/2], dtype=tf.float32)
+                    logits = tf.matmul(match_representation, w_0) + b_0
                     logits = tf.tanh(logits)
-                self.prob = tf.reshape(logits, [-1])
-                #self.loss = self.hinge_loss(g1_matrix, logits)
-                self.loss = self.hinge_loss(self.hinge_truth, logits)
-        else:
-            self.prob = tf.nn.softmax(logits)
-            gold_matrix = tf.one_hot(self.truth, num_classes, dtype=tf.float32)            #         gold_matrix = tf.one_hot(self.truth, num_classes)
-            #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, gold_matrix))
-            self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=gold_matrix))
-#         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, tf.cast(self.truth, tf.int64), name='cross_entropy_per_example')
-#         self.loss = tf.reduce_mean(cross_entropy, name='cross_entropy')
-            correct = tf.nn.in_top_k(logits, self.truth, 1)
-            self.eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
-            #self.predictions = tf.arg_max(self.prob, 1)
-            self.predictions = tf.argmax(self.prob, 1)
+                else:
+                    logits=match_utils.highway_layer(in_val=tf.expand_dims(match_representation,0), input_size=match_dim,output_size=match_dim,with_highway=True
+                                              ,scope='pred_highway') #[1, bs, d]
+                    logits = tf.reduce_sum(logits, 0) #[bs,d]
+                    match_dim *= 2
+                if is_training:
+                    logits = tf.nn.dropout(logits, (1 - dropout_rate))
+                else:
+                    logits = tf.multiply(logits, (1 - dropout_rate))
+
+                sec_dim = 1
+                if prediction_mode == 'point_wise':
+                    sec_dim = num_classes
+
+                w_1 = tf.get_variable("w_1", [match_dim/2, sec_dim],dtype=tf.float32)
+                b_1 = tf.get_variable("b_1", [sec_dim],dtype=tf.float32)
+                logits = tf.matmul(logits, w_1) + b_1
+                #self.score = tf.reshape(logits, [-1])
+                score_list.append (tf.reshape(logits, [-1]))
+                if prediction_mode != 'point_wise':
+                    logits = tf.reshape(logits, shape=[self.question_count[i], self.answer_count[i]])
+                    gold_matrix = tf.reshape(self.truth[i], shape=[self.question_count[i], self.answer_count[i]])
+                    g1_matrix = tf.ceil(gold_matrix - eps)
+                    if prediction_mode == 'list_wise':
+                        # p: truth label
+                        # q: prediction
+                        # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
+                        # loss = mean(H(p,q)) for p,q in batch
+                        #self.prob = tf.reshape(logits, [-1]) #[bs]
+                        prob_list.append(tf.reshape(logits, [-1]))
+                        if new_list_wise == False:
+                            if q_count == 1: # baraie vaghti ke khasti halate ghadim ro test koni
+                                logits = tf.multiply(logits, self.real_answer_count_mask)
+                            logits = tf.nn.softmax(logits)  # [question_count, answer_count]
+                            #logits = tf.multiply(logits, self.real_answer_count_mask)
+                            loss_list.append(tf.reduce_mean(tf.reduce_sum(
+                                tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
+                                , axis=1)))
+                            #ModifyLoss:
+                            #alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
+                            #self.loss += modify_loss / alpha1
+                        else:
+                            pos_mask = g1_matrix #[q, a]
+                            neg_mask = 1 - g1_matrix #[q, a]
+                            neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]
+                            pos_count = tf.reduce_sum(pos_mask, axis=1) #[q]
+                            pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
+                            pos_count_all = tf.reduce_sum(pos_mask) #[1]
+                            neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[q, a]
+                            neg_exp = tf.multiply(neg_exp, neg_mask)
+                            neg_exp_sum = tf.reduce_sum(neg_exp, axis=1, keep_dims=True) #[q, 1]
+                            avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
+                            less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
+                            pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
+                            neg_exp_sum = tf.add(neg_exp_sum, tf.add(less_than_box_sum, pos_effect_sum)) #[q, 1]
+                            pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [q, a]
+                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[q, a]
+                            fi = tf.multiply(fi, pos_mask)
+                            #fi = tf.reduce_sum(fi, axis=1) #[q]
+                            #fi = tf.divide(fi,pos_count) #[q]
+                            #self.loss = tf.reduce_mean(fi)
+
+                            fi = tf.reduce_sum(fi) #[1]
+                            self.loss = tf.divide(fi, pos_count_all) #[1]
+                    else:
+                        if with_tanh == True:
+                            logits = tf.tanh(logits)
+                        self.prob = tf.reshape(logits, [-1])
+                        #self.loss = self.hinge_loss(g1_matrix, logits)
+                        self.loss = self.hinge_loss(self.hinge_truth, logits)
+                else:
+                    self.prob = tf.nn.softmax(logits)
+                    gold_matrix = tf.one_hot(self.truth, num_classes, dtype=tf.float32)            #         gold_matrix = tf.one_hot(self.truth, num_classes)
+                    #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, gold_matrix))
+                    self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=gold_matrix))
+        #         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, tf.cast(self.truth, tf.int64), name='cross_entropy_per_example')
+        #         self.loss = tf.reduce_mean(cross_entropy, name='cross_entropy')
+                    correct = tf.nn.in_top_k(logits, self.truth, 1)
+                    self.eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
+                    #self.predictions = tf.arg_max(self.prob, 1)
+                    self.predictions = tf.argmax(self.prob, 1)
+
+                tf.get_variable_scope().reuse_variables()
+
+        #print (len (loss_list))
+        self.loss = tf.stack (loss_list, 0)
+        self.loss = tf.reduce_mean(self.loss, 0)
+        self.score = tf.concat(score_list, 0)
+        self.prob = tf.concat(prob_list, 0)
 
         if optimize_type == 'adadelta':
             clipper = 50 

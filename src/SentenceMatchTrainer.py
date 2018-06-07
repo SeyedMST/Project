@@ -720,7 +720,7 @@ def main(_):
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                       mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
                                                       ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
-                                                      max_answer_size=FLAGS.max_answer_size)
+                                                      max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch)
                 tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
     #         with tf.name_scope("Valid"):
@@ -750,7 +750,8 @@ def main(_):
                                                       is_aggregation_siamese=FLAGS.is_aggregation_siamese
                                                       , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                       mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
-                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise)
+                                                      ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
+                                                      q_count=1)
 
 
             initializer = tf.global_variables_initializer()
@@ -772,54 +773,83 @@ def main(_):
 
                 print('Start the training loop.')
                 train_size = trainDataStream.get_num_batch()
-                max_steps = train_size * FLAGS.max_epochs
+                max_steps = (train_size * FLAGS.max_epochs) // FLAGS.question_count_per_batch
+                #max_steps += (train_size * FLAGS.max_epochs) % FLAGS.question_count_per_batch
                 #max_steps = 2
                 total_loss = 0.0
                 start_time = time.time()
 
                 max_valid = 0
-
+                flag_next_epoch = False
                 for step in range(max_steps):
+
                     # read data
-                    cur_batch, batch_index = trainDataStream.nextBatch()
-                    (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
+                    _truth = []
+                    _question_lengths = []
+                    _passage_lengths = []
+                    _in_question_words = []
+                    _in_passage_words = []
+                    _overlap = []
+                    _question_count = []
+                    _answer_count = []
+                    _hinge_truth = []
+                    _real_answer_count_mask = []
+                    for i in range (FLAGS.question_count_per_batch):
+                        # if (step + 1) % trainDataStream.get_num_batch() == 0 or (step + 1) == max_steps:
+                        #     break
+                        if step != 0 and trainDataStream.cur_pointer == 1:
+                            flag_next_epoch = True
+                        cur_batch, batch_index = trainDataStream.nextBatch()
+                        (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
                                          char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
                                          sent1_char_length_batch, sent2_char_length_batch,
                                          POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch) = cur_batch
+
+                        _truth.append(label_id_batch)
+                        _question_lengths.append(sent1_length_batch)
+                        _passage_lengths.append(sent2_length_batch)
+                        _in_question_words.append(word_idx_1_batch)
+                        _in_passage_words.append(word_idx_2_batch)
+                        _overlap.append(overlap_batch)
+                        _question_count.append(trainDataStream.question_count(batch_index))
+                        _answer_count.append(trainDataStream.answer_count(batch_index))
+                        _hinge_truth.append(make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
+                                                                                    trainDataStream.answer_count(
+                                                                                        batch_index)))
+                        _real_answer_count_mask.append(trainDataStream.real_answer_count(batch_index))
+
+
                     feed_dict = {
-                                 train_graph.get_truth(): label_id_batch,
-                                 train_graph.get_question_lengths(): sent1_length_batch,
-                                 train_graph.get_passage_lengths(): sent2_length_batch,
-                                 train_graph.get_in_question_words(): word_idx_1_batch,
-                                 train_graph.get_in_passage_words(): word_idx_2_batch,
-                                    train_graph.get_overlap():overlap_batch,
-
-        #                          train_graph.get_question_char_lengths(): sent1_char_length_batch,
-        #                          train_graph.get_passage_char_lengths(): sent2_char_length_batch,
-        #                          train_graph.get_in_question_chars(): char_matrix_idx_1_batch,
-        #                          train_graph.get_in_passage_chars(): char_matrix_idx_2_batch,
-                                 }
-                    if char_vocab is not None and FLAGS.wo_char == False:
-                        feed_dict[train_graph.get_question_char_lengths()] = sent1_char_length_batch
-                        feed_dict[train_graph.get_passage_char_lengths()] = sent2_char_length_batch
-                        feed_dict[train_graph.get_in_question_chars()] = char_matrix_idx_1_batch
-                        feed_dict[train_graph.get_in_passage_chars()] = char_matrix_idx_2_batch
-
-                    if POS_vocab is not None:
-                        feed_dict[train_graph.get_in_question_poss()] = POS_idx_1_batch
-                        feed_dict[train_graph.get_in_passage_poss()] = POS_idx_2_batch
-
-                    if NER_vocab is not None:
-                        feed_dict[train_graph.get_in_question_ners()] = NER_idx_1_batch
-                        feed_dict[train_graph.get_in_passage_ners()] = NER_idx_2_batch
+                            train_graph.get_truth() : tuple(_truth),
+                        train_graph.get_question_lengths() : tuple (_question_lengths),
+                             train_graph.get_passage_lengths(): tuple (_passage_lengths),
+                             train_graph.get_in_question_words(): tuple(_in_question_words),
+                             train_graph.get_in_passage_words(): tuple (_in_passage_words),
+                                train_graph.get_overlap():tuple(_overlap),
+    #                          train_graph.get_question_char_lengths(): sent1_char_length_batch,
+    #                          train_graph.get_passage_char_lengths(): sent2_char_length_batch,
+    #                          train_graph.get_in_question_chars(): char_matrix_idx_1_batch,
+    #                          train_graph.get_in_passage_chars(): char_matrix_idx_2_batch
+                             }
+                # if char_vocab is not None and FLAGS.wo_char == False:
+                #     feed_dict[train_graph.get_question_char_lengths()] = sent1_char_length_batch
+                #     feed_dict[train_graph.get_passage_char_lengths()] = sent2_char_length_batch
+                #     feed_dict[train_graph.get_in_question_chars()] = char_matrix_idx_1_batch
+                #     feed_dict[train_graph.get_in_passage_chars()] = char_matrix_idx_2_batch
+                #
+                # if POS_vocab is not None:
+                #     feed_dict[train_graph.get_in_question_poss()] = POS_idx_1_batch
+                #     feed_dict[train_graph.get_in_passage_poss()] = POS_idx_2_batch
+                #
+                # if NER_vocab is not None:
+                #     feed_dict[train_graph.get_in_question_ners()] = NER_idx_1_batch
+                #     feed_dict[train_graph.get_in_passage_ners()] = NER_idx_2_batch
 
                     if FLAGS.is_answer_selection == True:
-                        feed_dict[train_graph.get_question_count()] = trainDataStream.question_count(batch_index)
-                        feed_dict[train_graph.get_answer_count()] = trainDataStream.answer_count(batch_index)
-                        feed_dict[train_graph.get_hinge_truth()] = make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
-                                                                                    trainDataStream.answer_count(
-                                                                                        batch_index))
-                        feed_dict[train_graph.get_real_answer_count_mask()] = trainDataStream.real_answer_count(batch_index)
+                        feed_dict[train_graph.get_question_count()] = tuple(_question_count)
+                        feed_dict[train_graph.get_answer_count()] = tuple (_answer_count)
+                        feed_dict[train_graph.get_hinge_truth()] = tuple (_hinge_truth)
+                        feed_dict[train_graph.get_real_answer_count_mask()] = tuple (_real_answer_count_mask)
 
                     _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                     total_loss += loss_value
@@ -832,7 +862,8 @@ def main(_):
                         sys.stdout.flush()
 
                     # Save a checkpoint and evaluate the model periodically.
-                    if (step + 1) % trainDataStream.get_num_batch() == 0 or (step + 1) == max_steps:
+                    if flag_next_epoch == True or (step + 1) == max_steps:
+                        flag_next_epoch = False
                         #print(total_loss)
                         # Print status to stdout.
                         duration = time.time() - start_time
@@ -885,6 +916,7 @@ def main(_):
                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
                             output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
                             print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
+
 
         # print("Best accuracy on dev set is %.2f" % best_accuracy)
         # # decoding
@@ -954,7 +986,7 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
@@ -969,7 +1001,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=7, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=2, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -996,14 +1028,18 @@ if __name__ == '__main__':
     #bs = 100 #135 #110
     #if is_trec == False:
     #    bs = 40
-    parser.add_argument('--min_answer_size', type=int, default= 15, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 15, help='Number of instances in each batch.')
 
-    question_per_batch = 7
+    parser.add_argument('--question_count_per_batch', type=int, default= 5, help='Number of instances in each batch.')
+
+
+    parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 35, help='Number of instances in each batch.')
+
+    #question_per_batch = 1
 
     FLAGS, unparsed = parser.parse_known_args()
 
-    bs = FLAGS.max_answer_size * question_per_batch
+    bs = FLAGS.max_answer_size
 
     parser.add_argument('--batch_size', type=int, default=bs, help='Number of instances in each batch.')
     parser.add_argument('--is_answer_selection',default=True, type =bool, help='is answer selection or other sentence matching tasks?')

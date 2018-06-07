@@ -14,10 +14,11 @@ def condition(x):
 x = tf.Variable(tf.constant(0, shape=[2, 2]))
 g = tf.constant(np.array([[0, 1], [0, 0.9999]]), dtype=tf.float32)
 g1 = tf.constant(np.array([[0, 1], [0.9999, -0.00001]]), dtype=tf.float32)
+
 with tf.Session():
     tf.initialize_all_variables().run()
-    #result = []
-    #result.append(tf.while_loop(condition, body, [x]))
-    #result = tf.concat(0, result)
-    result = tf.ceil(g1)
+    result = []
+    result.append(tf.while_loop(condition, body, [x]))
+    result = tf.concat(0, result)
+    #result = tf.ceil(g1)
     print(result.eval())
