@@ -356,7 +356,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
-    show_plot = False
+    show_plot = True
     if show_plot == True:
         sum_len = np.zeros((max_answer_size-1))
         for x in instances:
