@@ -351,7 +351,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         instances.append((question[i], answer[i], label[i], real_answer_length[i]))
     random.shuffle(instances)  # random works inplace and returns None
 
-    instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
+    #instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
     if is_training == True:
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:

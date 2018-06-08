@@ -257,14 +257,14 @@ class SentenceMatchModelGraph(object):
                         if new_list_wise == False:
                             if q_count == 1: # baraie vaghti ke khasti halate ghadim ro test koni
                                 logits = tf.multiply(logits, self.real_answer_count_mask)
-                            #logits = tf.nn.softmax(logits)  # [question_count, answer_count]
+                            logits = tf.nn.softmax(logits)  # [question_count, answer_count]
                             #logits = tf.multiply(logits, self.real_answer_count_mask)
-                            logits = tf.exp(logits)
+                            #logits = tf.exp(logits)
                             # input_shape = tf.shape(logits)
                             # ans_count = input_shape[1]
-                            logits_sum = tf.reduce_sum(logits) + \
-                                         (float(max_answer_size) - tf.cast(self.answer_count[i], tf.float32))
-                            logits = logits / logits_sum
+                            #logits_sum = tf.reduce_sum(logits) + \
+                            #             (float(max_answer_size) - tf.cast(self.answer_count[i], tf.float32))
+                            #logits = logits / logits_sum
                             loss_list.append(tf.reduce_mean(tf.reduce_sum(
                                 tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
                                 , axis=1)))
