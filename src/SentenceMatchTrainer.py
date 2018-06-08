@@ -1029,7 +1029,7 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
 
-    parser.add_argument('--question_count_per_batch', type=int, default= 5, help='Number of instances in each batch.')
+    parser.add_argument('--question_count_per_batch', type=int, default= 3, help='Number of instances in each batch.')
 
 
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
@@ -1052,7 +1052,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_path', type=str, default = '../data/'+qa_path+'test.txt',help='Path to the test set.')
     parser.add_argument('--model_dir', type=str,default = '../models',help='Directory to save model files.')
 
-    parser.add_argument('--learning_rate', type=float, default=0.0003, help='Learning rate.')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate.')
     parser.add_argument('--lambda_l2', type=float, default=0.00001, help='The coefficient of L2 regularizer.')
     parser.add_argument('--dropout_rate', type=float, default=0.1, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
