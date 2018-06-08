@@ -255,8 +255,7 @@ class SentenceMatchModelGraph(object):
                         #self.prob = tf.reshape(logits, [-1]) #[bs]
                         prob_list.append(tf.reshape(logits, [-1]))
                         if new_list_wise == False:
-                            if q_count == 1: # baraie vaghti ke khasti halate ghadim ro test koni
-                                logits = tf.multiply(logits, self.real_answer_count_mask)
+                            logits = tf.multiply(logits, self.real_answer_count_mask[i])
                             logits = tf.nn.softmax(logits)  # [question_count, answer_count]
                             #logits = tf.multiply(logits, self.real_answer_count_mask)
                             #logits = tf.exp(logits)
