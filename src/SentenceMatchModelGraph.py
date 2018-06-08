@@ -262,7 +262,8 @@ class SentenceMatchModelGraph(object):
                             logits = tf.exp(logits)
                             # input_shape = tf.shape(logits)
                             # ans_count = input_shape[1]
-                            logits_sum = tf.reduce_sum(logits) + (max_answer_size - self.answer_count[i])
+                            logits_sum = tf.reduce_sum(logits) + \
+                                         (float(max_answer_size) - tf.cast(self.answer_count[i], tf.float32))
                             logits = logits / logits_sum
                             loss_list.append(tf.reduce_mean(tf.reduce_sum(
                                 tf.multiply(gold_matrix, tf.log(gold_matrix+eps)) - tf.multiply(gold_matrix, tf.log(logits))
