@@ -1000,8 +1000,8 @@ if __name__ == '__main__':
     parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.50d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--is_random_init',default=False, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
+    parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--max_epochs', type=int, default=7, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -1029,11 +1029,11 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
 
-    parser.add_argument('--question_count_per_batch', type=int, default= 5, help='Number of instances in each batch.')
+    parser.add_argument('--question_count_per_batch', type=int, default= 3, help='Number of instances in each batch.')
 
 
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 200, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 120, help='Number of instances in each batch.')
 
     #question_per_batch = 1
 
