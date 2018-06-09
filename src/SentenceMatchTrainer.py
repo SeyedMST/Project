@@ -272,8 +272,8 @@ def Generate_random_initialization(cnf):
         # FLAGS.type2 = random.choice(type2)
         # FLAGS.type3 = random.choice(type3)
         # context_layer_num = [1]
-        # aggregation_layer_num = [1]
-        # FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
+        aggregation_layer_num = [1, 2]
+        FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
         # FLAGS.context_layer_num = random.choice(context_layer_num)
         # #if cnf == 1  or cnf == 4:
         # #    is_aggregation_lstm = [True]
@@ -319,7 +319,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        # dropout_rate = [0.04]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.05, 0.1, 0.2]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -354,8 +354,8 @@ def Generate_random_initialization(cnf):
         #
         # with_context_self_attention = [False]
         #modify_loss = [0, 0.1]#[x/10.0 for x in range (0, 5, 1)]
-        prediction_mode = ['list_wise'] #, 'list_wise', 'hinge_wise']
-        new_list_wise = [False]
+        #prediction_mode = ['list_wise'] #, 'list_wise', 'hinge_wise']
+        #new_list_wise = [True, False]
         #if cnf == 2:
         # unstack_cnn = [False]
         # #else:
@@ -368,11 +368,11 @@ def Generate_random_initialization(cnf):
         # with_aggregation_highway = [False]
         # highway_layer_num = [1]
         # FLAGS.with_context_self_attention = random.choice(with_context_self_attention)
-        #FLAGS.batch_size = random.choice(batch_size)
+        # FLAGS.batch_size = random.choice(batch_size)
         # FLAGS.unstack_cnn = random.choice(unstack_cnn)
         # FLAGS.attention_type = random.choice(attention_type)
         # FLAGS.learning_rate = random.choice(learning_rate)
-        # FLAGS.dropout_rate = random.choice(dropout_rate)
+        FLAGS.dropout_rate = random.choice(dropout_rate)
         # FLAGS.char_lstm_dim = random.choice(char_lstm_dim)
         # FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
         # FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
@@ -384,8 +384,8 @@ def Generate_random_initialization(cnf):
         # FLAGS.wo_agg_self_att = random.choice(wo_agg_self_att)
         # FLAGS.is_shared_attention = random.choice(is_shared_attention)
         #FLAGS.modify_loss = random.choice(modify_loss)
-        FLAGS.prediction_mode = random.choice(prediction_mode)
-        FLAGS.new_list_wise = random.choice(new_list_wise)
+        #FLAGS.prediction_mode = random.choice(prediction_mode)
+        #FLAGS.new_list_wise = random.choice(new_list_wise)
         # FLAGS.with_match_highway = random.choice(with_match_highway)
         # FLAGS.with_highway = random.choice(with_highway)
         # FLAGS.highway_layer_num = random.choice(highway_layer_num)
@@ -774,6 +774,7 @@ def main(_):
                 print('Start the training loop.')
                 train_size = trainDataStream.get_num_batch()
                 max_steps = (train_size * FLAGS.max_epochs) // FLAGS.question_count_per_batch
+                epoch_size = max_steps // FLAGS.max_epochs
                 #max_steps += (train_size * FLAGS.max_epochs) % FLAGS.question_count_per_batch
                 #max_steps = 2
                 total_loss = 0.0
@@ -862,7 +863,7 @@ def main(_):
                         sys.stdout.flush()
 
                     # Save a checkpoint and evaluate the model periodically.
-                    if flag_next_epoch == True or (step + 1) == max_steps:
+                    if (step+1) % epoch_size == 0 or (step + 1) == max_steps:
                         flag_next_epoch = False
                         #print(total_loss)
                         # Print status to stdout.
@@ -997,11 +998,11 @@ if __name__ == '__main__':
         qa_path = 'trecqa/'
     else:
         qa_path = 'wikiqa/WikiQACorpus/WikiQA-'
-    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.200d.txt', help='Path the to pre-trained word vector model.')
+    parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.6B.300d.txt', help='Path the to pre-trained word vector model.')
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
-    parser.add_argument('--is_random_init',default=False, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
+    parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
+    parser.add_argument('--max_epochs', type=int, default=8, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -1029,11 +1030,11 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
 
-    parser.add_argument('--question_count_per_batch', type=int, default= 5, help='Number of instances in each batch.')
+    parser.add_argument('--question_count_per_batch', type=int, default= 4, help='Number of instances in each batch.')
 
 
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
-    parser.add_argument('--max_answer_size', type=int, default= 120, help='Number of instances in each batch.')
+    parser.add_argument('--max_answer_size', type=int, default= 150, help='Number of instances in each batch.')
 
     #question_per_batch = 1
 
@@ -1054,7 +1055,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--learning_rate', type=float, default=0.002, help='Learning rate.')
     parser.add_argument('--lambda_l2', type=float, default=0.0001, help='The coefficient of L2 regularizer.')
-    parser.add_argument('--dropout_rate', type=float, default=0.1, help='Dropout ratio.')
+    parser.add_argument('--dropout_rate', type=float, default=0.05, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
     parser.add_argument('--char_lstm_dim', type=int, default=50, help='Number of dimension for character-composed embeddings.')
     parser.add_argument('--max_char_per_word', type=int, default=10, help='Maximum number of characters for each word.')
@@ -1076,7 +1077,6 @@ if __name__ == '__main__':
     parser.add_argument('--is_aggregation_siamese', default=True, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--unstack_cnn', default=False, help = 'are aggregation wieghts on both sides shared or not' )
     parser.add_argument('--with_context_self_attention', default=False, help = 'are aggregation wieghts on both sides shared or not' )
-
 
 
     parser.add_argument('--MP_dim', type=int, default=50, help='Number of perspectives for matching vectors.')

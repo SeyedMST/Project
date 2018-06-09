@@ -1105,6 +1105,9 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                             self_attention(question_aggregation_representation_fw,question_aggregation_representation_bw
                                                   ,question_mask,aggregation_lstm_dim * 2))
                         aggregation_dim += 2 * aggregation_lstm_dim
+            if aggregation_layer_num == 2:
+                aggregation_representation = aggregation_representation [len (aggregation_representation) // 2:]
+                aggregation_dim = aggregation_dim // 2
         else: #CNN
             sim_len = 0
             if type1 != None:
