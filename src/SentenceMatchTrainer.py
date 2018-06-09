@@ -774,7 +774,7 @@ def main(_):
                 print('Start the training loop.')
                 train_size = trainDataStream.get_num_batch()
                 max_steps = (train_size * FLAGS.max_epochs) // FLAGS.question_count_per_batch
-                epoch_size = max_steps // FLAGS.max_epochs
+                epoch_size = max_steps // (FLAGS.max_epochs*2) + 1
                 #max_steps += (train_size * FLAGS.max_epochs) % FLAGS.question_count_per_batch
                 #max_steps = 2
                 total_loss = 0.0
