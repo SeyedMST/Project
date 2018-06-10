@@ -472,42 +472,41 @@ def main(_):
     NER_vocab = None
 
     #if os.path.exists(best_path):
-    if False == True:
-        #has_pre_trained_model = True
-        label_vocab = Vocab(label_path, fileformat='txt2')
-        char_vocab = Vocab(char_path, fileformat='txt2')
-        if FLAGS.with_POS: POS_vocab = Vocab(POS_path, fileformat='txt2')
-        if FLAGS.with_NER: NER_vocab = Vocab(NER_path, fileformat='txt2')
-    else:
-        print('Collect words, chars and labels ...')
-        (all_words, all_chars, all_labels, all_POSs, all_NERs) = collect_vocabs(train_path, with_POS=FLAGS.with_POS, with_NER=FLAGS.with_NER)
-        print('Number of words: {}'.format(len(all_words)))
-        print('Number of labels: {}'.format(len(all_labels)))
-        label_vocab = Vocab(fileformat='voc', voc=all_labels,dim=2)
-        label_vocab.dump_to_txt2(label_path)
-
-        print('Number of chars: {}'.format(len(all_chars)))
-        char_vocab = Vocab(fileformat='voc', voc=all_chars,dim=FLAGS.char_emb_dim)
-        char_vocab.dump_to_txt2(char_path)
-        
-        if FLAGS.with_POS:
-            print('Number of POSs: {}'.format(len(all_POSs)))
-            POS_vocab = Vocab(fileformat='voc', voc=all_POSs,dim=FLAGS.POS_dim)
-            POS_vocab.dump_to_txt2(POS_path)
-        if FLAGS.with_NER:
-            print('Number of NERs: {}'.format(len(all_NERs)))
-            NER_vocab = Vocab(fileformat='voc', voc=all_NERs,dim=FLAGS.NER_dim)
-            NER_vocab.dump_to_txt2(NER_path)
-            
-
-    print('word_vocab shape is {}'.format(word_vocab.word_vecs.shape))
-    print('tag_vocab shape is {}'.format(label_vocab.word_vecs.shape))
-    num_classes = label_vocab.size()
-
-
     while (FLAGS.start_batch <= FLAGS.end_batch):
         FLAGS.max_answer_size = FLAGS.start_batch
         FLAGS.batch_size = FLAGS.start_batch
+        if False == True:
+            #has_pre_trained_model = True
+            label_vocab = Vocab(label_path, fileformat='txt2')
+            char_vocab = Vocab(char_path, fileformat='txt2')
+            if FLAGS.with_POS: POS_vocab = Vocab(POS_path, fileformat='txt2')
+            if FLAGS.with_NER: NER_vocab = Vocab(NER_path, fileformat='txt2')
+        else:
+            print('Collect words, chars and labels ...')
+            (all_words, all_chars, all_labels, all_POSs, all_NERs) = collect_vocabs(train_path, with_POS=FLAGS.with_POS, with_NER=FLAGS.with_NER)
+            print('Number of words: {}'.format(len(all_words)))
+            print('Number of labels: {}'.format(len(all_labels)))
+            label_vocab = Vocab(fileformat='voc', voc=all_labels,dim=2)
+            label_vocab.dump_to_txt2(label_path)
+
+            print('Number of chars: {}'.format(len(all_chars)))
+            char_vocab = Vocab(fileformat='voc', voc=all_chars,dim=FLAGS.char_emb_dim)
+            char_vocab.dump_to_txt2(char_path)
+
+            if FLAGS.with_POS:
+                print('Number of POSs: {}'.format(len(all_POSs)))
+                POS_vocab = Vocab(fileformat='voc', voc=all_POSs,dim=FLAGS.POS_dim)
+                POS_vocab.dump_to_txt2(POS_path)
+            if FLAGS.with_NER:
+                print('Number of NERs: {}'.format(len(all_NERs)))
+                NER_vocab = Vocab(fileformat='voc', voc=all_NERs,dim=FLAGS.NER_dim)
+                NER_vocab.dump_to_txt2(NER_path)
+
+
+        print('word_vocab shape is {}'.format(word_vocab.word_vecs.shape))
+        print('tag_vocab shape is {}'.format(label_vocab.word_vecs.shape))
+        num_classes = label_vocab.size()
+
         print('Build SentenceMatchDataStream ... ')
 
         is_list_wise = False
@@ -524,7 +523,9 @@ def main(_):
                                                       min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
                                                       use_box = FLAGS.use_box,
                                                       sample_neg_from_question = FLAGS.nsfq,
-                                                      equal_box_per_batch = FLAGS.equal_box_per_batch) # box is just used for training
+                                                      equal_box_per_batch = FLAGS.equal_box_per_batch,
+                                                      ) # box is just used for training
+
 
             train_testDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
@@ -1037,7 +1038,7 @@ if __name__ == '__main__':
 
 
 
-    parser.add_argument('--start_batch', type=int, default=40, help='Maximum epochs for training.')
+    parser.add_argument('--start_batch', type=int, default=70, help='Maximum epochs for training.')
     parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
     parser.add_argument('--step_batch', type=int, default=5, help='Maximum epochs for training.')
 

@@ -197,7 +197,7 @@ def MakeBox (question_dic, max_answer_size, use_top_negs, sample_neg_from_questi
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
                    min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
-                   use_box, sample_neg_from_question, equal_box_per_batch):
+                   use_box, sample_neg_from_question, equal_box_per_batch, show_box_inf):
 
     is_trec = False
     if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
@@ -337,6 +337,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
 
     print ("total_pair_count ",total_pair_count , " pos_neg_pair_count ", pos_neg_pair_count,
            'biger_than_max', biger_than_max)
+
+
 
     print ("sum bikhod added", sum_bikhod_added)
 
@@ -537,6 +539,7 @@ class SentenceMatchDataStream(object):
                                                                         train_from_path = train_from_path, use_box=use_box,
                                                                         sample_neg_from_question=sample_neg_from_question,
                                                                         equal_box_per_batch = equal_box_per_batch)
+
 
             if isShuffle == True:
                 batch_spans = r[0]
