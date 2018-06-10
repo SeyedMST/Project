@@ -415,15 +415,15 @@ def Generate_random_initialization(cnf):
 
 
 def Get_Next_box_size (index):
-    list = [15, 15, 205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77]
+    list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77]
     if  (index > FLAGS.end_batch):
         return False
 
     FLAGS.max_answer_size = list [index]
     FLAGS.batch_size = list[index]
 
-    if list [index] < 100:
-        FLAGS.max_epochs = 5
+    if list [index] < 50:
+        FLAGS.max_epochs = 4
     else:
         FLAGS.max_epochs = 7
     if index%2 == 0:
@@ -957,11 +957,11 @@ def main(_):
                                 # my_map, my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                 #     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
 
-                                my_map,my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=False)
+                                # my_map,my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                #      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=False)
 
 
-                                output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
+                                output_res_file.write("map: '{}', mrr: '{}'\n".format(tr_map, tr_mrr))
                                 print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
 
 
