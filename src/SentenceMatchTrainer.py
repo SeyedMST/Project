@@ -507,6 +507,7 @@ def main(_):
 
     while (FLAGS.start_batch <= FLAGS.end_batch):
         FLAGS.max_answer_size = FLAGS.start_batch
+        FLAGS.batch_size = FLAGS.start_batch
         print('Build SentenceMatchDataStream ... ')
 
         is_list_wise = False
@@ -1038,7 +1039,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--start_batch', type=int, default=40, help='Maximum epochs for training.')
     parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
-    parser.add_argument('--step_batch', type=int, default=10, help='Maximum epochs for training.')
+    parser.add_argument('--step_batch', type=int, default=5, help='Maximum epochs for training.')
 
 
 
