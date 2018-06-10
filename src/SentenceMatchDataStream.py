@@ -197,7 +197,7 @@ def MakeBox (question_dic, max_answer_size, use_top_negs, sample_neg_from_questi
 
 def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_length, batch_size, is_training, is_list_wise,
                    min_answer_size, max_answer_size, neg_sample_count, add_neg_sample_count,use_top_negs,train_from_path,
-                   use_box, sample_neg_from_question, equal_box_per_batch, show_box_inf):
+                   use_box, sample_neg_from_question, equal_box_per_batch):
 
     is_trec = False
     if train_from_path == True: # chon ba dadeie train faghat in False mishe va train ham mohem nist pas farghi nemikone
