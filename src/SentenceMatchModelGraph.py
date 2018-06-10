@@ -28,7 +28,7 @@ class SentenceMatchModelGraph(object):
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
                  clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15,
-                 q_count=2):
+                 q_count=2, pos_avg = True):
 
         # ======word representation layer======
 
@@ -63,6 +63,7 @@ class SentenceMatchModelGraph(object):
         loss_list = []
         score_list = []
         prob_list = []
+        pos_list = []
         with tf.variable_scope ('salamzendegi'):
             for i in range (q_count):
                 input_dim = 0
@@ -294,9 +295,14 @@ class SentenceMatchModelGraph(object):
                             #fi = tf.reduce_sum(fi) #[1]
                             #self.loss = tf.divide(fi, pos_count_all) #[1]
 
+
                             fi = tf.reduce_sum(fi, axis=1) #[q]
-                            fi = tf.divide(fi, pos_count)
-                            loss_list.append(tf.reduce_mean(fi))
+                            if pos_avg == True:
+                                fi = tf.divide(fi, pos_count)
+                                loss_list.append(tf.reduce_mean(fi))
+                            else:
+                                pos_list.append (pos_count)
+                                loss_list.append(fi)
 
                     else:
                         if with_tanh == True:
@@ -320,7 +326,13 @@ class SentenceMatchModelGraph(object):
 
         #print (len (loss_list))
         self.loss = tf.stack (loss_list, 0)
-        self.loss = tf.reduce_mean(self.loss, 0)
+        if pos_avg == True:
+            self.loss = tf.reduce_mean(self.loss, 0)
+        else:
+            pos_cnt = tf.stack(pos_list, 0)
+            pos_cnt = tf.reduce_sum(pos_cnt)
+            self.loss = tf.reduce_sum(self.loss)
+            self.loss = tf.divide(self.loss , pos_cnt)
         self.score = tf.concat(score_list, 0)
         self.prob = tf.concat(prob_list, 0)
 

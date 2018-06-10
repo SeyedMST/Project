@@ -414,6 +414,26 @@ def Generate_random_initialization(cnf):
     #return True
 
 
+def Get_Next_box_size (index):
+    list = [15, 15, 205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77]
+    if  (index > FLAGS.end_batch):
+        return False
+
+    FLAGS.max_answer_size = list [index]
+    FLAGS.batch_size = list[index]
+
+    if list [index] < 100:
+        FLAGS.max_epochs = 5
+    else:
+        FLAGS.max_epochs = 7
+    if index%2 == 0:
+        FLAGS.pos_avg = True
+    else:
+        FLAGS.pos_avg = False
+
+    return True
+
+
 def make_hinge_truth(truth, question_count,answer_count):
     g = truth.reshape(question_count, answer_count)
     g = np.ceil(g-eps)
@@ -472,9 +492,7 @@ def main(_):
     NER_vocab = None
 
     #if os.path.exists(best_path):
-    while (FLAGS.start_batch <= FLAGS.end_batch):
-        FLAGS.max_answer_size = FLAGS.start_batch
-        FLAGS.batch_size = FLAGS.start_batch
+    while (Get_Next_box_size(FLAGS.start_batch) == True):
         if False == True:
             #has_pre_trained_model = True
             label_vocab = Vocab(label_path, fileformat='txt2')
@@ -699,6 +717,7 @@ def main(_):
             ssst += str(FLAGS.start_batch)
             output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
             output_sentence_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
+            output_train_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
             if FLAGS.store_att == True:
                 output_attention_file = open('../result/' + ssst + '.'+ st_cuda + "A", 'wt')
             output_sentences = []
@@ -769,7 +788,7 @@ def main(_):
                                                           , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                           mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
                                                           ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
-                                                          q_count=1)
+                                                          q_count=1, pos_avg = FLAGS.pos_avg)
 
 
                 initializer = tf.global_variables_initializer()
@@ -917,6 +936,10 @@ def main(_):
                                 if my_map > best_test_acc and FLAGS.store_best == True:
                                     best_test_acc = my_map
                                     saver.save(sess, best_path)
+
+                                tr_map, tr_mrr, train_sentences, _ = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=True
+                                                                              ,word_vocab=word_vocab)
                             else:
                                 my_map,my_mrr = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid)
@@ -931,10 +954,17 @@ def main(_):
                             #Evaluate against the train set only for final epoch.
                             if (step + 1) == max_steps:
                                 output_res_file.write ('train- ')
-                                my_map, my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                    POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+                                # my_map, my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                #     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+
+                                my_map,my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=False)
+
+
                                 output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
                                 print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
+
+
 
 
             # print("Best accuracy on dev set is %.2f" % best_accuracy)
@@ -991,6 +1021,13 @@ def main(_):
                 else:
                     output_sentence_file.write(zj)
 
+            for zj in train_sentences:
+                if sys.version_info[0] < 3:
+                    output_train_file.write(zj.encode('utf-8'))
+                else:
+                    output_train_file.write(zj)
+
+            output_train_file.close()
             output_sentence_file.close()
             output_res_file.close()
 
@@ -1020,7 +1057,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=3, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=7, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -1040,7 +1077,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--start_batch', type=int, default=70, help='Maximum epochs for training.')
     parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
-    parser.add_argument('--step_batch', type=int, default=5, help='Maximum epochs for training.')
+    parser.add_argument('--step_batch', type=int, default=1, help='Maximum epochs for training.')
 
 
 
@@ -1048,6 +1085,9 @@ if __name__ == '__main__':
 
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
+
+    parser.add_argument('--pos_avg',default=False, type= bool, help='do we have cuda visible devices?')
+
 
 
     #bs = 100 #135 #110
