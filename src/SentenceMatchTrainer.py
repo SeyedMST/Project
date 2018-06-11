@@ -415,7 +415,8 @@ def Generate_random_initialization(cnf):
 
 
 def Get_Next_box_size (index):
-    list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77]
+    #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
+    list = [600]
     if  (index > FLAGS.end_batch):
         return False
 
@@ -425,7 +426,7 @@ def Get_Next_box_size (index):
     if list [index] < 50:
         FLAGS.max_epochs = 4
     else:
-        FLAGS.max_epochs = 7
+        FLAGS.max_epochs = 8
     if index%2 == 0:
         FLAGS.pos_avg = True
     else:
@@ -717,7 +718,7 @@ def main(_):
             ssst += str(FLAGS.start_batch)
             output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
             output_sentence_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
-            output_train_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
+            output_train_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "T", 'wt')
             if FLAGS.store_att == True:
                 output_attention_file = open('../result/' + ssst + '.'+ st_cuda + "A", 'wt')
             output_sentences = []
@@ -1042,7 +1043,7 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
@@ -1057,7 +1058,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=7, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=1, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
@@ -1075,7 +1076,7 @@ if __name__ == '__main__':
 
 
 
-    parser.add_argument('--start_batch', type=int, default=70, help='Maximum epochs for training.')
+    parser.add_argument('--start_batch', type=int, default=1, help='Maximum epochs for training.')
     parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
     parser.add_argument('--step_batch', type=int, default=1, help='Maximum epochs for training.')
 
