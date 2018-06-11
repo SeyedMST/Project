@@ -416,7 +416,8 @@ def Generate_random_initialization(cnf):
 
 def Get_Next_box_size (index):
     #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
-    list = [600]
+    #list = [600] #tune2-
+    list = [15, 15, 30, 30] #wiki tune1-
     if  (index > FLAGS.end_batch):
         return False
 
@@ -424,7 +425,7 @@ def Get_Next_box_size (index):
     FLAGS.batch_size = list[index]
 
     if list [index] < 50:
-        FLAGS.max_epochs = 4
+        FLAGS.max_epochs = 7
     else:
         FLAGS.max_epochs = 8
     if index%2 == 0:
