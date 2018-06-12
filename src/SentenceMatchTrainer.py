@@ -320,7 +320,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.05]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.1]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 6:
+    if cnf == 4:
         return False
     else:
         return True
@@ -417,7 +417,8 @@ def Generate_random_initialization(cnf):
 def Get_Next_box_size (index):
     #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
     #list = [600] #tune2-
-    list = [120, 150, 180, 270, 450] #[15, 15, 30, 30] #wiki tune1-
+    #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
+    list = [205, 205] #tre_tune4
     if  (index > FLAGS.end_batch):
         return False
 
@@ -430,8 +431,10 @@ def Get_Next_box_size (index):
         FLAGS.max_epochs = 8
     if index%2 == 0:
         FLAGS.pos_avg = True
+        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
     else:
         FLAGS.pos_avg = True
+        FLAGS.word_vec_path = "../data/glove/glove.6B.300d.txt"
 
     return True
 
@@ -483,18 +486,18 @@ def main(_):
     namespace_utils.save_namespace(FLAGS, path_prefix + ".config.json")
 
     # build vocabs
-    word_vocab = Vocab(word_vec_path, fileformat='txt3')
-    best_path = path_prefix + '.best.model'
-    char_path = path_prefix + ".char_vocab"
-    label_path = path_prefix + ".label_vocab"
-    POS_path = path_prefix + ".POS_vocab"
-    NER_path = path_prefix + ".NER_vocab"
-    has_pre_trained_model = False
-    POS_vocab = None
-    NER_vocab = None
+    while (Get_Next_box_size(FLAGS.start_batch) == True):
+        word_vocab = Vocab(word_vec_path, fileformat='txt3')
+        best_path = path_prefix + '.best.model'
+        char_path = path_prefix + ".char_vocab"
+        label_path = path_prefix + ".label_vocab"
+        POS_path = path_prefix + ".POS_vocab"
+        NER_path = path_prefix + ".NER_vocab"
+        has_pre_trained_model = False
+        POS_vocab = None
+        NER_vocab = None
 
     #if os.path.exists(best_path):
-    while (Get_Next_box_size(FLAGS.start_batch) == True):
         if False == True:
             #has_pre_trained_model = True
             label_vocab = Vocab(label_path, fileformat='txt2')
@@ -1044,7 +1047,7 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
