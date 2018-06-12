@@ -272,6 +272,12 @@ class SentenceMatchModelGraph(object):
                             #alpha1 = tf.reduce_mean(tf.reduce_sum(tf.multiply(g1_matrix, logits), axis=1))
                             #self.loss += modify_loss / alpha1
                         else:
+                            # max_sample_size = 100
+                            # sampling_type = 'random'
+                            # prob_distribution = tf.nn.softmax(logits)
+                            # log_prpb_distribution = tf.log (prob_distribution)
+                            # samples = tf.multinomial(log_prpb_distribution, max_sample_size) #[1, max_sample_size]
+
                             pos_mask = g1_matrix #[q, a]
                             neg_mask = 1 - g1_matrix #[q, a]
                             neg_count = tf.reduce_sum(neg_mask, axis=1,keep_dims= True) #[q, 1]

@@ -15,10 +15,29 @@ x = tf.Variable(tf.constant(0, shape=[2, 2]))
 g = tf.constant(np.array([[0, 1], [0, 0.9999]]), dtype=tf.float32)
 g1 = tf.constant(np.array([[0, 1], [0.9999, -0.00001]]), dtype=tf.float32)
 
+elems = tf.convert_to_tensor([[10,30.,423,39]])
+elems = tf.reshape(elems, [-1])
+#p = tf.convert_to_tensor([0.2000009, 0.2, 0.3, 0.3000000001])
+
+#tf.gather (g)
+#tf.gather
+#samples = tf.multinomial(tf.log([[0.2, 0.2, 0.3, 0.4]]), 1)
+
+sample_size = 2
+p = tf.convert_to_tensor([0.2000009, 0.2, 0.3, 0.3000000001])
+input_shape = tf.cast(tf.shape(p)[0], tf.int32)
+sample_size = tf.minimum(sample_size, input_shape)
+
+
+indices = tf.py_func(np.random.choice, [input_shape, sample_size, False, p], tf.int64)
+y = tf.cast (indices, tf.int32)
+
+y = tf.gather(elems, y)
+
 with tf.Session():
     tf.initialize_all_variables().run()
-    result = []
-    result.append(tf.while_loop(condition, body, [x]))
-    result = tf.concat(0, result)
+    # result = []
+    # result.append(tf.while_loop(condition, body, [x]))
+    # result = tf.concat(0, result)
     #result = tf.ceil(g1)
-    print(result.eval())
+    print(y.eval())

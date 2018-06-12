@@ -273,7 +273,7 @@ def Generate_random_initialization(cnf):
         # FLAGS.type2 = random.choice(type2)
         # FLAGS.type3 = random.choice(type3)
         # context_layer_num = [1]
-        aggregation_layer_num = [1]
+        aggregation_layer_num = [2]
         FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
         # FLAGS.context_layer_num = random.choice(context_layer_num)
         # #if cnf == 1  or cnf == 4:
@@ -320,7 +320,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.1]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.05]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -418,7 +418,7 @@ def Get_Next_box_size (index):
     #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
     #list = [600] #tune2-
     #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
-    list = [205, 205] #tre_tune4
+    list = [205, 205] #tre_tune4, #tre_tune5
     if  (index > FLAGS.end_batch):
         return False
 
