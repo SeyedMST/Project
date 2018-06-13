@@ -285,8 +285,8 @@ class SentenceMatchModelGraph(object):
                             input_shape = tf.shape(g1_matrix)[0]
                             pos_mask = g1_matrix #[a]
                             neg_mask = 1 - g1_matrix #[a]
-                            neg_count = tf.reduce_sum(neg_mask, axis=1) #[1]
-                            pos_count = tf.reduce_sum(pos_mask, axis=1) #[1]
+                            neg_count = tf.reduce_sum(neg_mask) #[1]
+                            pos_count = tf.reduce_sum(pos_mask) #[1]
 
                             if sampling == True:
                                 if sampling_type == 'random':
@@ -317,7 +317,7 @@ class SentenceMatchModelGraph(object):
                             #pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
                             neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a]
                             neg_exp = tf.multiply(neg_exp, neg_mask)
-                            neg_exp_sum = tf.reduce_sum(neg_exp, axis=1) #[1]
+                            neg_exp_sum = tf.reduce_sum(neg_exp) #[1]
                             #avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
                             #less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
                             #pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
@@ -333,7 +333,7 @@ class SentenceMatchModelGraph(object):
                             #self.loss = tf.divide(fi, pos_count_all) #[1]
 
 
-                            fi = tf.reduce_sum(fi, axis=1) #[1]
+                            fi = tf.reduce_sum(fi) #[1]
                             if pos_avg == True:
                                 fi = tf.divide(fi, pos_count) #[1]
                                 loss_list.append(fi)
