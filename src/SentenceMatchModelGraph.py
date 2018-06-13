@@ -283,6 +283,7 @@ class SentenceMatchModelGraph(object):
                             logits = tf.reshape(logits, [-1])
                             g1_matrix = tf.reshape(g1_matrix, [-1])
                             input_shape = tf.shape(g1_matrix)[0]
+                            input_shape = tf.cast(input_shape, tf.int32)
                             pos_mask = g1_matrix #[a]
                             neg_mask = 1 - g1_matrix #[a]
                             neg_count = tf.reduce_sum(neg_mask) #[1]
@@ -300,8 +301,8 @@ class SentenceMatchModelGraph(object):
                                     neg_exp = tf.multiply(tf.exp(logits), neg_mask)
                                     neg_prob = tf.divide(neg_exp, tf.reduce_sum(neg_exp))
 
-                                pos_sample_size = tf.ceil(tf.multiply(sample_percent, pos_count))
-                                neg_sample_size = tf.ceil(tf.multiply(sample_percent, neg_count))
+                                pos_sample_size = tf.cast(tf.ceil(tf.multiply(sample_percent, pos_count)), tf.int32)[1]
+                                neg_sample_size = tf.cast(tf.ceil(tf.multiply(sample_percent, neg_count)), tf.int32)[1]
                                 pos_indices = tf.py_func(np.random.choice, [input_shape, pos_sample_size, False,
                                                                             pos_prob], tf.int64)
                                 pos_indices = tf.cast(pos_indices, tf.int32)
