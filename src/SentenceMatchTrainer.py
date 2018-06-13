@@ -431,7 +431,7 @@ def Get_Next_box_size (index):
     #     FLAGS.max_epochs = 8
 
     FLAGS.sampling = True
-    if index <= 1:
+    if index < 1:
         FLAGS.sample_percent = 150
     else:
         FLAGS.sample_percent = 200

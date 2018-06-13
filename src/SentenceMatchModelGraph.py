@@ -296,6 +296,7 @@ class SentenceMatchModelGraph(object):
 
                             for random_sample in range (10):
                                 if sampling == True:
+                                    print ("Sampling is True")
                                     if sampling_type == 'random':
                                         pos_prob = tf.divide (pos_mask, pos_count)
                                         neg_prob = tf.divide(neg_mask, neg_count)
