@@ -314,6 +314,8 @@ class SentenceMatchModelGraph(object):
                                 g1_matrix = tf.gather(g1_matrix, indices)
                                 pos_mask = tf.gather(pos_mask, indices)
                                 neg_mask = tf.gather(neg_mask, indices)
+                                pos_count = tf.reduce_sum(pos_mask)
+                                neg_count = tf.reduce_sum(neg_count)
 
                             #pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
                             neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a]
