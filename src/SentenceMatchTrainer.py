@@ -418,23 +418,35 @@ def Get_Next_box_size (index):
     #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
     #list = [600] #tune2-
     #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
-    list = [205, 205] #tre_tune4, #tre_tune5
+    #list = [205, 205] #tre_tune4, #tre_tune5
     if  (index > FLAGS.end_batch):
         return False
 
-    FLAGS.max_answer_size = list [index]
-    FLAGS.batch_size = list[index]
+    FLAGS.max_answer_size = 600 #sampling1
+    FLAGS.batch_size = 600
+    FLAGS.max_epochs = 7
+    # if list [index] < 50:
+    #     FLAGS.max_epochs = 7
+    # else:
+    #     FLAGS.max_epochs = 8
 
-    if list [index] < 50:
-        FLAGS.max_epochs = 7
+    FLAGS.sampling = True
+    if index <= 2:
+        FLAGS.sample_percent = 0.8
     else:
-        FLAGS.max_epochs = 8
-    if index%2 == 0:
+        FLAGS.sample_percent = 0.6
+    if index%3 == 0:
         FLAGS.pos_avg = True
-        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
+        FLAGS.sampling_type = 'random'
+    elif index%3 == 1:
+        FLAGS.pos_avg = True
+        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
+        FLAGS.sampling_type = 'attentive'
     else:
         FLAGS.pos_avg = True
-        FLAGS.word_vec_path = "../data/glove/glove.6B.300d.txt"
+        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
+        FLAGS.sampling = False
 
     return True
 
@@ -762,7 +774,9 @@ def main(_):
                                                           , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                           mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
                                                           ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
-                                                          max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch)
+                                                          max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch,
+                                                          sampling=FLAGS.sampling, sampling_type=FLAGS.sampling_type,
+                                                          sample_percent = FLAGS.sample_percent)
                     tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
         #         with tf.name_scope("Valid"):
@@ -1083,6 +1097,14 @@ if __name__ == '__main__':
     parser.add_argument('--start_batch', type=int, default=1, help='Maximum epochs for training.')
     parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
     parser.add_argument('--step_batch', type=int, default=1, help='Maximum epochs for training.')
+
+
+
+    parser.add_argument('--sampling',default=True, help='for loss back prop')
+    parser.add_argument('--sampling_type',default='attentive', help='for loss back prop')
+    parser.add_argument('--sample_percent',default=0.8, help='for loss back prop')
+
+
 
 
 
