@@ -275,7 +275,7 @@ class SentenceMatchModelGraph(object):
                             input_shape = tf.shape(g1_matrix)[0]
                             input_shape = tf.cast(input_shape, tf.float32)
 
-                            pos_sample_percent = tf.divide(sample_percent , input_shape)
+                            pos_sample_percent = 1.0#tf.divide(sample_percent , input_shape)
                             neg_sample_percent = tf.divide(sample_percent , input_shape)
 
                             pos_sample_percent = tf.minimum(pos_sample_percent, 0.9999)
@@ -294,7 +294,7 @@ class SentenceMatchModelGraph(object):
                             neg_count = tf.reduce_sum(neg_mask) #[1]
                             pos_count = tf.reduce_sum(pos_mask) #[1]
 
-                            for random_sample in range (10):
+                            for random_sample in range (20):
                                 if sampling == True:
                                     if sampling_type == 'random':
                                         pos_prob = tf.divide (pos_mask, pos_count)
