@@ -294,10 +294,8 @@ class SentenceMatchModelGraph(object):
                                     pos_prob = tf.divide (pos_mask, pos_count)
                                     neg_prob = tf.divide(neg_mask, neg_count)
                                 elif sampling_type == 'attentive':
-                                    pos_exp = tf.multiply(tf.exp(logits), pos_mask)
+                                    pos_exp = tf.multiply(tf.exp(-logits), pos_mask)
                                     pos_prob = tf.divide(pos_exp, tf.reduce_sum(pos_exp))
-                                    pos_prob = 1-pos_prob
-                                    pos_prob = tf.multiply(pos_prob, pos_mask)
                                     neg_exp = tf.multiply(tf.exp(logits), neg_mask)
                                     neg_prob = tf.divide(neg_exp, tf.reduce_sum(neg_exp))
 
