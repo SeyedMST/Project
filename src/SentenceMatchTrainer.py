@@ -422,8 +422,8 @@ def Get_Next_box_size (index):
     if  (index > FLAGS.end_batch):
         return False
 
-    FLAGS.max_answer_size = 600 #sampling1
-    FLAGS.batch_size = 600
+    FLAGS.max_answer_size = 700 #sampling1
+    FLAGS.batch_size = 700
     FLAGS.max_epochs = 7
     # if list [index] < 50:
     #     FLAGS.max_epochs = 7
@@ -431,10 +431,10 @@ def Get_Next_box_size (index):
     #     FLAGS.max_epochs = 8
 
     FLAGS.sampling = True
-    if index <= 2:
-        FLAGS.sample_percent = 0.8
+    if index <= 1:
+        FLAGS.sample_percent = 150
     else:
-        FLAGS.sample_percent = 0.6
+        FLAGS.sample_percent = 200
     if index%3 == 0:
         FLAGS.pos_avg = True
         FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
@@ -442,11 +442,7 @@ def Get_Next_box_size (index):
     elif index%3 == 1:
         FLAGS.pos_avg = True
         FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
-        FLAGS.sampling_type = 'attentive'
-    else:
-        FLAGS.pos_avg = True
-        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
-        FLAGS.sampling = False
+        FLAGS.sampling_type = 'random'
 
     return True
 
