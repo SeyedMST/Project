@@ -34,10 +34,12 @@ y = tf.cast (indices, tf.int32)
 
 y = tf.gather(elems, y)
 
+values, indices = tf.nn.top_k(elems, 3, False)
+
 with tf.Session():
     tf.initialize_all_variables().run()
     # result = []
     # result.append(tf.while_loop(condition, body, [x]))
     # result = tf.concat(0, result)
     #result = tf.ceil(g1)
-    print(y.eval())
+    print(indices.eval())

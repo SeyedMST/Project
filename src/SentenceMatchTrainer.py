@@ -419,35 +419,25 @@ def Get_Next_box_size (index):
     #list = [600] #tune2-
     #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
     #list = [205, 205] #tre_tune4, #tre_tune5
+    list = [15, 30, 50, 70, 100, 150, 200, 300] #topsample
     if  (index > FLAGS.end_batch):
         return False
 
-    FLAGS.max_answer_size = 200 #sampling1 #modify1
-    FLAGS.batch_size = 200
+    FLAGS.sample_percent = list [index]
+
+    FLAGS.max_answer_size = 700
+    FLAGS.batch_size = 700
     FLAGS.max_epochs = 7
+
+    FLAGS.pos_avg = True
+    FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
+    FLAGS.sampling_type = 'attentive'
     # if list [index] < 50:
     #     FLAGS.max_epochs = 7
     # else:
     #     FLAGS.max_epochs = 8
 
-    FLAGS.sampling = False
-    if index < 1:
-        FLAGS.sample_percent = 150
-    else:
-        FLAGS.sample_percent = 200
-    if index%3 == 0:
-        FLAGS.pos_avg = True
-        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
-        FLAGS.sampling_type = 'random'
-        FLAGS.modify_loss = 0  # modify1-
-    elif index%3 == 1:
-        FLAGS.pos_avg = True
-        FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
-        FLAGS.sampling_type = 'random'
-        FLAGS.modify_loss = 0  # modify1-
-    else:
-        FLAGS.modify_loss = 0  # modify1-
-
+    FLAGS.sampling = True
     return True
 
 
