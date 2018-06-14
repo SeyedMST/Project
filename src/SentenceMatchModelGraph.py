@@ -307,8 +307,8 @@ class SentenceMatchModelGraph(object):
                             fi = tf.reduce_sum(fi, axis=1) #[q]
                             if pos_avg == True:
                                 fi = tf.divide(fi, pos_count)
-                                fi += modify_loss * (tf.reduce_sum(tf.multiply(tf.log(1 + tf.exp(2.5-logits)), pos_mask))/pos_count +
-                                                     tf.reduce_sum(tf.multiply(tf.log(1 + tf.exp(0.5 + logits)), neg_mask)) / neg_count)
+                                fi += modify_loss * (tf.reduce_sum(tf.multiply(tf.log(1 + tf.exp(2-logits)), pos_mask))/pos_count +
+                                                     tf.reduce_sum(tf.multiply(tf.log(1 + tf.exp(4 + logits)), neg_mask)) / neg_count)
 
 
                                 loss_list.append(tf.reduce_mean(fi))
