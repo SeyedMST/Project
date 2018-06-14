@@ -273,7 +273,7 @@ def Generate_random_initialization(cnf):
         # FLAGS.type2 = random.choice(type2)
         # FLAGS.type3 = random.choice(type3)
         # context_layer_num = [1]
-        aggregation_layer_num = [2]
+        aggregation_layer_num = [1]
         FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
         # FLAGS.context_layer_num = random.choice(context_layer_num)
         # #if cnf == 1  or cnf == 4:
