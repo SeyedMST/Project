@@ -287,7 +287,7 @@ class SentenceMatchModelGraph(object):
 
 
                             pos_sample_size = pos_count
-                            neg_sample_size = tf.minimum(sample_percent, neg_count)
+                            neg_sample_size = tf.minimum(float(sample_percent), neg_count)
 
                             if sampling == True:
                                 if sampling_type == 'random':
@@ -334,7 +334,6 @@ class SentenceMatchModelGraph(object):
 
                             #fi = tf.reduce_sum(fi) #[1]
                             #self.loss = tf.divide(fi, pos_count_all) #[1]
-
 
                             fi = tf.reduce_sum(fi) #[1]
                             if pos_avg == True:
