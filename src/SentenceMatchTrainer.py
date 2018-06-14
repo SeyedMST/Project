@@ -439,14 +439,14 @@ def Get_Next_box_size (index):
         FLAGS.pos_avg = True
         FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
         FLAGS.sampling_type = 'random'
-        FLAGS.modify_loss = 0.1  # modify1-
+        FLAGS.modify_loss = 0  # modify1-
     elif index%3 == 1:
         FLAGS.pos_avg = True
         FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
         FLAGS.sampling_type = 'random'
-        FLAGS.modify_loss = 0.5  # modify1-
+        FLAGS.modify_loss = 0  # modify1-
     else:
-        FLAGS.modify_loss = 1.0  # modify1-
+        FLAGS.modify_loss = 0  # modify1-
 
     return True
 
