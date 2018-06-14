@@ -288,7 +288,7 @@ class SentenceMatchModelGraph(object):
 
                             pos_sample_size = pos_count
                             neg_sample_size = tf.minimum(float(sample_percent), neg_count)
-
+                            neg_sample_size = tf.cast(neg_sample_size, tf.int32)
                             if sampling == True:
                                 if sampling_type == 'random':
                                     pos_prob = tf.divide (pos_mask, pos_count)
