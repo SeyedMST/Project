@@ -431,7 +431,8 @@ def Get_Next_box_size (index):
     #     FLAGS.max_epochs = 8
 
     FLAGS.sampling = False
-    FLAGS.modify_loss = 0.1
+    FLAGS.modify_loss = 0.1 #modify1-
+    FLAGS.modify_loss = 1.0 #modify2-
     if index < 1:
         FLAGS.sample_percent = 150
     else:
