@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 4:
+    if cnf == 6:
         return False
     else:
         return True
@@ -1135,7 +1135,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_dir', type=str,default = '../models',help='Directory to save model files.')
 
     parser.add_argument('--learning_rate', type=float, default=0.002, help='Learning rate.')
-    parser.add_argument('--lambda_l2', type=float, default=0.0001, help='The coefficient of L2 regularizer.')
+    parser.add_argument('--lambda_l2', type=float, default=0.000001, help='The coefficient of L2 regularizer.')
     parser.add_argument('--dropout_rate', type=float, default=0.05, help='Dropout ratio.')
     parser.add_argument('--char_emb_dim', type=int, default=20, help='Number of dimension for character embeddings.')
     parser.add_argument('--char_lstm_dim', type=int, default=50, help='Number of dimension for character-composed embeddings.')
