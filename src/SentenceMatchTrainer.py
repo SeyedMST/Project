@@ -422,7 +422,7 @@ def Get_Next_box_size (index):
     if  (index > FLAGS.end_batch):
         return False
 
-    FLAGS.max_answer_size = 700 #sampling1
+    FLAGS.max_answer_size = 700 #sampling1 #modify1
     FLAGS.batch_size = 700
     FLAGS.max_epochs = 7
     # if list [index] < 50:
@@ -430,7 +430,8 @@ def Get_Next_box_size (index):
     # else:
     #     FLAGS.max_epochs = 8
 
-    FLAGS.sampling = True
+    FLAGS.sampling = False
+    FLAGS.modify_loss = 0.1
     if index < 1:
         FLAGS.sample_percent = 150
     else:
