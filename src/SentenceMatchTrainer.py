@@ -419,7 +419,8 @@ def Get_Next_box_size (index):
     #list = [600] #tune2-
     #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
     #list = [205, 205] #tre_tune4, #tre_tune5
-    list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1-
+    #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
+    #list1 = [30, 100] #topsample2- (batch = 10)
     if  (index > FLAGS.end_batch):
         return False
 
@@ -1111,7 +1112,7 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
 
-    parser.add_argument('--question_count_per_batch', type=int, default= 4, help='Number of instances in each batch.')
+    parser.add_argument('--question_count_per_batch', type=int, default= 10, help='Number of instances in each batch.')
 
 
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
