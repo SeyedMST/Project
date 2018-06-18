@@ -429,18 +429,18 @@ class SentenceMatchModelGraph(object):
         # mask = mask // 2
 
         #compare each pair of neg and pos based on hinge loss
-        l_p = tf.expand_dims(l, axis=0)
-        l_n = tf.expand_dims(l, axis=-1)
+        l_p = tf.expand_dims(l, axis=0) #[1, a]
+        l_n = tf.expand_dims(l, axis=-1) #[a, 1]
         sub1 = tf.subtract(l_p, l_n) - margine
         new_mask = tf.minimum(0.0, sub1) # hame +ha beshan 0
-        new_mask = tf.maximum(-0.5, new_mask)
+        new_mask = tf.maximum(-0.5, new_mask) # hame -ha bishtar az -0.5
         new_mask = -new_mask
         new_mask = tf.ceil(new_mask - eps)
         mask = tf.multiply(mask , new_mask)
 
         l_final = tf.exp(tf.subtract(l_n, l_p))
         l_final = tf.multiply(l_final, mask)
-        l_final = tf.reduce_sum(l_final, axis=1)
+        l_final = tf.reduce_sum(l_final, axis=0)
         l_final = tf.reduce_sum(tf.log (1 + l_final))
 
         return tf.divide(l_final, pos_count)
