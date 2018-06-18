@@ -1116,7 +1116,7 @@ if __name__ == '__main__':
     #if is_trec == False:
     #    bs = 40
 
-    parser.add_argument('--question_count_per_batch', type=int, default= 10, help='Number of instances in each batch.')
+    parser.add_argument('--question_count_per_batch', type=int, default= 4, help='Number of instances in each batch.')
 
 
     parser.add_argument('--min_answer_size', type=int, default= 0, help='Number of instances in each batch.')
