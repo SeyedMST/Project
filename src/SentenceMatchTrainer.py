@@ -420,11 +420,14 @@ def Get_Next_box_size (index):
     #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
     #list = [205, 205] #tre_tune4, #tre_tune5
     #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
-    list = [30, 100] #topsample2- (batch = 10)
+    #list = [30, 100] #topsample2- (batch = 10)
+    list = [1.5, 2, 3, 4]
     if  (index > FLAGS.end_batch):
         return False
 
-    FLAGS.sample_percent = list [index]
+    #FLAGS.sample_percent = list [index]
+
+    FLAGS.top_treshold = list[index]
 
     FLAGS.max_answer_size = 700
     FLAGS.batch_size = 700
@@ -767,7 +770,7 @@ def main(_):
                                                           ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
                                                           max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch,
                                                           sampling=FLAGS.sampling, sampling_type=FLAGS.sampling_type,
-                                                          sample_percent = FLAGS.sample_percent)
+                                                          sample_percent = FLAGS.sample_percent, top_treshold=FLAGS.top_treshold)
                     tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
         #         with tf.name_scope("Valid"):
@@ -1083,6 +1086,7 @@ if __name__ == '__main__':
 
     #FLAGS, unparsed = parser.parse_known_args()
 
+    parser.add_argument('--top_treshold', type=int, default=-1, help='Maximum epochs for training.')
 
 
     parser.add_argument('--start_batch', type=int, default=1, help='Maximum epochs for training.')

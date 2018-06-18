@@ -28,7 +28,8 @@ class SentenceMatchModelGraph(object):
                  is_answer_selection = True, is_shared_attention = True, modify_loss = 0, is_aggregation_lstm = True, max_window_size=3
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
                  clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15,
-                 q_count=2, pos_avg = True, sampling = False, sampling_type = 'attentive', sample_percent = 0.8):
+                 q_count=2, pos_avg = True, sampling = False, sampling_type = 'attentive', sample_percent = 0.8,
+                 top_treshold = -1):
 
         # ======word representation layer======
 
@@ -285,63 +286,67 @@ class SentenceMatchModelGraph(object):
                             neg_count = tf.reduce_sum(neg_mask) #[1]
                             pos_count = tf.reduce_sum(pos_mask) #[1]
 
+                            if top_treshold < 0:
+                                pos_sample_size = pos_count
+                                neg_sample_size = tf.minimum(float(sample_percent), neg_count)
+                                neg_sample_size = tf.cast(neg_sample_size, tf.int32)
+                                if sampling == True:
+                                    if sampling_type == 'random':
+                                        pos_prob = tf.divide (pos_mask, pos_count)
+                                        neg_prob = tf.divide(neg_mask, neg_count)
+                                    elif sampling_type == 'attentive':
+                                        #pos_exp = tf.multiply(tf.exp(-logits), pos_mask)
+                                        #pos_prob = tf.divide(pos_exp, tf.reduce_sum(pos_exp))
+                                        neg_exp = tf.multiply(tf.exp(logits), neg_mask)
+                                        neg_prob = tf.divide(neg_exp, tf.reduce_sum(neg_exp))
 
-                            pos_sample_size = pos_count
-                            neg_sample_size = tf.minimum(float(sample_percent), neg_count)
-                            neg_sample_size = tf.cast(neg_sample_size, tf.int32)
-                            if sampling == True:
-                                if sampling_type == 'random':
-                                    pos_prob = tf.divide (pos_mask, pos_count)
-                                    neg_prob = tf.divide(neg_mask, neg_count)
-                                elif sampling_type == 'attentive':
-                                    #pos_exp = tf.multiply(tf.exp(-logits), pos_mask)
-                                    #pos_prob = tf.divide(pos_exp, tf.reduce_sum(pos_exp))
-                                    neg_exp = tf.multiply(tf.exp(logits), neg_mask)
-                                    neg_prob = tf.divide(neg_exp, tf.reduce_sum(neg_exp))
+                                    #pos_sample_size = tf.cast(tf.ceil(tf.multiply(pos_sample_percent, pos_count)), tf.int32)
+                                    #neg_sample_size = tf.cast(tf.ceil(tf.multiply(neg_sample_percent, neg_count)), tf.int32)
+                                    #pos_indices = tf.py_func(np.random.choice, [input_shape, pos_sample_size, False,
+                                    #                                            pos_prob], tf.int64)
+                                    #pos_indices = tf.cast(pos_indices, tf.int32)
+                                    # neg_indices = tf.py_func(np.random.choice, [input_shape, neg_sample_size, False,
+                                    #                                             neg_prob], tf.int64)
 
-                                #pos_sample_size = tf.cast(tf.ceil(tf.multiply(pos_sample_percent, pos_count)), tf.int32)
-                                #neg_sample_size = tf.cast(tf.ceil(tf.multiply(neg_sample_percent, neg_count)), tf.int32)
-                                #pos_indices = tf.py_func(np.random.choice, [input_shape, pos_sample_size, False,
-                                #                                            pos_prob], tf.int64)
-                                #pos_indices = tf.cast(pos_indices, tf.int32)
-                                # neg_indices = tf.py_func(np.random.choice, [input_shape, neg_sample_size, False,
-                                #                                             neg_prob], tf.int64)
+                                    _, neg_indices = tf.nn.top_k(neg_prob, neg_sample_size, False)
+                                    #indices = tf.concat([pos_indices, neg_indices], axis=0)
+                                    #logits = tf.gather(logits, indices)
+                                    #g1_matrix = tf.gather(g1_matrix, indices)
+                                    #pos_mask = tf.gather(pos_mask, indices)
+                                    neg_mask = tf.gather(neg_mask, neg_indices)
+                                    neg_logits = tf.gather(logits, neg_indices)
+                                    #pos_count = tf.reduce_sum(pos_mask)
+                                    #neg_count = tf.reduce_sum(neg_count)
 
-                                _, neg_indices = tf.nn.top_k(neg_prob, neg_sample_size, False)
-                                #indices = tf.concat([pos_indices, neg_indices], axis=0)
-                                #logits = tf.gather(logits, indices)
-                                #g1_matrix = tf.gather(g1_matrix, indices)
-                                #pos_mask = tf.gather(pos_mask, indices)
-                                neg_mask = tf.gather(neg_mask, neg_indices)
-                                neg_logits = tf.gather(logits, neg_indices)
-                                #pos_count = tf.reduce_sum(pos_mask)
-                                #neg_count = tf.reduce_sum(neg_count)
+                                #pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
+                                    neg_exp = tf.exp(tf.multiply(neg_mask, neg_logits)) #[a]
+                                    neg_exp = tf.multiply(neg_exp, neg_mask)
+                                    neg_exp_sum = tf.reduce_sum(neg_exp) #[1]
+                                    #avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
+                                    #less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
+                                    #pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
+                                    #neg_exp_sum = tf.add(neg_exp_sum, tf.add(less_than_box_sum, pos_effect_sum)) #[q, 1]
+                                    pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [a]
+                                    fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[a]
+                                    fi = tf.multiply(fi, pos_mask) #[a]
+                                    #fi = tf.reduce_sum(fi, axis=1) #[q]
+                                    #fi = tf.divide(fi,pos_count) #[q]
+                                    #self.loss = tf.reduce_mean(fi)
 
-                            #pos_count_keep = tf.reduce_sum(pos_mask,axis=1, keep_dims=True)
-                                neg_exp = tf.exp(tf.multiply(neg_mask, neg_logits)) #[a]
-                                neg_exp = tf.multiply(neg_exp, neg_mask)
-                                neg_exp_sum = tf.reduce_sum(neg_exp) #[1]
-                                #avg_neg_exp_sum = tf.divide(neg_exp_sum, neg_count) #[q, 1]
-                                #less_than_box_sum = (float(max_answer_size) - tf.cast(self.answer_count, tf.float32)) * avg_neg_exp_sum #[q,1]
-                                #pos_effect_sum = tf.multiply(pos_count_keep-1, avg_neg_exp_sum) #[q,1]
-                                #neg_exp_sum = tf.add(neg_exp_sum, tf.add(less_than_box_sum, pos_effect_sum)) #[q, 1]
-                                pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [a]
-                                fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[a]
-                                fi = tf.multiply(fi, pos_mask) #[a]
-                                #fi = tf.reduce_sum(fi, axis=1) #[q]
-                                #fi = tf.divide(fi,pos_count) #[q]
-                                #self.loss = tf.reduce_mean(fi)
+                                    #fi = tf.reduce_sum(fi) #[1]
+                                    #self.loss = tf.divide(fi, pos_count_all) #[1]
 
-                                #fi = tf.reduce_sum(fi) #[1]
-                                #self.loss = tf.divide(fi, pos_count_all) #[1]
+                                    fi = tf.reduce_sum(fi) #[1]
+                                    if pos_avg == True:
+                                        fi = tf.divide(fi, pos_count) #[1]
+                                        loss_list.append(fi)
+                                    else:
+                                        pos_list.append (pos_count)
+                                        loss_list.append(fi)
 
-                                fi = tf.reduce_sum(fi) #[1]
-                                if pos_avg == True:
-                                    fi = tf.divide(fi, pos_count) #[1]
-                                    loss_list.append(fi)
-                                else:
-                                    pos_list.append (pos_count)
-                                    loss_list.append(fi)
+                            else:
+                                hinget = tf.reshape(self.hinge_truth[i], [self.answer_count[i], self.answer_count[i]]) #[a, a]
+                                loss_list.append(self.check_pairs(hinget, logits, top_treshold, pos_count))
                     else:
                         if with_tanh == True:
                             logits = tf.tanh(logits)
@@ -410,6 +415,36 @@ class SentenceMatchModelGraph(object):
         extra_train_ops = []
         train_ops = [self.train_op] + extra_train_ops
         self.train_op = tf.group(*train_ops)
+
+
+    def check_pairs (self, hinge_truth, logits, margine, pos_count):
+        # only mask(pos, neg) instances are 1. the others: (pos, pos), (neg, neg), (neg, pos) are zero
+        # g = x[0]
+        mask = hinge_truth
+        l = logits
+        # g_p = tf.expand_dims(g, axis=0)
+        # g_n = tf.expand_dims(g, axis=-1)
+        # mask = tf.subtract(g_p, g_n)
+        # mask = mask + 1
+        # mask = mask // 2
+
+        #compare each pair of neg and pos based on hinge loss
+        l_p = tf.expand_dims(l, axis=0)
+        l_n = tf.expand_dims(l, axis=-1)
+        sub1 = tf.subtract(l_p, l_n) - margine
+        new_mask = tf.minimum(0.0, sub1) # hame +ha beshan 0
+        new_mask = tf.maximum(-0.5, new_mask)
+        new_mask = -new_mask
+        new_mask = tf.ceil(new_mask - eps)
+        mask = tf.multiply(mask , new_mask)
+
+        l_final = tf.exp(tf.subtract(l_n, l_p))
+        l_final = tf.multiply(l_final, mask)
+        l_final = tf.reduce_sum(l_final, axis=1)
+        l_final = tf.reduce_sum(tf.log (1 + l_final))
+
+        return tf.divide(l_final, pos_count)
+            #return l_final
 
     def hinge_loss (self, hinge_truth, logits, soft_hinge=True):
         # hinge_loss:
