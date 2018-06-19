@@ -421,7 +421,7 @@ def Get_Next_box_size (index):
     #list = [205, 205] #tre_tune4, #tre_tune5
     #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
     #list = [30, 100] #topsample2- (batch = 10)
-    list = [1.5, 2, 3, 4,   5,100,1,1.25]
+    list = [1.5, 2, 3, 4,   5.0,0.1,100.0,1.0,1.25]
     if  (index > FLAGS.end_batch):
         return False
 
