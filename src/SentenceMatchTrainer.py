@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 6:
+    if cnf == 11:
         return False
     else:
         return True
@@ -421,19 +421,25 @@ def Get_Next_box_size (index):
     #list = [205, 205] #tre_tune4, #tre_tune5
     #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
     #list = [30, 100] #topsample2- (batch = 10)
-    list = [1.5, 2, 3, 4,   5.0,0.1,100.0,1.0,1.25]
+    #list = [1.5, 2, 3, 4,   5.0,0.1, 100.0, 1.0,1.25] #toptreshold1-
+    list = [100, 100, 100]
     if  (index > FLAGS.end_batch):
         return False
 
-    #FLAGS.sample_percent = list [index]
+    FLAGS.sample_percent = list [index]
 
-    FLAGS.top_treshold = list[index]
+    FLAGS.top_treshold = -1#list[index]
 
     FLAGS.max_answer_size = 700
     FLAGS.batch_size = 700
-    FLAGS.max_epochs = 7
+    FLAGS.max_epochs = 8
 
-    FLAGS.pos_avg = True
+    if index == 0:
+        FLAGS.pos_avg = True
+    if index == 1:
+        FLAGS.pos_avg = False
+    else:
+        FLAGS.new_list_wise = False
     FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
     FLAGS.sampling_type = 'attentive'
     # if list [index] < 50:
