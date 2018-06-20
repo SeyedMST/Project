@@ -422,7 +422,7 @@ def Get_Next_box_size (index):
     #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
     #list = [30, 100] #topsample2- (batch = 10)
     #list = [1.5, 2, 3, 4,   5.0,0.1, 100.0, 1.0,1.25] #toptreshold1-
-    #list = [100, 100, 100] #samplelist1-
+    #list = [100, 100, 100, 100] #samplelist1-
     list = [100] #divcount
     if  (index > FLAGS.end_batch):
         return False
@@ -435,8 +435,8 @@ def Get_Next_box_size (index):
     FLAGS.batch_size = 700
     FLAGS.max_epochs = 8
 
-    if index == 0:
-        FLAGS.pos_avg = False
+    if index == 3:
+        FLAGS.pos_avg = True
     # if index == 0:
     #     FLAGS.pos_avg = True
     # if index == 1:
