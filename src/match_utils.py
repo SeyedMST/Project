@@ -396,6 +396,15 @@ def sim_w_mul(h_rep, passage_rep, mp_dim, scope, input_dim,activation):
     #in_val = tf.multiply(in_val, sign)
     return cal_wxb(in_val, scope, mp_dim, input_dim,activation)
 
+def sim_w_sub_self (h_rep, passage_rep, mp_dim, scope, input_dim,activation):
+    in_mul = passage_rep
+    in_mul = cal_wxb(in_mul, scope, mp_dim, input_dim,activation)
+    in_sub = sub(h_rep, passage_rep)
+    in_sub = cal_wxb(in_sub, scope + 'sub', mp_dim//2, input_dim,activation)
+    in_val = tf.concat([in_mul, in_sub], 2) #[bs, M, 2d]
+    return in_val
+
+
 def sim_w_sub(h_rep, passage_rep, mp_dim, scope, input_dim,activation):
     in_val = sub(h_rep, passage_rep)
     return cal_wxb(in_val, scope, mp_dim, input_dim,activation)
@@ -437,7 +446,8 @@ def sim_layer (h_rep, passage_rep, mp_dim, scope, sim_type, input_dim,activation
         return sim_w_sub(h_rep, passage_rep, mp_dim, scope,input_dim,activation)
     elif sim_type == 'w_sub_mul':
         return sim_w_sub_mul(h_rep, passage_rep, mp_dim, scope,input_dim,activation)
-    # elif sim_type == 'w_cos':
+    elif sim_type == 'w_sub_self':
+        return sim_w_sub_self(h_rep, passage_rep, mp_dim, scope, input_dim, activation)    # elif sim_type == 'w_cos':
     #     w_cos = tf.get_variable("w_cos_weight", [mp_dim, input_dim], dtype= tf.float32)
     #     return cal_attentive_matching(passage_rep, h_rep, w_cos)
     elif sim_type == 'mul':
