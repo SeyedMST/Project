@@ -171,12 +171,12 @@ class SentenceMatchModelGraph(object):
                 in_question_repres = tf.concat(in_question_repres, 2) # [batch_size, question_len, dim]
                 in_passage_repres = tf.concat(in_passage_repres, 2) # [batch_size, passage_len, dim]
 
-                if is_training:
-                    in_question_repres = tf.nn.dropout(in_question_repres, (1 - dropout_rate))
-                    in_passage_repres = tf.nn.dropout(in_passage_repres, (1 - dropout_rate))
-                else:
-                    in_question_repres = tf.multiply(in_question_repres, (1 - dropout_rate))
-                    in_passage_repres = tf.multiply(in_passage_repres, (1 - dropout_rate))
+                #if is_training:
+                #    in_question_repres = tf.nn.dropout(in_question_repres, (1 - dropout_rate))
+                #    in_passage_repres = tf.nn.dropout(in_passage_repres, (1 - dropout_rate))
+                #else:
+                #    in_question_repres = tf.multiply(in_question_repres, (1 - dropout_rate))
+                #    in_passage_repres = tf.multiply(in_passage_repres, (1 - dropout_rate))
 
                 mask = tf.sequence_mask(self.passage_lengths[i], passage_len, dtype=tf.float32) # [batch_size, passage_len]
                 question_mask = tf.sequence_mask(self.question_lengths[i], question_len, dtype=tf.float32) # [batch_size, question_len]

@@ -273,7 +273,7 @@ def Generate_random_initialization(cnf):
         # FLAGS.type2 = random.choice(type2)
         # FLAGS.type3 = random.choice(type3)
         # context_layer_num = [1]
-        aggregation_layer_num = [1]
+        aggregation_layer_num = [1, 2]
         FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
         # FLAGS.context_layer_num = random.choice(context_layer_num)
         # #if cnf == 1  or cnf == 4:
@@ -296,10 +296,10 @@ def Generate_random_initialization(cnf):
         #
         #
         # #context_lstm_dim:
-        # if FLAGS.context_layer_num == 2:
-        #     context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
-        # else:
-        #     context_lstm_dim = [50]#[x for x in range(50, 160, 10)]
+        if FLAGS.context_layer_num == 2:
+             context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
+        else:
+             context_lstm_dim = [100, 150]#[x for x in range(50, 160, 10)]
         #
         # if FLAGS.aggregation_layer_num == 2:
         #     aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
@@ -320,7 +320,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.05]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.05, 0.1, 0.2]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -375,7 +375,7 @@ def Generate_random_initialization(cnf):
         # FLAGS.learning_rate = random.choice(learning_rate)
         FLAGS.dropout_rate = random.choice(dropout_rate)
         # FLAGS.char_lstm_dim = random.choice(char_lstm_dim)
-        # FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
+        FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
         # FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
         # FLAGS.MP_dim = random.choice(MP_dim)
         # FLAGS.char_emb_dim = random.choice(char_emb_dim)
@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 11:
+    if cnf == 110:
         return False
     else:
         return True
@@ -422,8 +422,8 @@ def Get_Next_box_size (index):
     #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
     #list = [30, 100] #topsample2- (batch = 10)
     #list = [1.5, 2, 3, 4,   5.0,0.1, 100.0, 1.0,1.25] #toptreshold1-
-    list = [100, 100, 100, 100] #samplelist1- #ablation1-
-    #list = [100] #divcount
+    #list = [100, 100, 100, 100] #samplelist1- #ablation1-
+    list = [100] #divcount #my_glove1-
     if  (index > FLAGS.end_batch):
         return False
 
@@ -436,10 +436,10 @@ def Get_Next_box_size (index):
     FLAGS.max_epochs = 8
 
     FLAGS.type1 = 'w_sub_mul'
-    if index == 0:
-        FLAGS.type1 = 'w_mul'
-    elif index == 1:
-        FLAGS.type1 = 'w_sub_self'
+    #if index == 0:
+    #    FLAGS.type1 = 'w_mul'
+    #elif index == 1:
+    #    FLAGS.type1 = 'w_sub_self'
 
 
     #if index == 3:
@@ -450,7 +450,7 @@ def Get_Next_box_size (index):
     #     FLAGS.pos_avg = False
     # else:
     #     FLAGS.new_list_wise = False
-    FLAGS.word_vec_path = "../data/glove/glove.6B.50d.txt"
+    FLAGS.word_vec_path = "../data/glove/my_glove.800B.300d.txt"
     FLAGS.sampling_type = 'attentive'
     # if list [index] < 50:
     #     FLAGS.max_epochs = 7
