@@ -320,7 +320,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.05, 0.1, 0.2]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.05, 0.1, 0.2, 0.3]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 110:
+    if cnf == 310:
         return False
     else:
         return True
