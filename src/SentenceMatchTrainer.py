@@ -967,8 +967,8 @@ def main(_):
                                     saver.save(sess, best_path)
 
                                 #tr_map, tr_mrr, train_sentences, _ = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=True
-                                                                              ,word_vocab=word_vocab)
+                                     #POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=True
+                                     #                                         ,word_vocab=word_vocab)
                             else:
                                 my_map,my_mrr = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid)
