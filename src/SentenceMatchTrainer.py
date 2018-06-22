@@ -966,7 +966,7 @@ def main(_):
                                     best_test_acc = my_map
                                     saver.save(sess, best_path)
 
-                                tr_map, tr_mrr, train_sentences, _ = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                #tr_map, tr_mrr, train_sentences, _ = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=True
                                                                               ,word_vocab=word_vocab)
                             else:
@@ -990,7 +990,7 @@ def main(_):
                                 #      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=False)
 
 
-                                output_res_file.write("map: '{}', mrr: '{}'\n".format(tr_map, tr_mrr))
+                                output_res_file.write("map: '{}', mrr: '{}'\n".format(0.0, 0.0))#(tr_map, tr_mrr))
                                 print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
 
 
@@ -1050,11 +1050,11 @@ def main(_):
                 else:
                     output_sentence_file.write(zj)
 
-            for zj in train_sentences:
-                if sys.version_info[0] < 3:
-                    output_train_file.write(zj.encode('utf-8'))
-                else:
-                    output_train_file.write(zj)
+            #for zj in train_sentences:
+            #    if sys.version_info[0] < 3:
+            #        output_train_file.write(zj.encode('utf-8'))
+            #    else:
+            #        output_train_file.write(zj)
 
             output_train_file.close()
             output_sentence_file.close()
