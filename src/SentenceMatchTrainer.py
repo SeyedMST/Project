@@ -438,7 +438,7 @@ def Get_Next_box_size (index):
                                  #ablation1- same topsample1- diff types [w_mul, w_sub_self]
     list = [100] #divcount: pos_avg = False and for each batch divide on question_count instead of pos_count, leads higher loss for
                             # batches with more positive answers and poor result.
-                 #my_glove1- : tested on golve800b.300d with different configs(drop_out, ...) and the first place that
+                 #my_glove1- : tested on golve800b.300d with different configs(drop_out, ...) and
                                             #we delete drop_out ofter word embedding(input_layer).
                  #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
     if  (index > FLAGS.end_batch):
@@ -1141,7 +1141,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--store_att',default=False, type= bool, help='do we have cuda visible devices?')
 
-    parser.add_argument('--pos_avg',default=False, type= bool, help='do we have cuda visible devices?')
+    parser.add_argument('--pos_avg',default=True, type= bool, help='do we have cuda visible devices?')
 
 
 
