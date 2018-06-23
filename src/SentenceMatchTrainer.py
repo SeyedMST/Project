@@ -320,7 +320,7 @@ def Generate_random_initialization(cnf):
         #
         # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.05, 0.1, 0.2, 0.3]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.05, 0.1, 0.2]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 310:
+    if cnf == 20:
         return False
     else:
         return True
@@ -436,20 +436,24 @@ def Get_Next_box_size (index):
 
     #list = [100, 100, 100, 100] #samplelist1- same topsample1- diff loss[Kl-div, pos_avg = False, Kl-div, pos_avg = True]
                                  #ablation1- same topsample1- diff types [w_mul, w_sub_self]
-    list = [100] #divcount: pos_avg = False and for each batch divide on question_count instead of pos_count, leads higher loss for
+    #list = [100] #divcount: pos_avg = False and for each batch divide on question_count instead of pos_count, leads higher loss for
                             # batches with more positive answers and poor result.
                  #my_glove1- : tested on golve800b.300d with different configs(drop_out, ...) and
-                                            #we delete drop_out ofter word embedding(input_layer).
+                                            #we delete drop_out ofter word embedding(input_layer) [eftezah shod!].
+                                            #pos_avg = False, not same divcount but same tune1-
                  #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
+    list = [150, 150] #simulate tresort301
     if  (index > FLAGS.end_batch):
         return False
+    if index == 0:
+        FLAGS.sample_percent = 1000 #list [index]
+    else:
+        FLAGS.sample_percent = 100 #list [index]
 
-    FLAGS.sample_percent = list [index]
+    FLAGS.top_treshold = -1 ###list[index]
 
-    FLAGS.top_treshold = -1#list[index]
-
-    FLAGS.max_answer_size = 700
-    FLAGS.batch_size = 700
+    FLAGS.max_answer_size = list [index] #700
+    FLAGS.batch_size = list [index]#700
     FLAGS.max_epochs = 8
 
     FLAGS.type1 = 'w_sub_mul'
