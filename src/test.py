@@ -34,7 +34,10 @@ y = tf.cast (indices, tf.int32)
 
 y = tf.gather(elems, y)
 
-values, indices = tf.nn.top_k(elems, 3, False)
+neg_sample_size = tf.reduce_sum(tf.convert_to_tensor([0.99999]))
+neg_sample_size = tf.cast(neg_sample_size, tf.int32)
+
+values, indices = tf.nn.top_k(elems, neg_sample_size, False)
 
 with tf.Session():
     tf.initialize_all_variables().run()

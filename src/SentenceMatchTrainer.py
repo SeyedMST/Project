@@ -442,13 +442,16 @@ def Get_Next_box_size (index):
                                             #we delete drop_out ofter word embedding(input_layer) [eftezah shod!].
                                             #pos_avg = False, not same divcount but same tune1-
                  #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
-    list = [150, 150] #simulate tresort301
+    list = [150, 150, 150] #glove2- box size = 150, sample_percent[1000, 100]simulate tresort301
     if  (index > FLAGS.end_batch):
         return False
+    FLAGS.sampling = True
     if index == 0:
         FLAGS.sample_percent = 1000 #list [index]
-    else:
+    if index == 1:
         FLAGS.sample_percent = 100 #list [index]
+    if index == 2:
+        FLAGS.sampling = False
 
     FLAGS.top_treshold = -1 ###list[index]
 
@@ -478,7 +481,6 @@ def Get_Next_box_size (index):
     # else:
     #     FLAGS.max_epochs = 8
 
-    FLAGS.sampling = True
     return True
 
 

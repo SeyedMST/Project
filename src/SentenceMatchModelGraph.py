@@ -344,6 +344,27 @@ class SentenceMatchModelGraph(object):
                                         pos_list.append (pos_count)
                                         loss_list.append(fi)
 
+                                else:
+                                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a]
+                                    neg_exp = tf.multiply(neg_exp, neg_mask)
+                                    neg_exp_sum = tf.reduce_sum(neg_exp) #[1]
+                                    pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [a]
+                                    fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[a]
+                                    fi = tf.multiply(fi, pos_mask) #[a]
+                                    #fi = tf.reduce_sum(fi, axis=1) #[q]
+                                    #fi = tf.divide(fi,pos_count) #[q]
+                                    #self.loss = tf.reduce_mean(fi)
+
+                                    #fi = tf.reduce_sum(fi) #[1]
+                                    #self.loss = tf.divide(fi, pos_count_all) #[1]
+
+                                    fi = tf.reduce_sum(fi) #[1]
+                                    if pos_avg == True:
+                                        fi = tf.divide(fi, pos_count) #[1]
+                                        loss_list.append(fi)
+                                    else:
+                                        pos_list.append (pos_count)
+                                        loss_list.append(fi)
                             else:
                                 hinget = tf.reshape(self.hinge_truth[i], [self.answer_count[i], self.answer_count[i]]) #[a, a]
                                 loss_list.append(self.check_pairs(hinget, logits, top_treshold, pos_count))
