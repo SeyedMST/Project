@@ -415,15 +415,32 @@ def Generate_random_initialization(cnf):
 
 
 def Get_Next_box_size (index):
-    #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1-
-    #list = [600] #tune2-
-    #list = [120, 150, 180, 270, 450]#tre tune3-#  #[15, 15, 30, 30] #wiki tune1-
-    #list = [205, 205] #tre_tune4, #tre_tune5
-    #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4)
-    #list = [30, 100] #topsample2- (batch = 10)
-    #list = [1.5, 2, 3, 4,   5.0,0.1, 100.0, 1.0,1.25] #toptreshold1-
-    #list = [100, 100, 100, 100] #samplelist1- #ablation1-
-    list = [100] #divcount #my_glove1-
+    #sort301 box_size = 150 ,govle6b.300d, differetn drop_out, ... without start batch ,... arc :)
+    #list = [15, 15,  205, 205, 25, 25, 37, 37, 102, 102, 131, 131, 77, 77] #tune1- tune box size, best on 205
+                                                                                #odd indices are pos_avg = False
+                                                                                #here a bit better on pos_avg = True
+                                                                                #here we have S for train! not test!!
+    #list = [600] #tune2- box size = 600 (very less boxing!)
+    #list = [120, 150, 180, 270, 450]#tre tune3-# tune box size like tune1-
+    #list = [15, 15, 30, 30] #wiki tune1- wiki box size
+    #list = [205, 205] #tune4- box_size = 205, drop_out = 0.1,[my_glove300d, glove300d],
+                       #tune5- box_size = 205, drop_out=0.0.05, [my_glove300d, glove300d]
+
+    #form here box_size is 700:
+    #list = [15, 30, 50, 70, 100, 150, 200, 300, 10, 20, 40, 90, 110, 120] #topsample1- (batch=4, drop=0.05) just add to loss top
+                                                                                     # k negative with all positives, pos_avg = True
+    #list = [30, 100] #topsample2- (batch = 10) #same topsample1- with question per batch = 10 instead of 4
+
+    #list = [1.5, 2, 3, 4,   5.0,0.1, 100.0, 1.0,1.25] #toptreshold1- just add to loss pos_avg=True thoes with
+                                                    # pos - neg - marginhe < 0
+
+    #list = [100, 100, 100, 100] #samplelist1- same topsample1- diff loss[Kl-div, pos_avg = False, Kl-div, pos_avg = True]
+                                 #ablation1- same topsample1- diff types [w_mul, w_sub_self]
+    list = [100] #divcount: pos_avg = False and for each batch divide on question_count instead of pos_count, leads higher loss for
+                            # batches with more positive answers and poor result.
+                 #my_glove1- : tested on golve800b.300d with different configs(drop_out, ...) and the first place that
+                                            #we delete drop_out ofter word embedding(input_layer).
+                 #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
     if  (index > FLAGS.end_batch):
         return False
 
@@ -450,7 +467,7 @@ def Get_Next_box_size (index):
     #     FLAGS.pos_avg = False
     # else:
     #     FLAGS.new_list_wise = False
-    FLAGS.word_vec_path = "../data/glove/my_glove.800B.300d.txt"
+    FLAGS.word_vec_path = "../data/glove/glove.6B.300d.txt"
     FLAGS.sampling_type = 'attentive'
     # if list [index] < 50:
     #     FLAGS.max_epochs = 7
@@ -498,7 +515,7 @@ def main(_):
     test_path = FLAGS.test_path
     word_vec_path = FLAGS.word_vec_path
     op = 'wik'
-    if FLAGS.is_trec == True:
+    if FLAGS.is_trec == True or FLAGS.is_trec == 'True':
         op = 'tre'
     log_dir = FLAGS.model_dir + op
     if not os.path.exists(log_dir):
