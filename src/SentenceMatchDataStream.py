@@ -278,6 +278,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     pos_neg_pair_count = 0
     total_pair_count = 0
     sum_bikhod_added = 0
+    pos_count_list = []
     if add_neg_sample_count == True:
         for item in question_dic.values():
             temp_answer = item["answer"]
@@ -295,6 +296,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         for item in question_dic.values():
             good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
             good_length = len(good_answer)
+            pos_count_list.append(good_length)
             bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
             pos_neg_pair_count += good_length * len (bad_answer)
             total_pair_count += good_length + len(bad_answer)
@@ -354,6 +356,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     random.shuffle(instances)  # random works inplace and returns None
 
     #instances = sorted(instances, key=lambda instance: (len(instance[1]))) #sort based on len (answer[i])
+    pos_count_list = sorted(pos_count_list, reverse=True)
     if is_training == True:
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:

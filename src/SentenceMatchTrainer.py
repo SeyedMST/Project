@@ -273,7 +273,7 @@ def Generate_random_initialization(cnf):
         # FLAGS.type2 = random.choice(type2)
         # FLAGS.type3 = random.choice(type3)
         # context_layer_num = [1]
-        aggregation_layer_num = [1, 2]
+        aggregation_layer_num = [1]
         FLAGS.aggregation_layer_num = random.choice(aggregation_layer_num)
         # FLAGS.context_layer_num = random.choice(context_layer_num)
         # #if cnf == 1  or cnf == 4:
@@ -299,12 +299,12 @@ def Generate_random_initialization(cnf):
         if FLAGS.context_layer_num == 2:
              context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
         else:
-             context_lstm_dim = [100, 150]#[x for x in range(50, 160, 10)]
+             context_lstm_dim = [150, 200]#[x for x in range(50, 160, 10)]
         #
-        # if FLAGS.aggregation_layer_num == 2:
-        #     aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
-        # else:
-        #     aggregation_lstm_dim = [50]#[x for x in range (50, 160, 10)]
+        if FLAGS.aggregation_layer_num == 2:
+            aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
+        else:
+            aggregation_lstm_dim = [100, 150]#[x for x in range (50, 160, 10)]
         # # else: # CNN
         # #     if FLAGS.max_window_size == 1:
         # #         aggregation_lstm_dim = [100]#[x for x in range (50, 801, 10)]
@@ -318,9 +318,9 @@ def Generate_random_initialization(cnf):
         # #         aggregation_lstm_dim = [x for x in range (50, 110, 10)]
         #
         #
-        # MP_dim = [50]#[20,50,100]#[x for x in range (20, 610, 10)]
+        MP_dim = [50, 80]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.05, 0.1, 0.2, 0.3]#[x/100.0 for x in xrange (2, 30, 2)]
+        dropout_rate = [0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -376,8 +376,8 @@ def Generate_random_initialization(cnf):
         FLAGS.dropout_rate = random.choice(dropout_rate)
         # FLAGS.char_lstm_dim = random.choice(char_lstm_dim)
         FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
-        # FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
-        # FLAGS.MP_dim = random.choice(MP_dim)
+        FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
+        FLAGS.MP_dim = random.choice(MP_dim)
         # FLAGS.char_emb_dim = random.choice(char_emb_dim)
         # FLAGS.with_aggregation_highway = random.choice(with_aggregation_highway)
         # FLAGS.wo_char = random.choice(wo_char)
@@ -406,7 +406,7 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 100:
+    if cnf == 300:
         return False
     else:
         return True
@@ -442,24 +442,25 @@ def Get_Next_box_size (index):
                                             #we delete drop_out ofter word embedding(input_layer) [eftezah shod!].
                                             #pos_avg = False, not same divcount but same tune1-
                  #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
-    list = [100, 100, 100] #glove2- sample_percent [100]
+    list = [100, 100, 100] #glove2- sample_percent 100, [300, my_glove, 300sample=False]
+                            #glove3- sampling = sample_100, my_glove, [pos_avg, div_count, kldiv]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = True
     FLAGS.sample_percent = list [index]
     if index == 0:
-        FLAGS.word_vec_path = "../data/glove/glove.6B.300d.txt"
+        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
     if index == 2:
-        FLAGS.sampling = False
-        FLAGS.word_vec_path = "../data/glove/glove.6B.300d.txt"
+        #FLAGS.sampling = False
+        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
 
 
     FLAGS.top_treshold = -1 ###list[index]
 
-    FLAGS.max_answer_size = 800
-    FLAGS.batch_size = 800
+    FLAGS.max_answer_size = 1000
+    FLAGS.batch_size = 1000
     FLAGS.max_epochs = 8
 
     FLAGS.type1 = 'w_sub_mul'
