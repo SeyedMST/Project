@@ -455,7 +455,7 @@ def Get_Next_box_size (index):
     if index == 2:
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-
+        FLAGS.new_list_wise = False
 
     FLAGS.top_treshold = -1 ###list[index]
 
