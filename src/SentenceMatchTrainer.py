@@ -452,6 +452,7 @@ def Get_Next_box_size (index):
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+        FLAGS.pos_avg = False
     if index == 2:
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
