@@ -304,7 +304,7 @@ def Generate_random_initialization(cnf):
         if FLAGS.aggregation_layer_num == 2:
             aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
         else:
-            aggregation_lstm_dim = [100, 150]#[x for x in range (50, 160, 10)]
+            aggregation_lstm_dim = [70, 100]#[x for x in range (50, 160, 10)]
         # # else: # CNN
         # #     if FLAGS.max_window_size == 1:
         # #         aggregation_lstm_dim = [100]#[x for x in range (50, 801, 10)]
@@ -318,9 +318,11 @@ def Generate_random_initialization(cnf):
         # #         aggregation_lstm_dim = [x for x in range (50, 110, 10)]
         #
         #
-        MP_dim = [50, 80]#[20,50,100]#[x for x in range (20, 610, 10)]
+        MP_dim = [30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
         dropout_rate = [0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4, 7]
+
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
         # wo_char = [True]
@@ -378,6 +380,7 @@ def Generate_random_initialization(cnf):
         FLAGS.context_lstm_dim = random.choice(context_lstm_dim)
         FLAGS.aggregation_lstm_dim = random.choice(aggregation_lstm_dim)
         FLAGS.MP_dim = random.choice(MP_dim)
+        FLAGS.question_count_per_batch = random.choice(question_count_per_batch)
         # FLAGS.char_emb_dim = random.choice(char_emb_dim)
         # FLAGS.with_aggregation_highway = random.choice(with_aggregation_highway)
         # FLAGS.wo_char = random.choice(wo_char)
@@ -442,14 +445,19 @@ def Get_Next_box_size (index):
                                             #we delete drop_out ofter word embedding(input_layer) [eftezah shod!].
                                             #pos_avg = False, not same divcount but same tune1-
                  #glove1- : tested on glove6b.300d to compare with sort300. dropout ro embeding hasttttt.
-    list = [100, 100, 100] #glove2- sample_percent 100, [300, my_glove, 300sample=False]
-                            #glove3- sampling = sample_100, my_glove, [pos_avg, div_count, kldiv]
+    #list = [100, 100, 100] #glove2- sample_percent 100, [300, my_glove, 300sample=False]
+                            #glove3- sampling = sample_100, my_glove, [pos_avg=True, pos_avg=True, kldiv]
+
+                            #bug: too bala hame pos_avg ha True boode!
+
+    list = [100, 100] #glove4- [pos_avg = True, pos_avg = False]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = True
     FLAGS.sample_percent = list [index]
     if index == 0:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+        FLAGS.pos_avg = True
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = False
@@ -813,7 +821,8 @@ def main(_):
                                                           ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
                                                           max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch,
                                                           sampling=FLAGS.sampling, sampling_type=FLAGS.sampling_type,
-                                                          sample_percent = FLAGS.sample_percent, top_treshold=FLAGS.top_treshold)
+                                                          sample_percent = FLAGS.sample_percent, top_treshold=FLAGS.top_treshold,
+                                                          pos_avg=FLAGS.pos_avg)
                     tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
         #         with tf.name_scope("Valid"):
@@ -1132,8 +1141,8 @@ if __name__ == '__main__':
     parser.add_argument('--top_treshold', type=int, default=-1, help='Maximum epochs for training.')
 
 
-    parser.add_argument('--start_batch', type=int, default=1, help='Maximum epochs for training.')
-    parser.add_argument('--end_batch', type=int, default=80, help='Maximum epochs for training.')
+    parser.add_argument('--start_batch', type=int, default=0, help='Maximum epochs for training.')
+    parser.add_argument('--end_batch', type=int, default=0, help='Maximum epochs for training.')
     parser.add_argument('--step_batch', type=int, default=1, help='Maximum epochs for training.')
 
 
