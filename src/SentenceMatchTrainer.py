@@ -450,7 +450,7 @@ def Get_Next_box_size (index):
 
                             #bug: too bala hame pos_avg ha True boode!
 
-    list = [100, 100] #glove4- [pos_avg = True, pos_avg = False]
+    list = [100, 100, 100] #glove4- [pos_avg = True, pos_avg = False(div_count), pos_avg=False]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = True
@@ -464,7 +464,7 @@ def Get_Next_box_size (index):
     if index == 2:
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.new_list_wise = False
+        FLAGS.pos_avg = False
 
     FLAGS.top_treshold = -1 ###list[index]
 
