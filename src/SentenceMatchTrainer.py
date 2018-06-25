@@ -470,7 +470,7 @@ def Get_Next_box_size (index):
 
     FLAGS.max_answer_size = 1000
     FLAGS.batch_size = 1000
-    FLAGS.max_epochs = 8
+    FLAGS.max_epochs = 10
 
     FLAGS.type1 = 'w_sub_mul'
     #if index == 0:
