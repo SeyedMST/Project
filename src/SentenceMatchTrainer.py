@@ -321,7 +321,7 @@ def Generate_random_initialization(cnf):
         MP_dim = [30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
         dropout_rate = [0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4, 7]
+        question_count_per_batch = [4, 7, 10]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -450,7 +450,8 @@ def Get_Next_box_size (index):
 
                             #bug: too bala hame pos_avg ha True boode!
 
-    list = [100, 100, 100] #glove4- [pos_avg = True, pos_avg = False(div_count), pos_avg=False]
+                              #glove4- [pos_avg = True, pos_avg = False(div_count), pos_avg=False]
+    list = [100, 100] # glove4- [pos_avg = True, False(divcount)]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = True

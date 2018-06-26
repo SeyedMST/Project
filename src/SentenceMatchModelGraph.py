@@ -390,7 +390,7 @@ class SentenceMatchModelGraph(object):
 
         #print (len (loss_list))
         self.loss = tf.stack (loss_list, 0)
-        if pos_avg == True:# or pos_avg == False: #this change for #divcount
+        if pos_avg == True or pos_avg == False: #this change for #divcount
             self.loss = tf.reduce_mean(self.loss, 0)
         else:
             pos_cnt = tf.stack(pos_list, 0)
