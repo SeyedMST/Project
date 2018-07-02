@@ -237,7 +237,7 @@ class SentenceMatchModelGraph(object):
 
                 sec_dim = 1
                 if prediction_mode == 'point_wise':
-                    sec_dim = num_classes
+                    sec_dim = 2
 
                 w_1 = tf.get_variable("w_1", [match_dim/2, sec_dim],dtype=tf.float32)
                 b_1 = tf.get_variable("b_1", [sec_dim],dtype=tf.float32)
@@ -375,7 +375,7 @@ class SentenceMatchModelGraph(object):
                         #self.loss = self.hinge_loss(g1_matrix, logits)
                         self.loss = self.hinge_loss(self.hinge_truth, logits)
                 else:
-                    logit_list = tf.unstack(logits)
+                    logit_list = tf.unstack(logits, num=2)
                     score_list.append(logit_list[1])
                     gold_matrix = self.truth[i]
                     g1_matrix = tf.ceil(gold_matrix - eps)
