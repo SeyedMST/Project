@@ -375,7 +375,7 @@ class SentenceMatchModelGraph(object):
                         #self.loss = self.hinge_loss(g1_matrix, logits)
                         self.loss = self.hinge_loss(self.hinge_truth, logits)
                 else:
-                    logit_list = tf.unstack(logits, num=2)
+                    logit_list = tf.unstack(logits,axis = 1 ,num=2)
                     score_list.append(logit_list[1])
                     prob_list.append(logit_list[1])
                     gold_matrix = self.truth[i]
