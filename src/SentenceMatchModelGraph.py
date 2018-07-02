@@ -377,6 +377,7 @@ class SentenceMatchModelGraph(object):
                 else:
                     logit_list = tf.unstack(logits, num=2)
                     score_list.append(logit_list[1])
+                    prob_list.append(logit_list[1])
                     gold_matrix = self.truth[i]
                     g1_matrix = tf.ceil(gold_matrix - eps)
                     g1_matrix = tf.cast(g1_matrix + eps, tf.int32)
