@@ -24,7 +24,7 @@ elems = tf.reshape(elems, [-1])
 #samples = tf.multinomial(tf.log([[0.2, 0.2, 0.3, 0.4]]), 1)
 
 sample_size = 2
-p = tf.convert_to_tensor([0.2000009, 0.2, 0.3, 0.3000000001])
+p = tf.convert_to_tensor([1.99999999999, 0.2, 0.3, 0.3000000001])
 input_shape = tf.cast(tf.shape(p)[0], tf.int32)
 sample_size = tf.minimum(sample_size, input_shape)
 
@@ -39,10 +39,12 @@ neg_sample_size = tf.cast(neg_sample_size, tf.int32)
 
 values, indices = tf.nn.top_k(elems, neg_sample_size, False)
 
+
+rr = tf.cast(p, tf.int32)
 with tf.Session():
     tf.initialize_all_variables().run()
     # result = []
     # result.append(tf.while_loop(condition, body, [x]))
     # result = tf.concat(0, result)
     #result = tf.ceil(g1)
-    print(indices.eval())
+    print(rr.eval())

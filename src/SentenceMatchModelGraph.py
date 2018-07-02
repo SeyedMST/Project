@@ -243,8 +243,8 @@ class SentenceMatchModelGraph(object):
                 b_1 = tf.get_variable("b_1", [sec_dim],dtype=tf.float32)
                 logits = tf.matmul(logits, w_1) + b_1
                 #self.score = tf.reshape(logits, [-1])
-                score_list.append (tf.reshape(logits, [-1]))
                 if prediction_mode != 'point_wise':
+                    score_list.append(tf.reshape(logits, [-1]))
                     logits = tf.reshape(logits, shape=[self.question_count[i], self.answer_count[i]])
                     gold_matrix = tf.reshape(self.truth[i], shape=[self.question_count[i], self.answer_count[i]])
                     g1_matrix = tf.ceil(gold_matrix - eps)
@@ -375,16 +375,21 @@ class SentenceMatchModelGraph(object):
                         #self.loss = self.hinge_loss(g1_matrix, logits)
                         self.loss = self.hinge_loss(self.hinge_truth, logits)
                 else:
-                    self.prob = tf.nn.softmax(logits)
-                    gold_matrix = tf.one_hot(self.truth, num_classes, dtype=tf.float32)            #         gold_matrix = tf.one_hot(self.truth, num_classes)
+                    logit_list = tf.unstack(logits)
+                    score_list.append(logit_list[1])
+                    gold_matrix = self.truth[i]
+                    g1_matrix = tf.ceil(gold_matrix - eps)
+                    g1_matrix = tf.cast(g1_matrix + eps, tf.int32)
+                    #self.prob = tf.nn.softmax(logits)
+                    gold_matrix = tf.one_hot(g1_matrix, num_classes, dtype=tf.float32)            #         gold_matrix = tf.one_hot(self.truth, num_classes)
                     #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, gold_matrix))
-                    self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=gold_matrix))
+                    loss_list.append(tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=gold_matrix)))
         #         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, tf.cast(self.truth, tf.int64), name='cross_entropy_per_example')
         #         self.loss = tf.reduce_mean(cross_entropy, name='cross_entropy')
-                    correct = tf.nn.in_top_k(logits, self.truth, 1)
-                    self.eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
+                    #correct = tf.nn.in_top_k(logits, self.truth, 1)
+                    #self.eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
                     #self.predictions = tf.arg_max(self.prob, 1)
-                    self.predictions = tf.argmax(self.prob, 1)
+                    #self.predictions = tf.argmax(self.prob, 1)
 
                 tf.get_variable_scope().reuse_variables()
 
