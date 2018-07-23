@@ -10,40 +10,89 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/src$SentenceMatchTrainer.coverage" NAME="SentenceMatchTrainer Coverage Results" MODIFIED="1530956686604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/src$SentenceMatchTrainer.coverage" NAME="SentenceMatchTrainer Coverage Results" MODIFIED="1532381455333" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="SentenceMatchModelGraph.py" pinned="false" current-in-tab="true">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="SentenceMatchModelGraph.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SentenceMatchModelGraph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="250" column="53" lean-forward="true" selection-start-line="250" selection-start-column="53" selection-end-line="250" selection-end-column="53" />
+            <state relative-caret-position="-757">
+              <caret line="187" column="44" lean-forward="true" selection-start-line="187" selection-start-column="44" selection-end-line="187" selection-end-column="44" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
                 <element signature="e#18110#18126#0" expanded="false" />
-                <element signature="e#18700#18758#0" expanded="false" />
+                <element signature="e#19658#19701#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SentenceMatchTrainer.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="match_utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/match_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="399">
+              <caret line="244" column="36" lean-forward="false" selection-start-line="244" selection-start-column="36" selection-end-line="244" selection-end-column="36" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+                <element signature="e#89#118#0" expanded="false" />
+                <element signature="e#9145#9180#0" expanded="false" />
+                <element signature="e#9815#9830#0" expanded="false" />
+                <element signature="e#10258#10286#0" expanded="false" />
+                <element signature="e#11401#11435#0" expanded="false" />
+                <element signature="e#12520#12575#0" expanded="false" />
+                <element signature="e#12749#13416#0" expanded="false" />
+                <element signature="e#14089#14115#0" expanded="false" />
+                <element signature="e#16164#16217#0" expanded="false" />
+                <element signature="e#23437#23462#0" expanded="false" />
+                <element signature="e#24317#24368#0" expanded="false" />
+                <element signature="e#25089#25130#0" expanded="false" />
+                <element signature="e#28183#28261#0" expanded="false" />
+                <element signature="e#31411#31478#0" expanded="false" />
+                <element signature="e#32155#32275#0" expanded="false" />
+                <element signature="e#34073#34089#0" expanded="false" />
+                <element signature="e#39405#39507#0" expanded="false" />
+                <element signature="e#52854#52973#0" expanded="false" />
+                <element signature="e#59199#59206#0" expanded="false" />
+                <element signature="e#61293#61327#0" expanded="false" />
+                <element signature="e#64187#64513#1" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SentenceMatchTrainer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SentenceMatchTrainer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="464" column="28" lean-forward="true" selection-start-line="464" selection-start-column="28" selection-end-line="464" selection-end-column="28" />
-              <folding />
+            <state relative-caret-position="216">
+              <caret line="471" column="18" lean-forward="true" selection-start-line="471" selection-start-column="18" selection-end-line="471" selection-end-column="18" />
+              <folding>
+                <element signature="e#7631#7661#0" expanded="false" />
+                <element signature="e#12102#12162#0" expanded="false" />
+                <element signature="e#13307#13322#0" expanded="false" />
+                <element signature="e#14225#14280#0" expanded="false" />
+                <element signature="e#16618#16668#0" expanded="false" />
+                <element signature="e#18035#18129#0" expanded="false" />
+                <element signature="e#21204#21266#0" expanded="false" />
+                <element signature="e#22119#22134#0" expanded="false" />
+                <element signature="e#22473#22496#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>num_call</find>
+    </findStrings>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/SentenceMatchModelGraph.py" />
+        <option value="$PROJECT_DIR$/match_utils.py" />
         <option value="$PROJECT_DIR$/SentenceMatchTrainer.py" />
       </list>
     </option>
@@ -60,10 +109,26 @@
     <option name="width" value="1293" />
     <option name="height" value="768" />
   </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes />
+  </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/AposetNet/src" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -116,27 +181,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="23" y="-4" width="1303" height="780" extended-state="6" />
+    <frame x="65" y="-4" width="1301" height="772" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32868218" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32868218" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -151,22 +216,93 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/SentenceMatchModelGraph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#18110#18126#0" expanded="false" />
+            <element signature="e#19658#19701#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SentenceMatchTrainer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
+        <state relative-caret-position="8352">
           <caret line="464" column="28" lean-forward="true" selection-start-line="464" selection-start-column="28" selection-end-line="464" selection-end-column="28" />
-          <folding />
+          <folding>
+            <element signature="e#7631#7661#0" expanded="false" />
+            <element signature="e#12102#12162#0" expanded="false" />
+            <element signature="e#13307#13322#0" expanded="false" />
+            <element signature="e#14225#14280#0" expanded="false" />
+            <element signature="e#16618#16668#0" expanded="false" />
+            <element signature="e#18035#18129#0" expanded="false" />
+            <element signature="e#21204#21266#0" expanded="false" />
+            <element signature="e#22119#22134#0" expanded="false" />
+            <element signature="e#22473#22496#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/match_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="244" column="36" lean-forward="false" selection-start-line="244" selection-start-column="36" selection-end-line="244" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#89#118#0" expanded="false" />
+            <element signature="e#9145#9180#0" expanded="false" />
+            <element signature="e#9815#9830#0" expanded="false" />
+            <element signature="e#10258#10286#0" expanded="false" />
+            <element signature="e#11401#11435#0" expanded="false" />
+            <element signature="e#12520#12575#0" expanded="false" />
+            <element signature="e#12749#13416#0" expanded="false" />
+            <element signature="e#14089#14115#0" expanded="false" />
+            <element signature="e#16164#16217#0" expanded="false" />
+            <element signature="e#23437#23462#0" expanded="false" />
+            <element signature="e#24317#24368#0" expanded="false" />
+            <element signature="e#25089#25130#0" expanded="false" />
+            <element signature="e#28183#28261#0" expanded="false" />
+            <element signature="e#31411#31478#0" expanded="false" />
+            <element signature="e#32155#32275#0" expanded="false" />
+            <element signature="e#34073#34089#0" expanded="false" />
+            <element signature="e#39405#39507#0" expanded="false" />
+            <element signature="e#52854#52973#0" expanded="false" />
+            <element signature="e#59199#59206#0" expanded="false" />
+            <element signature="e#61293#61327#0" expanded="false" />
+            <element signature="e#64187#64513#1" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SentenceMatchModelGraph.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="250" column="53" lean-forward="true" selection-start-line="250" selection-start-column="53" selection-end-line="250" selection-end-column="53" />
+        <state relative-caret-position="-757">
+          <caret line="187" column="44" lean-forward="true" selection-start-line="187" selection-start-column="44" selection-end-line="187" selection-end-column="44" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
             <element signature="e#18110#18126#0" expanded="false" />
-            <element signature="e#18700#18758#0" expanded="false" />
+            <element signature="e#19658#19701#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SentenceMatchTrainer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="471" column="18" lean-forward="true" selection-start-line="471" selection-start-column="18" selection-end-line="471" selection-end-column="18" />
+          <folding>
+            <element signature="e#7631#7661#0" expanded="false" />
+            <element signature="e#12102#12162#0" expanded="false" />
+            <element signature="e#13307#13322#0" expanded="false" />
+            <element signature="e#14225#14280#0" expanded="false" />
+            <element signature="e#16618#16668#0" expanded="false" />
+            <element signature="e#18035#18129#0" expanded="false" />
+            <element signature="e#21204#21266#0" expanded="false" />
+            <element signature="e#22119#22134#0" expanded="false" />
+            <element signature="e#22473#22496#0" expanded="false" />
           </folding>
         </state>
       </provider>

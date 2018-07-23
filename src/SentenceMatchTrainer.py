@@ -455,15 +455,20 @@ def Get_Next_box_size (index):
 
     #list = [100, 100] # glove4- [pos_avg = True, False(divcount)]
     #az inja be bad listnet dorost shode
-    list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise]
+    #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise]
+    list = [100, 100] #sya1- [sya, sya]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = True
     FLAGS.sample_percent = list [index]
     if index == 0:
+        # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+        # FLAGS.pos_avg = True
+        # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'point_wise'
+        FLAGS.pos_avg = False
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = False
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = False

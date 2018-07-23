@@ -226,7 +226,6 @@ def dot_att_weight(passage_rep, question_rep,input_dim , overlap, question_mask,
         #z1 = tf.divide(z1, z1_s) #[M,N]
         #print ('fuck you')
         if clip_att == True:
-        #    print ('fuck me')
             # z1 = tf.expand_dims(z1, -1) #[M,N,1]
             # z_c = cal_wxb(z1, scope='clip', output_dim=1, input_dim=1, activation = 'tanh') #[M,N,1]
             # z_c = tf.reduce_sum(z_c, 2)  # [M, N] Just for removing the last dimension
@@ -488,7 +487,6 @@ def match_bilinear_sim (passage_rep, question_rep, mp_dim, input_dim,
     else:
         ans = multi_sim_layer(h_rep_list, passage_rep, mp_dim, sim_type_list, input_dim, scope=str(num_call), activation='None')
     l = [ans] #[bs,M,d]
-
     # p = tf.expand_dims(passage_rep, 2) #[bs, M, 1, d]
     # q = tf.expand_dims(question_rep, 1) #[bs, 1, N, d]
     # z = tf.multiply(p, q) #[bs, M, N, d]
@@ -503,15 +501,11 @@ def match_bilinear_sim (passage_rep, question_rep, mp_dim, input_dim,
     p = cal_wxb(p,'mp_overlap' + str(num_call), 5, input_dim,activation='relu') #[bs, M, 10]
 
     attention_weights = alph
-
     alph = p
     #alph = tf.multiply(alph, p) #[bs, M, 10]
         #alph = tf.reduce_sum(alph, 2, keep_dims=True) #[bs, M, 5]
     l.append(alph)
     return tf.concat(l, 2), attention_weights #[bs, M, d+10]
-
-
-
 
 def self_attention(passage_context_representation_fw, pasage_context_representation_bw,mask,input_dim):
     pasage_context_representation_bw = tf.multiply(pasage_context_representation_bw,
@@ -557,6 +551,7 @@ def highway_layer(in_val, input_size, scope=None, output_size=-1, with_highway =
             outputs = tf.add(tf.multiply(trans, gate), tf.multiply(in_val, tf.subtract(1.0, gate)), "y")
     outputs = tf.reshape(outputs, [batch_size, passage_len, output_size])
     return outputs
+
 
 def multi_highway_layer(in_val, output_size, num_layers, scope=None):
     scope_name = 'highway_layer'
@@ -623,7 +618,6 @@ def match_passage_with_question(passage_context_representation_fw, passage_conte
         passage_context_representation_fw = tf.multiply(passage_context_representation_fw, tf.expand_dims(mask,-1))
         question_context_representation_fw = tf.multiply(question_context_representation_fw,
                                                          tf.expand_dims(question_mask, -1))
-
         # forward_relevancy_matrix = cal_relevancy_matrix(question_context_representation_fw, passage_context_representation_fw)
         # forward_relevancy_matrix = mask_relevancy_matrix(forward_relevancy_matrix, question_mask, mask)
         #
@@ -999,7 +993,9 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                                                                                    with_input_highway=with_input_highway)
                     question_aware_representatins.extend(matching_vectors)
                     question_aware_dim += matching_dim
-                #right_scope = 'right_MP_matching'
+
+                    tf.get_variable_scope().reuse_variables()
+                    #right_scope = 'right_MP_matching'
                 #if is_shared_attetention == True:
                 #    right_scope = 'left_MP_matching'
                 #with tf.variable_scope('MP_matching', reuse=is_shared_attetention):
@@ -1011,7 +1007,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                                 with_attentive_match=with_attentive_match, with_max_attentive_match=with_max_attentive_match,
                                     with_bilinear_att=with_bilinear_att, type1=type1, type2=type2, type3 = type3
                                                                                    ,is_shared_attetention = False, unstack_cnn=unstack_cnn,
-                                                                                   num_call = 2, with_match_highway=with_match_highway, overlap=overlap
+                                                                                   num_call = 1, with_match_highway=with_match_highway, overlap=overlap
                                                                                    , clip_attention=clip_attention,
                                                                                    with_input_highway=with_input_highway)
                     passage_aware_representatins.extend(matching_vectors)
