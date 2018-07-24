@@ -994,7 +994,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                     question_aware_representatins.extend(matching_vectors)
                     question_aware_dim += matching_dim
 
-                    tf.get_variable_scope().reuse_variables()
+                    #tf.get_variable_scope().reuse_variables()
                     #right_scope = 'right_MP_matching'
                 #if is_shared_attetention == True:
                 #    right_scope = 'left_MP_matching'
@@ -1007,7 +1007,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                                 with_attentive_match=with_attentive_match, with_max_attentive_match=with_max_attentive_match,
                                     with_bilinear_att=with_bilinear_att, type1=type1, type2=type2, type3 = type3
                                                                                    ,is_shared_attetention = False, unstack_cnn=unstack_cnn,
-                                                                                   num_call = 1, with_match_highway=with_match_highway, overlap=overlap
+                                                                                   num_call = 2, with_match_highway=with_match_highway, overlap=overlap
                                                                                    , clip_attention=clip_attention,
                                                                                    with_input_highway=with_input_highway)
                     passage_aware_representatins.extend(matching_vectors)

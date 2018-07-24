@@ -450,36 +450,37 @@ def Get_Next_box_size (index):
 
                             #bug: too bala hame pos_avg ha True boode!
 
-                              #glove4- [pos_avg = True, pos_avg = False(div_count), pos_avg=False]
+                              ##glove4- [pos_avg = True, pos_avg = False(div_count), pos_avg=False] (in hichi kolan)
                                 # az inja be bad kolan divcount
 
-    #list = [100, 100] # glove4- [pos_avg = True, False(divcount)]
+    #list = [100, 100] # glove4- [pos_avg = True, False(divcount)] sadegh
     #az inja be bad listnet dorost shode
-    #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise]
-    list = [100, 100] #sya1- [sya, sya]
+    #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
+    #az inja be bad sampling = False beshe
+    list = [100, 100] #glove5- [pos_avg = True, kl] sampling = False
     if  (index > FLAGS.end_batch):
         return False
-    FLAGS.sampling = True
+    FLAGS.sampling = False
     FLAGS.sample_percent = list [index]
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         # FLAGS.pos_avg = True
         # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.pos_avg = False
+        FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = False
+        FLAGS.new_list_wise = True
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.pos_avg = False
+        FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
         FLAGS.new_list_wise = False
-    if index == 2:
-        #FLAGS.sampling = False
-        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.pos_avg = False
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = False
+    # if index == 2:
+    #     #FLAGS.sampling = False
+    #     FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+    #     FLAGS.pos_avg = False
+    #     FLAGS.prediction_mode = 'list_wise'
+    #     FLAGS.new_list_wise = False
 
     FLAGS.top_treshold = -1 ###list[index]
 
