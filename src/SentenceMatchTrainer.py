@@ -25,7 +25,7 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
     l = []
     for i in range(len(label_id_batch)):
         l.append((label_batch[i], sent1_batch[i], sent2_batch[i], label_id_batch[i], word_idx_1_batch[i], word_idx_2_batch[i],
-                  sent1_length_batch[i], sent2_length_batch[i], sent1_char_length_batch[i], sent2_length_batch[i],
+                  sent1_length_batch[i], sent2_length_batch[i],
                                              overlap_batch[i]))
     random.shuffle(l)
     l = sorted(l, key=lambda instance: (instance[3]), reverse=True)  # sort based on len (answer[i])
