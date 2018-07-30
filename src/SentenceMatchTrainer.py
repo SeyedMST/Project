@@ -17,6 +17,54 @@ from SentenceMatchModelGraph import SentenceMatchModelGraph
 import namespace_utils
 
 
+
+def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
+                                             char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
+                                             sent1_char_length_batch, sent2_char_length_batch,
+                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch):
+    l = []
+    for i in range(len(label_id_batch)):
+        l.append((label_batch[i], sent1_batch[i], sent2_batch[i], label_id_batch[i], word_idx_1_batch[i], word_idx_2_batch[i],
+                                             overlap_batch[i]))
+    random.shuffle(l)
+    l = sorted(l, key=lambda instance: (instance[3]), reverse=True)  # sort based on len (answer[i])
+    label_batch = []
+    sent1_batch = []
+    sent2_batch = []
+    label_id_batch = []
+    word_idx_1_batch = []
+    word_idx_2_batch = []
+    #char_matrix_idx_1_batch = []
+    #char_matrix_idx_2_batch = []
+    #sent1_length_batch = []
+    #sent2_length_batch = []
+    #sent1_char_length_batch = []
+    #sent2_char_length_batch = []
+    overlap_batch = []
+    for i in range(len(l)):
+        label_batch.append (l[i][0])
+        sent1_batch.append(l[i][1])
+        sent2_batch.append(l[i][2])
+        label_id_batch.append(l[i][3])
+        word_idx_1_batch.append(l[i][4])
+        word_idx_2_batch.append(l[i][5])
+        overlap_batch.append(l[i][6])
+
+    label_batch = np.array (label_batch)
+    sent1_batch = np.array(sent1_batch)
+    sent2_batch = np.array(sent2_batch)
+    label_id_batch = np.array(label_id_batch)
+    word_idx_1_batch = np.array (word_idx_1_batch)
+    word_idx_2_batch = np.array (word_idx_2_batch)
+    overlap_batch = np.array (overlap_batch)
+    return (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
+                                             char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
+                                             sent1_char_length_batch, sent2_char_length_batch,
+                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch)
+
+
+
+
 import nltk
 eps = 1e-8
 FLAGS = None
@@ -299,12 +347,12 @@ def Generate_random_initialization(cnf):
         if FLAGS.context_layer_num == 2:
              context_lstm_dim = [50] #[x for x in range(50, 110, 10)]
         else:
-             context_lstm_dim = [150, 200]#[x for x in range(50, 160, 10)]
+             context_lstm_dim = [150]#[150, 200]#[x for x in range(50, 160, 10)]
         #
         if FLAGS.aggregation_layer_num == 2:
             aggregation_lstm_dim = [50]#[x for x in range (50, 110, 10)]
         else:
-            aggregation_lstm_dim = [70, 100]#[x for x in range (50, 160, 10)]
+            aggregation_lstm_dim = [70]#[70, 100]#[x for x in range (50, 160, 10)]
         # # else: # CNN
         # #     if FLAGS.max_window_size == 1:
         # #         aggregation_lstm_dim = [100]#[x for x in range (50, 801, 10)]
@@ -318,10 +366,10 @@ def Generate_random_initialization(cnf):
         # #         aggregation_lstm_dim = [x for x in range (50, 110, 10)]
         #
         #
-        MP_dim = [30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
+        MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4, 7]
+        dropout_rate = [0.25]#[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -406,7 +454,6 @@ def Generate_random_initialization(cnf):
         #         mp -= 10
         #     FLAGS.MP_dim = mp
 
-
         print (FLAGS)
 
     if cnf == 300:
@@ -458,6 +505,7 @@ def Get_Next_box_size (index):
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
     list = [100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
+                            #mle1- [30, 15, 10] wiki
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -468,19 +516,22 @@ def Get_Next_box_size (index):
         # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
+        FLAGS.prediction_mode = 'list_mle'
+        #FLAGS.new_list_wise = True
+        FLAGS.topk = 30
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = False
+        FLAGS.prediction_mode = 'list_mle'
+        #FLAGS.new_list_wise = False
+        FLAGS.topk = 15
     if index == 2:
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = False
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
+        FLAGS.prediction_mode = 'list_mle'
+        #FLAGS.new_list_wise = True
+        FLAGS.topk = 10
 
     FLAGS.top_treshold = -1 ###list[index]
 
@@ -523,11 +574,32 @@ def make_hinge_truth(truth, question_count,answer_count):
     #print (mask)
     return mask
 
+def get_mle_mask(le):
+    mask_list = []
+    for i in range(le):
+        l = []
+        for j in range(le):
+            if i + 1 == le:
+                l.append(-1.0)
+            elif j < i:
+                l.append(-1.0)
+            elif j == i:
+                l.append(1.0)
+            elif j > i:
+                l.append(0.0)
+        mask_list.append(l)
+    return np.array(mask_list)
+
+
+def get_mle_mask_topk(k, l):
+    mask_topk = np.zeros(l, np.float32)
+    if k > l:
+        k = l
+    for i in range (k):
+        mask_topk[i] = 1.0
+    return mask_topk
 
 #def Generate_random_box_size ():
-
-
-
 
 def main(_):
 
@@ -541,8 +613,6 @@ def main(_):
         FLAGS.word_overlap = True
 
     print(FLAGS)
-
-
 
     train_path = FLAGS.train_path
     dev_path = FLAGS.dev_path
@@ -913,6 +983,9 @@ def main(_):
                         _answer_count = []
                         _hinge_truth = []
                         _real_answer_count_mask = []
+
+                        _mask = []
+                        _mask_topk = []
                         for i in range (FLAGS.question_count_per_batch):
                             # if (step + 1) % trainDataStream.get_num_batch() == 0 or (step + 1) == max_steps:
                             #     break
@@ -924,6 +997,16 @@ def main(_):
                                              sent1_char_length_batch, sent2_char_length_batch,
                                              POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch) = cur_batch
 
+                            if FLAGS.prediction_mode == 'list_mle':
+                                (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch,
+                                 word_idx_2_batch,
+                                 char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch,
+                                 sent2_length_batch,
+                                 sent1_char_length_batch, sent2_char_length_batch,
+                                 POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch) = sort_mle(label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
+                                             char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
+                                             sent1_char_length_batch, sent2_char_length_batch,
+                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch)
                             _truth.append(label_id_batch)
                             _question_lengths.append(sent1_length_batch)
                             _passage_lengths.append(sent2_length_batch)
@@ -932,11 +1015,16 @@ def main(_):
                             _overlap.append(overlap_batch)
                             _question_count.append(trainDataStream.question_count(batch_index))
                             _answer_count.append(trainDataStream.answer_count(batch_index))
-                            _hinge_truth.append(make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
-                                                                                        trainDataStream.answer_count(
-                                                                                            batch_index)))
+                            #_hinge_truth.append(make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
+                            #                                                            trainDataStream.answer_count(
+                            #                                                                batch_index)))
                             _real_answer_count_mask.append(trainDataStream.real_answer_count(batch_index))
 
+                            _mask.append(get_mle_mask(len(label_id_batch)))
+                            _mask_topk.append(get_mle_mask_topk (FLAGS.topk , len (label_id_batch)))
+                            #print (label_id_batch)
+                            #print (_mask[i])
+                            #print (_mask_topk[i])
 
                         feed_dict = {
                                 train_graph.get_truth() : tuple(_truth),
@@ -945,6 +1033,8 @@ def main(_):
                                  train_graph.get_in_question_words(): tuple(_in_question_words),
                                  train_graph.get_in_passage_words(): tuple (_in_passage_words),
                                     train_graph.get_overlap():tuple(_overlap),
+                                train_graph.get_mask ():tuple(_mask),
+                                train_graph.get_mask_topk ():(_mask_topk)
         #                          train_graph.get_question_char_lengths(): sent1_char_length_batch,
         #                          train_graph.get_passage_char_lengths(): sent2_char_length_batch,
         #                          train_graph.get_in_question_chars(): char_matrix_idx_1_batch,
@@ -967,7 +1057,7 @@ def main(_):
                         if FLAGS.is_answer_selection == True:
                             feed_dict[train_graph.get_question_count()] = tuple(_question_count)
                             feed_dict[train_graph.get_answer_count()] = tuple (_answer_count)
-                            feed_dict[train_graph.get_hinge_truth()] = tuple (_hinge_truth)
+                            #feed_dict[train_graph.get_hinge_truth()] = tuple (_hinge_truth)
                             feed_dict[train_graph.get_real_answer_count_mask()] = tuple (_real_answer_count_mask)
 
                         _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
@@ -1123,7 +1213,7 @@ def main(_):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:

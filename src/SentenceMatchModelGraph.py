@@ -44,6 +44,8 @@ class SentenceMatchModelGraph(object):
 
         self.question_count = get_place_holder (q_count, tf.int32, None)#q_count*[tf.placeholder(tf.int32, None)]
         self.answer_count = get_place_holder (q_count, tf.int32, None)#q_count*[tf.placeholder(tf.int32, None)]
+        self.mask = get_place_holder(q_count, tf.float32, [None, None])
+        self.mask_topk = get_place_holder(q_count, tf.float32, [None])
 
         self.overlap = get_place_holder (q_count, tf.float32, [None, None, None])#q_count*[tf.placeholder(tf.float32, [None, None, None])] #[bs, N, M]
 
@@ -245,6 +247,7 @@ class SentenceMatchModelGraph(object):
                 #self.score = tf.reshape(logits, [-1])
                 if prediction_mode != 'point_wise':
                     score_list.append(tf.reshape(logits, [-1]))
+                    prob_list.append(tf.reshape(logits, [-1]))
                     logits = tf.reshape(logits, shape=[self.question_count[i], self.answer_count[i]])
                     gold_matrix = tf.reshape(self.truth[i], shape=[self.question_count[i], self.answer_count[i]])
                     g1_matrix = tf.ceil(gold_matrix - eps)
@@ -254,7 +257,7 @@ class SentenceMatchModelGraph(object):
                         # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
                         # loss = mean(H(p,q)) for p,q in batch
                         #self.prob = tf.reshape(logits, [-1]) #[bs]
-                        prob_list.append(tf.reshape(logits, [-1]))
+
                         if new_list_wise == False:
                             logits = tf.multiply(logits, self.real_answer_count_mask[i])
                             logits = tf.nn.softmax(logits)  # [question_count, answer_count]
@@ -368,6 +371,23 @@ class SentenceMatchModelGraph(object):
                             else:
                                 hinget = tf.reshape(self.hinge_truth[i], [self.answer_count[i], self.answer_count[i]]) #[a, a]
                                 loss_list.append(self.check_pairs(hinget, logits, top_treshold, pos_count))
+
+
+                    elif prediction_mode == 'list_mle':
+                        if is_training == True:
+                            pos_mask = tf.maximum(self.mask[i], 0.0)
+                            neg_mask = 1 + self.mask[i] - 2.0 * pos_mask
+                            #logits = tf.expand_dims(logits, 0)
+                            neg_exp = tf.multiply(neg_mask, tf.exp(logits))
+                            pos_exp = tf.exp(logits)
+                            neg_exp_sum = tf.reduce_sum(neg_exp, 1)
+                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp))  # + (1.0-has_pos_neg)))  # [a]
+                            fi = tf.multiply(fi, pos_mask)
+                            fi = tf.multiply(fi, self.mask_topk[i])
+                            fi = tf.reduce_sum(fi)
+                            #loss_list.append(tf.divide(fi, tf.reduce_sum(self.mask[i])))
+                            loss_list.append(fi)
+
                     else:
                         if with_tanh == True:
                             logits = tf.tanh(logits)
@@ -870,6 +890,25 @@ class SentenceMatchModelGraph(object):
     def del_lr_rate(self):
         del self.__lr_rate
 
+    def get_mask(self):
+        return self.__mask
+
+    def set_mask(self, value):
+        self.__mask = value
+
+    def del_mask(self):
+        del self.__mask
+
+    def get_mask_topk(self):
+        return self.__mask_topk
+
+    def set_mask_topk(self, value):
+        self.__mask_topk = value
+
+    def del_mask_topk(self):
+        del self.__mask_topk
+
+
     question_lengths = property(get_question_lengths, set_question_lengths, del_question_lengths, "question_lengths's docstring")
     passage_lengths = property(get_passage_lengths, set_passage_lengths, del_passage_lengths, "passage_lengths's docstring")
     truth = property(get_truth, set_truth, del_truth, "truth's docstring")
@@ -903,5 +942,7 @@ class SentenceMatchModelGraph(object):
     hinge_truth = property(get_hinge_truth, set_hinge_truth, del_hinge_truth, "asdfasdfa")
     real_answer_count_mask = property(get_real_answer_count_mask, set_real_answer_count_mask,
                                       del_real_answer_count_mask, "asdfasdfa")
+    mask = property(get_mask, set_mask, del_mask, "asdfasdfa")
+    mask_topk = property(get_mask_topk, set_mask_topk, del_mask_topk, "asdfasdfa")
 
     

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/Aposet/.idea/AposetNet.iml" filepath="$USER_HOME$/Aposet/.idea/AposetNet.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/src.iml" filepath="$PROJECT_DIR$/.idea/src.iml" />
     </modules>
   </component>
