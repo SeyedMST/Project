@@ -25,6 +25,7 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
     l = []
     for i in range(len(label_id_batch)):
         l.append((label_batch[i], sent1_batch[i], sent2_batch[i], label_id_batch[i], word_idx_1_batch[i], word_idx_2_batch[i],
+                  sent1_length_batch[i], sent2_length_batch[i], sent1_char_length_batch[i], sent2_length_batch[i],
                                              overlap_batch[i]))
     random.shuffle(l)
     l = sorted(l, key=lambda instance: (instance[3]), reverse=True)  # sort based on len (answer[i])
@@ -36,8 +37,8 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
     word_idx_2_batch = []
     #char_matrix_idx_1_batch = []
     #char_matrix_idx_2_batch = []
-    #sent1_length_batch = []
-    #sent2_length_batch = []
+    sent1_length_batch = []
+    sent2_length_batch = []
     #sent1_char_length_batch = []
     #sent2_char_length_batch = []
     overlap_batch = []
@@ -48,7 +49,9 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
         label_id_batch.append(l[i][3])
         word_idx_1_batch.append(l[i][4])
         word_idx_2_batch.append(l[i][5])
-        overlap_batch.append(l[i][6])
+        sent1_length_batch.append(l[i][6])
+        sent2_length_batch.append(l[i][7])
+        overlap_batch.append(l[i][8])
 
     label_batch = np.array (label_batch)
     sent1_batch = np.array(sent1_batch)
@@ -56,6 +59,8 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
     label_id_batch = np.array(label_id_batch)
     word_idx_1_batch = np.array (word_idx_1_batch)
     word_idx_2_batch = np.array (word_idx_2_batch)
+    sent1_length_batch = np.array(sent1_length_batch)
+    sent2_length_batch = np.array(sent2_length_batch)
     overlap_batch = np.array (overlap_batch)
     return (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
