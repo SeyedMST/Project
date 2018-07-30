@@ -1024,9 +1024,10 @@ def main(_):
                             #                                                            trainDataStream.answer_count(
                             #                                                                batch_index)))
                             _real_answer_count_mask.append(trainDataStream.real_answer_count(batch_index))
+                            if FLAGS.prediction_mode == 'list_mle':
+                                _mask.append(get_mle_mask(len(label_id_batch)))
+                                _mask_topk.append(get_mle_mask_topk (FLAGS.topk , len (label_id_batch)))
 
-                            _mask.append(get_mle_mask(len(label_id_batch)))
-                            _mask_topk.append(get_mle_mask_topk (FLAGS.topk , len (label_id_batch)))
                             #print (label_id_batch)
                             #print (_mask[i])
                             #print (_mask_topk[i])
@@ -1037,15 +1038,20 @@ def main(_):
                                  train_graph.get_passage_lengths(): tuple (_passage_lengths),
                                  train_graph.get_in_question_words(): tuple(_in_question_words),
                                  train_graph.get_in_passage_words(): tuple (_in_passage_words),
-                                    train_graph.get_overlap():tuple(_overlap),
-                                train_graph.get_mask ():tuple(_mask),
-                                train_graph.get_mask_topk ():(_mask_topk)
+                                 train_graph.get_overlap(): tuple(_overlap)
+                                #train_graph.get_mask ():tuple(_mask),
+                                #train_graph.get_mask_topk ():(_mask_topk)
         #                          train_graph.get_question_char_lengths(): sent1_char_length_batch,
         #                          train_graph.get_passage_char_lengths(): sent2_char_length_batch,
         #                          train_graph.get_in_question_chars(): char_matrix_idx_1_batch,
         #                          train_graph.get_in_passage_chars(): char_matrix_idx_2_batch
                                  }
-                    # if char_vocab is not None and FLAGS.wo_char == False:
+                        if FLAGS.prediction_mode == 'list_mle':
+                            feed_dict[train_graph.get_mask()] = tuple(_mask)
+                            feed_dict[train_graph.get_mask_topk()] = tuple(_mask_topk)
+
+
+                        # if char_vocab is not None and FLAGS.wo_char == False:
                     #     feed_dict[train_graph.get_question_char_lengths()] = sent1_char_length_batch
                     #     feed_dict[train_graph.get_passage_char_lengths()] = sent2_char_length_batch
                     #     feed_dict[train_graph.get_in_question_chars()] = char_matrix_idx_1_batch
