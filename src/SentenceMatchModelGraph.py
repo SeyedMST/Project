@@ -257,10 +257,10 @@ class SentenceMatchModelGraph(object):
                         # H(p,q) = sum(p(x)log(p(x))) - sum(p(x)log(q(x))
                         # loss = mean(H(p,q)) for p,q in batch
                         #self.prob = tf.reshape(logits, [-1]) #[bs]
-
                         if new_list_wise == False:
                             logits = tf.multiply(logits, self.real_answer_count_mask[i])
                             logits = tf.nn.softmax(logits)  # [question_count, answer_count]
+                            gold_matrix = tf.divide(gold_matrix, tf.reduce_sum(gold_matrix))
                             #logits = tf.multiply(logits, self.real_answer_count_mask)
                             #logits = tf.exp(logits)
                             # input_shape = tf.shape(logits)
@@ -387,6 +387,22 @@ class SentenceMatchModelGraph(object):
                             fi = tf.reduce_sum(fi)
                             #loss_list.append(tf.divide(fi, tf.reduce_sum(self.mask[i])))
                             loss_list.append(fi)
+
+
+                    elif prediction_mode == 'real_list_net':
+                        logits = tf.nn.softmax(logits)  # [question_count, answer_count]
+                        gold_matrix = tf.nn.softmax(gold_matrix)
+                        # logits = tf.multiply(logits, self.real_answer_count_mask)
+                        # logits = tf.exp(logits)
+                        # input_shape = tf.shape(logits)
+                        # ans_count = input_shape[1]
+                        # logits_sum = tf.reduce_sum(logits) + \
+                        #             (float(max_answer_size) - tf.cast(self.answer_count[i], tf.float32))
+                        # logits = logits / logits_sum
+                        loss_list.append(tf.reduce_sum(
+                            tf.multiply(gold_matrix, tf.log(gold_matrix + eps)) - tf.multiply(gold_matrix,
+                                                                                              tf.log(logits))
+                        ))
 
                     else:
                         if with_tanh == True:

@@ -313,7 +313,8 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
             else:
                 real_answer_length.append(len (item ["question"]))
                 temp_answer = item["answer"]
-                temp_label = [x / float(sum(item["label"])) for x in item["label"]]
+                #temp_label = [x / float(sum(item["label"])) for x in item["label"]]
+                temp_label = [x / 1.0 for x in item["label"]]
                 if min_answer_size-len(item["question"]) >= 1:
                     sum_bikhod_added += min_answer_size-len(item["question"])
                     if sample_neg_from_question == False:

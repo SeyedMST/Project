@@ -510,7 +510,7 @@ def Get_Next_box_size (index):
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
     list = [100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
-                            #mle1- [30, 15, 10] wiki
+                            #mle1- [30, 15, real_list_net] wiki
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -534,9 +534,9 @@ def Get_Next_box_size (index):
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = False
-        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.prediction_mode = 'real_list_net'
         #FLAGS.new_list_wise = True
-        FLAGS.topk = 10
+        #FLAGS.topk = 10
 
     FLAGS.top_treshold = -1 ###list[index]
 
