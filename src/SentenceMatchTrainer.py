@@ -510,7 +510,7 @@ def Get_Next_box_size (index):
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
     list = [100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
-                            #mle1- [30, 15, real_list_net] wiki
+                            #mle1- [30, list_net, real_list_net] wiki
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -527,9 +527,9 @@ def Get_Next_box_size (index):
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_mle'
-        #FLAGS.new_list_wise = False
-        FLAGS.topk = 15
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = False
+        #FLAGS.topk = 15
     if index == 2:
         #FLAGS.sampling = False
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -1033,11 +1033,11 @@ def main(_):
                             #print (_mask_topk[i])
 
                         feed_dict = {
-                                train_graph.get_truth() : tuple(_truth),
-                            train_graph.get_question_lengths() : tuple (_question_lengths),
-                                 train_graph.get_passage_lengths(): tuple (_passage_lengths),
+                                 train_graph.get_truth(): tuple(_truth),
+                                 train_graph.get_question_lengths(): tuple(_question_lengths),
+                                 train_graph.get_passage_lengths(): tuple(_passage_lengths),
                                  train_graph.get_in_question_words(): tuple(_in_question_words),
-                                 train_graph.get_in_passage_words(): tuple (_in_passage_words),
+                                 train_graph.get_in_passage_words(): tuple(_in_passage_words),
                                  train_graph.get_overlap(): tuple(_overlap)
                                 #train_graph.get_mask ():tuple(_mask),
                                 #train_graph.get_mask_topk ():(_mask_topk)
