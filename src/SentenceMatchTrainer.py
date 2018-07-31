@@ -509,8 +509,8 @@ def Get_Next_box_size (index):
     #az inja be bad listnet dorost shode
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
-    list = [100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
-                            #mle1- [poset, list_net(0-1), real_list_net, margine poset] wiki
+    list = [100, 100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
+                            #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -540,7 +540,7 @@ def Get_Next_box_size (index):
         #FLAGS.new_list_wise = True
         #FLAGS.topk = 10
 
-    if index == 3:
+    if index == 3 or index = 4: #they are net same. code changed for 4
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
