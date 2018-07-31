@@ -540,7 +540,7 @@ def Get_Next_box_size (index):
         #FLAGS.new_list_wise = True
         #FLAGS.topk = 10
 
-    if index == 3 or index = 4: #they are net same. code changed for 4
+    if index == 3 or index == 4: #they are net same. code changed for 4
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
