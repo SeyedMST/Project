@@ -509,12 +509,13 @@ def Get_Next_box_size (index):
     #az inja be bad listnet dorost shode
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
-    list = [100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
-                            #mle1- [30, list_net(0-1), real_list_net] wiki
+    list = [100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
+                            #mle1- [poset, list_net(0-1), real_list_net, margine poset] wiki
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
     FLAGS.sample_percent = list [index]
+    FLAGS.margin = 0
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         # FLAGS.pos_avg = True
@@ -538,6 +539,15 @@ def Get_Next_box_size (index):
         FLAGS.prediction_mode = 'real_list_net'
         #FLAGS.new_list_wise = True
         #FLAGS.topk = 10
+
+    if index == 3:
+        FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
+        FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = True
+        FLAGS.pos_avg = True
+        FLAGS.topk = 30
+        FLAGS.margin = 1
 
     FLAGS.top_treshold = -1 ###list[index]
 
@@ -914,7 +924,7 @@ def main(_):
                                                           max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch,
                                                           sampling=FLAGS.sampling, sampling_type=FLAGS.sampling_type,
                                                           sample_percent = FLAGS.sample_percent, top_treshold=FLAGS.top_treshold,
-                                                          pos_avg=FLAGS.pos_avg)
+                                                          pos_avg=FLAGS.pos_avg, margin=FLAGS.margin)
                     tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
         #         with tf.name_scope("Valid"):

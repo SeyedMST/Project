@@ -29,7 +29,7 @@ class SentenceMatchModelGraph(object):
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
                  clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15,
                  q_count=2, pos_avg = True, sampling = False, sampling_type = 'attentive', sample_percent = 0.8,
-                 top_treshold = -1):
+                 top_treshold = -1, margin = 0):
 
         # ======word representation layer======
 
@@ -346,9 +346,8 @@ class SentenceMatchModelGraph(object):
                                     else:
                                         pos_list.append (pos_count)
                                         loss_list.append(fi)
-
                                 else:
-                                    neg_exp = tf.exp(tf.multiply(neg_mask, logits)) #[a]
+                                    neg_exp = tf.exp(tf.multiply(neg_mask, logits + margin)) #[a]
                                     neg_exp = tf.multiply(neg_exp, neg_mask)
                                     neg_exp_sum = tf.reduce_sum(neg_exp) #[1]
                                     pos_exp = tf.exp(tf.multiply(pos_mask, logits)) # [a]
