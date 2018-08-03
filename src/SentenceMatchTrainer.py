@@ -373,8 +373,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.25]#[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4]
+        dropout_rate = [0.2]#[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [7]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -510,7 +510,8 @@ def Get_Next_box_size (index):
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
     list = [100, 100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
-                            #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki
+                            #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
+                            #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -525,7 +526,7 @@ def Get_Next_box_size (index):
         FLAGS.prediction_mode = 'list_wise'
         FLAGS.new_list_wise = True
         FLAGS.pos_avg = True
-        FLAGS.topk = 30
+        #FLAGS.topk = 30
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
