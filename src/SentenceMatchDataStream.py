@@ -2,8 +2,8 @@ import numpy as np
 import re
 import random
 import math
-import matplotlib
-import matplotlib.pyplot as plt
+#import matplotlib
+#import matplotlib.pyplot as plt
 
 import sys
 eps = 1e-8
@@ -363,20 +363,20 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     else:
         batches = make_batches(pairs_count,batch_size)
     show_plot = False
-    if show_plot == True:
-        sum_len = np.zeros((max_answer_size-1))
-        for x in instances:
-            sum_len [len (x[1])-2] += 1
-        x = np.arange(2, max_answer_size+1)
-        fig, ax = plt.subplots()
-        ax.plot(x, sum_len)
-
-        ax.set(xlabel='time (s)', ylabel='voltage (mV)',
-               title='About as simple as it gets, folks')
-        ax.grid()
-
-        fig.savefig("test.png")
-        plt.show()
+    # if show_plot == True:
+    #     sum_len = np.zeros((max_answer_size-1))
+    #     for x in instances:
+    #         sum_len [len (x[1])-2] += 1
+    #     x = np.arange(2, max_answer_size+1)
+    #     fig, ax = plt.subplots()
+    #     ax.plot(x, sum_len)
+    #
+    #     ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+    #            title='About as simple as it gets, folks')
+    #     ax.grid()
+    #
+    #     fig.savefig("test.png")
+    #     plt.show()
 
     ans = []
     candidate_answer_length = []

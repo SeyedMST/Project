@@ -512,6 +512,7 @@ def Get_Next_box_size (index):
     list = [100, 100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
                             #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
                             #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
+				#mle3- [poset, list_net(0-1) [d,d]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
