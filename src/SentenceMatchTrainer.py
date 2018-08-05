@@ -555,7 +555,7 @@ def Get_Next_box_size (index):
 
     FLAGS.max_answer_size = 1000
     FLAGS.batch_size = 1000
-    FLAGS.max_epochs = 10
+    #FLAGS.max_epochs = 10
 
     FLAGS.type1 = 'w_sub_mul'
     #if index == 0:
@@ -1252,7 +1252,7 @@ if __name__ == '__main__':
     #parser.add_argument('--word_vec_path', type=str, default='../data/glove/glove.840B.300d.txt', help='Path the to pre-trained word vector model.')
     parser.add_argument('--is_server',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--is_random_init',default=True, help='loop: ranom initalizaion of parameters -> run ?')
-    parser.add_argument('--max_epochs', type=int, default=1, help='Maximum epochs for training.')
+    parser.add_argument('--max_epochs', type=int, default=10, help='Maximum epochs for training.')
     parser.add_argument('--attention_type', default='dot_product', help='[bilinear, linear, linear_p_bias, dot_product]')
 
 
