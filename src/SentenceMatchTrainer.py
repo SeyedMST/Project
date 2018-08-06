@@ -513,11 +513,13 @@ def Get_Next_box_size (index):
                             #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
                             #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
 				#mle3- [poset, list_net(0-1) [d,d]
+				#epoch1- [poset] (ep=15, lr = 0.001)
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
+    FLAGS.test_train = True
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         # FLAGS.pos_avg = True
@@ -732,6 +734,9 @@ def main(_):
                                                   max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                                   is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
                                                  is_lemma_overlap= FLAGS.lemma_overlap)
+
+        if FLAGS.test_train == True:
+            testDataStream = train_testDataStream
 
 
         if FLAGS.use_model_neg_sample == True:
