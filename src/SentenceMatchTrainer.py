@@ -513,13 +513,14 @@ def Get_Next_box_size (index):
                             #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
                             #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
 				#mle3- [poset, list_net(0-1) [d,d]
-				#epoch1- [poset] (ep=15, lr = 0.001)
+				#epoch1- [poset, list_net(0-1)] (ep=15, lr = 0.001) [s,d]
+				#epoch2- [poset, list_net(0-1) (ep = 10, lr= 0.001) [s,s]
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
-    FLAGS.test_train = True
+    FLAGS.test_train = False
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         # FLAGS.pos_avg = True
