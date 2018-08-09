@@ -514,7 +514,8 @@ def Get_Next_box_size (index):
                             #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
 				#mle3- [poset, list_net(0-1) [d,d]
 				#epoch1- [poset, list_net(0-1)] (ep=15, lr = 0.001) [s,d]
-				#epoch2- [poset, list_net(0-1) (ep = 10, lr= 0.001) [s,s]
+				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s]
+				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah 									bod
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -544,16 +545,13 @@ def Get_Next_box_size (index):
         FLAGS.prediction_mode = 'real_list_net'
         #FLAGS.new_list_wise = True
         #FLAGS.topk = 10
-
-    if index == 3 or index == 4: #they are net same. code changed for 4
+    if index == 3: #they are net same. code changed for 4
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.new_list_wise = False
         FLAGS.pos_avg = True
-        FLAGS.topk = 30
-        FLAGS.margin = 1
-
+        FLAGS.topk = 1000
     FLAGS.top_treshold = -1 ###list[index]
 
     FLAGS.max_answer_size = 1000
