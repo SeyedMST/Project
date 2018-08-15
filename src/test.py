@@ -25,6 +25,9 @@ elems = tf.reshape(elems, [-1])
 
 sample_size = 2
 p = tf.convert_to_tensor([1.99999999999, 0.2, 0.3, 0.3000000001])
+y = tf.convert_to_tensor([[1, 1, 0, 1.0]])
+zzz = tf.shape(tf.multiply(p, y))
+
 input_shape = tf.cast(tf.shape(p)[0], tf.int32)
 sample_size = tf.minimum(sample_size, input_shape)
 
@@ -47,4 +50,4 @@ with tf.Session():
     # result.append(tf.while_loop(condition, body, [x]))
     # result = tf.concat(0, result)
     #result = tf.ceil(g1)
-    print(rr.eval())
+    print(zzz.eval())

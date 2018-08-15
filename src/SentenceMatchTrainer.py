@@ -6,8 +6,6 @@ import sys
 import time
 import re
 import tensorflow as tf
-#import pandas as pd
-import subprocess
 import random
 import numpy as np
 
@@ -111,8 +109,7 @@ def collect_vocabs(train_path, with_POS=False, with_NER=False):
 
 def evaluate(dataStream, valid_graph, sess, outpath=None,
              label_vocab=None, mode='trec',char_vocab=None, POS_vocab=None, NER_vocab=None, flag_valid = False,word_vocab = None
-             ,first_on_best_model = False):
-    outpath = ''
+             ):
     #if outpath is not None: outfile = open(outpath, 'wt')
     #subfile = ''
     #goldfile = ''
@@ -129,9 +126,6 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
     #doc_id_trec = 1
     #sub_list = []
     #has_true_label = set ()
-    questions_count = 0.0
-    MAP = 0.0
-    MRR = 0.0
     scores = []
     labels = []
     sent1s = [] # to print test sentence result
@@ -149,107 +143,31 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
                     valid_graph.get_passage_lengths(): sent2_length_batch, 
                     valid_graph.get_in_question_words(): word_idx_1_batch, 
                     valid_graph.get_in_passage_words(): word_idx_2_batch,
-
                     valid_graph.get_overlap():overlap_batch,
-#                     valid_graph.get_question_char_lengths(): sent1_char_length_batch, 
-#                     valid_graph.get_passage_char_lengths(): sent2_char_length_batch, 
-#                     valid_graph.get_in_question_chars(): char_matrix_idx_1_batch, 
-#                     valid_graph.get_in_passage_chars(): char_matrix_idx_2_batch, 
                 }
 
-        if char_vocab is not None and FLAGS.wo_char == False:
-            feed_dict[valid_graph.get_question_char_lengths()] = sent1_char_length_batch
-            feed_dict[valid_graph.get_passage_char_lengths()] = sent2_char_length_batch
-            feed_dict[valid_graph.get_in_question_chars()] = char_matrix_idx_1_batch
-            feed_dict[valid_graph.get_in_passage_chars()] = char_matrix_idx_2_batch
-
-        if POS_vocab is not None:
-            feed_dict[valid_graph.get_in_question_poss()] = POS_idx_1_batch
-            feed_dict[valid_graph.get_in_passage_poss()] = POS_idx_2_batch
-
-        if NER_vocab is not None:
-            feed_dict[valid_graph.get_in_question_ners()] = NER_idx_1_batch
-            feed_dict[valid_graph.get_in_passage_ners()] = NER_idx_2_batch
-
         if FLAGS.is_answer_selection == True:
-            feed_dict[valid_graph.get_question_count()] = 0#dataStream.question_count(batch_index)
-            feed_dict[valid_graph.get_answer_count()] = 0#dataStream.answer_count(batch_index)
-
-        #total_tags += len(label_batch)
-        #correct_tags += sess.run(valid_graph.get_eval_correct(), feed_dict=feed_dict)
-        if outpath is not None: # hich vaght None nist khate aval meghdar dadam behesh :D
-            #if mode =='prediction':
-            #    predictions = sess.run(valid_graph.get_predictions(), feed_dict=feed_dict)
-            #    for i in xrange(len(label_batch)):
-            #        outline = label_batch[i] + "\t" + label_vocab.getWord(predictions[i]) + "\t" + sent1_batch[i] + "\t" + sent2_batch[i] + "\n"
-            #        outfile.write(outline.encode('utf-8'))
-
-            if FLAGS.is_answer_selection == True:
-                scores.append(sess.run(valid_graph.get_score(), feed_dict=feed_dict))
-                labels.append (label_id_batch)
-                if flag_valid == True or first_on_best_model == True:
-                    sent1s.append(sent1_batch)
-                    sent2s.append(sent2_batch)
-                    if FLAGS.store_att == True and first_on_best_model == False:
-                        atts.extend(np.split(sess.run(valid_graph.get_attention_weights(), feed_dict=feed_dict),len(sent1_batch)))
-
-                # for i in xrange(len(label_batch)):
-                #     if sent1_batch[i] != last_trec:
-                #         last_trec = sent1_batch[i]
-                #         id_trec += 1
-                #     if (FLAGS.prediction_mode == 'point_wise'):
-                #         pbi = ouput_prob1(probs[i], label_vocab, '1')
-                #     else:
-                #         pbi = probs[i]
-                #     if (label_batch[i] == '1'):
-                #         has_true_label.add(id_trec)
-                #     sub_list.append((id_trec, doc_id_trec, pbi, label_batch[i]))
-                #     doc_id_trec +=1
-            #else:
-                #probs = sess.run(valid_graph.get_prob(), feed_dict=feed_dict)
-                #for i in xrange(len(label_batch)):
-                #    outfile.write(label_batch[i] + "\t" + output_probs(probs[i], label_vocab) + "\n")
-    #print ('start')
-
-    #if FLAGS.is_answer_selection == False:
-    #    if outpath is not None: outfile.close()
-
-    if FLAGS.is_answer_selection == True:
-        scores = np.concatenate(scores)
-        labels = np.concatenate(labels)
-        if flag_valid == True or first_on_best_model == True:
-            sent1s = np.concatenate(sent1s)
-            sent2s = np.concatenate(sent2s)
-            #atts = np.concatenate(atts)
-        return MAP_MRR(scores, labels, dataStream.get_candidate_answer_length(), flag_valid
-                                   ,sent1s, sent2s, atts ,word_vocab, first_on_best_model)
-        # print (final_map, final_mrr)
-        # for i in xrange(len (sub_list)):
-        #     id_trec, doc_id_trec, prob1, label_gold = sub_list[i]
-        #     if id_trec in has_true_label:
-        #         subfile.write(str(id_trec) + " 0 " + str(doc_id_trec)
-        #                       + " 0 " + str(prob1) + ' nnet\n')
-        #         goldfile.write(str(id_trec) + " 0 " + str(doc_id_trec)
-        #                        + " " + label_gold + '\n')
-        # subfile.close()
-        # goldfile.close()
-        #print ('hi')
-        # p = subprocess.check_output("/bin/sh ../run_eval.sh '{}'".format(outpath),
-        #                 shell=True)
-        #print (p)
-        # p = p.split()
-        #my_map = float(p[2])
-        #my_mrr = float(p[5])
-
-        #print("map '{}' , mrr '{}'".format(my_map, my_mrr))
-
-    #    print ('end')
-    #accuracy = correct_tags / total_tags * 100
-    #return accuracy
+            feed_dict[valid_graph.get_question_count()] = 0
+            feed_dict[valid_graph.get_answer_count()] = 0
 
 
-def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, atts, word_vocab
-            ,first_on_best_model):
+        scores.append(sess.run(valid_graph.get_score(), feed_dict=feed_dict))
+        labels.append (label_id_batch)
+        if flag_valid == True:
+            sent1s.append(sent1_batch)
+            sent2s.append(sent2_batch)
+            if FLAGS.store_att == True:
+                atts.extend(np.split(sess.run(valid_graph.get_attention_weights(), feed_dict=feed_dict),len(sent1_batch)))
+
+    scores = np.concatenate(scores)
+    labels = np.concatenate(labels)
+    if flag_valid == True:
+        sent1s = np.concatenate(sent1s)
+        sent2s = np.concatenate(sent2s)
+    return MAP_MRR(scores, labels, dataStream.get_candidate_answer_length(), flag_valid
+                               ,sent1s, sent2s, atts ,word_vocab)
+
+def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, atts, word_vocab):
     c_1_j = 0.0 #map
     c_2_j = 0.0 #mrr
     visited = 0
@@ -258,10 +176,10 @@ def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, at
     for i in range(len(candidate_answer_length)):
         prob = logit[visited: visited + candidate_answer_length[i]]
         label = gold[visited: visited + candidate_answer_length[i]]
-        if flag_valid == True or first_on_best_model == True:
+        if flag_valid == True:
             question = sent1s[visited: visited + candidate_answer_length[i]]
             answers = sent2s[visited: visited + candidate_answer_length[i]]
-            if FLAGS.store_att == True and first_on_best_model == False:
+            if FLAGS.store_att == True:
                 attention_weights = atts [visited: visited + candidate_answer_length[i]]
         visited += candidate_answer_length[i]
         rank_index = np.argsort(prob).tolist()
@@ -286,34 +204,13 @@ def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, at
                 if FLAGS.store_att == True:
                     output_attention_weights.append(str (attention_weights[rank_index[jj]]) + '\n')
             output_sentences.append("AP: {} \n\n".format(score/count))
-        if first_on_best_model == True:
-            #output_sentences.append(word_vocab.to_word_in_sequence(question[0]) + '\t')
-            for jj in range(len(answers)):
-                lj = int(np.ceil(label[rank_index[jj]] - eps))
-                output_sentences.append(word_vocab.to_word_in_sequence(question[0]) + '\t' +
-                                        word_vocab.to_word_in_sequence(answers[rank_index[jj]]) + '\t' +
-                                        str(lj) + '\n')
-
 
     my_map = c_1_j/len(candidate_answer_length)
     my_mrr = c_2_j/len(candidate_answer_length)
-    if flag_valid == False and first_on_best_model == False:
+    if flag_valid == False:
         return (my_map,my_mrr)
     else:
         return (my_map, my_mrr, output_sentences, output_attention_weights)
-
-def ouput_prob1(probs, label_vocab, lable_true):
-    out_string = ""
-    for i in range(probs.size):
-        if label_vocab.getWord(i) == lable_true:
-            return probs[i]
-
-def output_probs(probs, label_vocab):
-    out_string = ""
-    for i in range(probs.size):
-        out_string += " {}:{}".format(label_vocab.getWord(i), probs[i])
-    return out_string.strip()
-
 
 def Generate_random_initialization(cnf):
     if FLAGS.is_random_init == True:
@@ -509,13 +406,16 @@ def Get_Next_box_size (index):
     #az inja be bad listnet dorost shode
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
-    list = [100, 100, 100, 100, 100] #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False
+    list = [100, 100, 100, 100, 100]  #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False wiki dbrg
                             #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
-                            #mle2- [poset, list_net(0-1), real_list_net] [s,s,d]
+                            #mle2- [poset, list_net(0-1), real_list_net] [s,s,d] trec
 				#mle3- [poset, list_net(0-1) [d,d]
-				#epoch1- [poset, list_net(0-1)] (ep=15, lr = 0.001) [s,d]
-				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s]
-				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah 									bod
+				
+				#epoch1- [poset, list_net(0-1)] (ep=15, lr = 0.001) [s,d] trec
+				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s] trec
+				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
+                            # 								bod trec
+                #mle4- [,,,mle] #code mle ta hadi eslah shod. use box va ... ham raftan to baghali ha.
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -581,18 +481,6 @@ def Get_Next_box_size (index):
 
     return True
 
-
-def make_hinge_truth(truth, question_count,answer_count):
-    g = truth.reshape(question_count, answer_count)
-    g = np.ceil(g-eps)
-    g_p = np.expand_dims(g, axis=1)
-    g_n = np.expand_dims(g, axis=-1)
-    mask = np.subtract(g_p, g_n)
-    mask = mask + 1
-    mask = mask // 2
-    #print (mask)
-    return mask
-
 def get_mle_mask(le):
     mask_list = []
     for i in range(le):
@@ -621,11 +509,6 @@ def get_mle_mask_topk(k, l):
 #def Generate_random_box_size ():
 
 def main(_):
-
-    #for x in range (100):
-    #    Generate_random_initialization()
-    #    print (FLAGS.is_aggregation_lstm, FLAGS.context_lstm_dim, FLAGS.context_layer_num, FLAGS. aggregation_lstm_dim, FLAGS.aggregation_layer_num, FLAGS.max_window_size, FLAGS.MP_dim)
-
     print('Configurations:')
 
     if FLAGS.word_overlap == 'True':
@@ -655,69 +538,39 @@ def main(_):
         label_path = path_prefix + ".label_vocab"
         POS_path = path_prefix + ".POS_vocab"
         NER_path = path_prefix + ".NER_vocab"
-        has_pre_trained_model = False
         POS_vocab = None
         NER_vocab = None
 
-    #if os.path.exists(best_path):
-        if False == True:
-            #has_pre_trained_model = True
-            label_vocab = Vocab(label_path, fileformat='txt2')
-            char_vocab = Vocab(char_path, fileformat='txt2')
-            if FLAGS.with_POS: POS_vocab = Vocab(POS_path, fileformat='txt2')
-            if FLAGS.with_NER: NER_vocab = Vocab(NER_path, fileformat='txt2')
-        else:
-            print('Collect words, chars and labels ...')
-            (all_words, all_chars, all_labels, all_POSs, all_NERs) = collect_vocabs(train_path, with_POS=FLAGS.with_POS, with_NER=FLAGS.with_NER)
-            print('Number of words: {}'.format(len(all_words)))
-            print('Number of labels: {}'.format(len(all_labels)))
-            label_vocab = Vocab(fileformat='voc', voc=all_labels,dim=2)
-            label_vocab.dump_to_txt2(label_path)
 
-            print('Number of chars: {}'.format(len(all_chars)))
-            char_vocab = Vocab(fileformat='voc', voc=all_chars,dim=FLAGS.char_emb_dim)
-            char_vocab.dump_to_txt2(char_path)
-
-            if FLAGS.with_POS:
-                print('Number of POSs: {}'.format(len(all_POSs)))
-                POS_vocab = Vocab(fileformat='voc', voc=all_POSs,dim=FLAGS.POS_dim)
-                POS_vocab.dump_to_txt2(POS_path)
-            if FLAGS.with_NER:
-                print('Number of NERs: {}'.format(len(all_NERs)))
-                NER_vocab = Vocab(fileformat='voc', voc=all_NERs,dim=FLAGS.NER_dim)
-                NER_vocab.dump_to_txt2(NER_path)
+        label_vocab = Vocab(label_path, fileformat='txt2')
+        char_vocab = Vocab(char_path, fileformat='txt2')
+        if FLAGS.with_POS: POS_vocab = Vocab(POS_path, fileformat='txt2')
+        if FLAGS.with_NER: NER_vocab = Vocab(NER_path, fileformat='txt2')
 
 
-        print('word_vocab shape is {}'.format(word_vocab.word_vecs.shape))
-        print('tag_vocab shape is {}'.format(label_vocab.word_vecs.shape))
         num_classes = label_vocab.size()
 
         print('Build SentenceMatchDataStream ... ')
 
-        is_list_wise = False
-        if FLAGS.prediction_mode == "list_wise":
-            is_list_wise = True
-
-        if FLAGS.use_model_neg_sample == False:
-            trainDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
-                                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
-                                                      batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True, isSort=True,
-                                                      max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
-                                                      is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
-                                                     is_lemma_overlap= FLAGS.lemma_overlap, is_list_wise=is_list_wise,
-                                                      min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
-                                                      use_box = FLAGS.use_box,
-                                                      sample_neg_from_question = FLAGS.nsfq,
-                                                      equal_box_per_batch = FLAGS.equal_box_per_batch,
-                                                      ) # box is just used for training
-
-
-            train_testDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
+        trainDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
-                                                  batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True, isSort=True,
+                                                  batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True, isSort=True,
                                                   max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                                   is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
-                                                 is_lemma_overlap= FLAGS.lemma_overlap)
+                                                  is_lemma_overlap= FLAGS.lemma_overlap,
+                                                  min_answer_size=FLAGS.min_answer_size, max_answer_size = FLAGS.max_answer_size,
+                                                  use_box = FLAGS.use_box,
+                                                  sample_neg_from_question = FLAGS.nsfq,
+                                                  equal_box_per_batch = FLAGS.equal_box_per_batch,
+                                                  ) # box is just used for training
+
+
+        train_testDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
+                                              POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
+                                              batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True, isSort=True,
+                                              max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
+                                              is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
+                                             is_lemma_overlap= FLAGS.lemma_overlap)
 
         testDataStream = SentenceMatchDataStream(test_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
@@ -738,132 +591,6 @@ def main(_):
             testDataStream = train_testDataStream
 
 
-        if FLAGS.use_model_neg_sample == True:
-            # init_scale = 0.01
-            # with tf.Graph().as_default():
-            #     initializer = tf.random_uniform_initializer(-init_scale, init_scale)
-
-            trainDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
-                                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab,
-                                                      label_vocab=label_vocab,
-                                                      batch_size=FLAGS.batch_size, isShuffle=False, isLoop=True,
-                                                      isSort=True, # isShuffle=True means istrain=True but here we dont want for train
-                                                      max_char_per_word=FLAGS.max_char_per_word,
-                                                      max_sent_length=FLAGS.max_sent_length,
-                                                      is_as=FLAGS.is_answer_selection,
-                                                      is_word_overlap=FLAGS.word_overlap,
-                                                      is_lemma_overlap=FLAGS.lemma_overlap,
-                                                      is_list_wise=is_list_wise,
-                                                      min_answer_size=FLAGS.min_answer_size,
-                                                      max_answer_size=FLAGS.max_answer_size,
-                                                      add_neg_sample_count = True, neg_sample_count=FLAGS.neg_sample_count)
-
-            initializer = tf.contrib.layers.xavier_initializer()
-            with tf.variable_scope("Model", reuse=False, initializer=initializer):
-                    train_graph = SentenceMatchModelGraph(num_classes, word_vocab=word_vocab, char_vocab=char_vocab,
-                                                  POS_vocab=POS_vocab, NER_vocab=NER_vocab, with_char=not FLAGS.wo_char,
-                                                  dropout_rate=FLAGS.dropout_rate, learning_rate=FLAGS.learning_rate,
-                                                  optimize_type=FLAGS.optimize_type,
-                                                  lambda_l2=FLAGS.lambda_l2, char_lstm_dim=FLAGS.char_lstm_dim,
-                                                  context_lstm_dim=FLAGS.context_lstm_dim,
-                                                  aggregation_lstm_dim=FLAGS.aggregation_lstm_dim, is_training=False,
-                                                  MP_dim=FLAGS.MP_dim,
-                                                  context_layer_num=FLAGS.context_layer_num,
-                                                  aggregation_layer_num=FLAGS.aggregation_layer_num,
-                                                  fix_word_vec=FLAGS.fix_word_vec,
-                                                  with_filter_layer=FLAGS.with_filter_layer,
-                                                  with_input_highway=FLAGS.with_highway,
-                                                  word_level_MP_dim=FLAGS.word_level_MP_dim,
-                                                  with_match_highway=FLAGS.with_match_highway,
-                                                  with_aggregation_highway=FLAGS.with_aggregation_highway,
-                                                  highway_layer_num=FLAGS.highway_layer_num,
-                                                  with_lex_decomposition=FLAGS.with_lex_decomposition,
-                                                  lex_decompsition_dim=FLAGS.lex_decompsition_dim,
-                                                  with_left_match=(not FLAGS.wo_left_match),
-                                                  with_right_match=(not FLAGS.wo_right_match),
-                                                  with_full_match=(not FLAGS.wo_full_match),
-                                                  with_maxpool_match=(not FLAGS.wo_maxpool_match),
-                                                  with_attentive_match=(not FLAGS.wo_attentive_match),
-                                                  with_max_attentive_match=(not FLAGS.wo_max_attentive_match),
-                                                  with_bilinear_att=(FLAGS.attention_type)
-                                                  , type1=FLAGS.type1, type2=FLAGS.type2, type3=FLAGS.type3,
-                                                  with_aggregation_attention=not FLAGS.wo_agg_self_att,
-                                                  is_answer_selection=FLAGS.is_answer_selection,
-                                                  is_shared_attention=FLAGS.is_shared_attention,
-                                                  modify_loss=FLAGS.modify_loss,
-                                                  is_aggregation_lstm=FLAGS.is_aggregation_lstm
-                                                  , max_window_size=FLAGS.max_window_size
-                                                  , prediction_mode=FLAGS.prediction_mode,
-                                                  context_lstm_dropout=not FLAGS.wo_lstm_drop_out,
-                                                  is_aggregation_siamese=FLAGS.is_aggregation_siamese
-                                                  , unstack_cnn=FLAGS.unstack_cnn,
-                                                  with_context_self_attention=FLAGS.with_context_self_attention,
-                                                  mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
-                                                  , with_tanh=FLAGS.tanh)
-            #
-                    vars_ = {}
-                    for var in tf.global_variables():
-                        if "word_embedding" in var.name: continue
-                        if not var.name.startswith("Model"): continue
-                        vars_[var.name.split(":")[0]] = var
-                    saver = tf.train.Saver(vars_)
-
-                    sess = tf.Session()
-                    sess.run(tf.global_variables_initializer())
-                    step = 0
-                    saver.restore(sess, best_path)
-                    my_map, my_mrr, output_sentences, output_attention_weights = evaluate(trainDataStream, train_graph, sess,
-                                                                                          char_vocab=char_vocab,
-                                                                                          POS_vocab=POS_vocab,
-                                                                                          NER_vocab=NER_vocab,
-                                                                                          label_vocab=label_vocab,
-                                                                                          flag_valid=False
-                                                                                          , word_vocab=word_vocab,
-                                                                                          first_on_best_model=True)
-
-                    # my_map, my_mrr, output_sent, output_attention_weights = evaluate(trainDataStream, train_graph, sess,
-                    #                                                                       char_vocab=char_vocab,
-                    #                                                                       POS_vocab=POS_vocab,
-                    #                                                                       NER_vocab=NER_vocab,
-                    #                                                                       label_vocab=label_vocab,
-                    #                                                                       flag_valid=True
-                    #                                                                       ,word_vocab=word_vocab,
-                    #                                                                       )
-
-
-                    print ("train map on pretrain:", my_map)
-
-                    # output_neg_file = open ("neg_file"+'run_id', 'wt')
-                    #
-                    # for zj in output_sent:
-                    #     if sys.version_info[0] < 3:
-                    #         output_neg_file.write(zj.encode('utf-8'))
-                    #     else:
-                    #         output_neg_file.write(zj)
-                    #
-                    # output_neg_file.close()
-
-
-                    trainDataStream = SentenceMatchDataStream(output_sentences, word_vocab=word_vocab, char_vocab=char_vocab,
-                                                              POS_vocab=POS_vocab, NER_vocab=NER_vocab,
-                                                              label_vocab=label_vocab,
-                                                              batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True,
-                                                              isSort=True, # shuf=true. now we want to train
-                                                              max_char_per_word=FLAGS.max_char_per_word,
-                                                              max_sent_length=FLAGS.max_sent_length,
-                                                              is_as=FLAGS.is_answer_selection,
-                                                              is_word_overlap=FLAGS.word_overlap,
-                                                              is_lemma_overlap=FLAGS.lemma_overlap,
-                                                              is_list_wise=is_list_wise,
-                                                              min_answer_size=FLAGS.min_answer_size,
-                                                              max_answer_size=FLAGS.max_answer_size,
-                                                              add_neg_sample_count=False,
-                                                              neg_sample_count=FLAGS.neg_sample_count,
-                                                              use_top_negs = True,
-                                                              train_from_path = False)
-            #     accuracy, mrr = evaluate(testDataStream, valid_graph, sess,char_vocab=char_vocab,POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab
-            #                         , mode='trec')
-
         print('Number of instances in trainDataStream: {}'.format(trainDataStream.get_num_instance()))
         print('Number of instances in devDataStream: {}'.format(devDataStream.get_num_instance()))
         print('Number of instances in testDataStream: {}'.format(testDataStream.get_num_instance()))
@@ -875,7 +602,6 @@ def main(_):
         if FLAGS.wo_char: char_vocab = None
         output_res_index = 1
 
-        best_test_acc = 0
         while Generate_random_initialization(output_res_index) == True:
             st_cuda = ''
             if FLAGS.is_server == True:
@@ -887,19 +613,13 @@ def main(_):
             ssst += str(FLAGS.start_batch)
             output_res_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index), 'wt')
             output_sentence_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "S", 'wt')
-            output_train_file = open('../result/' + ssst + '.'+ st_cuda + str(output_res_index) + "T", 'wt')
-            if FLAGS.store_att == True:
-                output_attention_file = open('../result/' + ssst + '.'+ st_cuda + "A", 'wt')
+
             output_sentences = []
             output_res_index += 1
             output_res_file.write(str(FLAGS) + '\n\n')
-            stt = str (FLAGS)
-            best_dev_acc = 0.0
-            init_scale = 0.01
+
             with tf.Graph().as_default():
-                #initializer = tf.random_uniform_initializer(-init_scale, init_scale)
                 initializer = tf.contrib.layers.xavier_initializer()
-        #         with tf.name_scope("Train"):
                 with tf.variable_scope("Model", reuse=None, initializer=initializer):
                     train_graph = SentenceMatchModelGraph(num_classes, word_vocab=word_vocab, char_vocab=char_vocab, POS_vocab=POS_vocab, NER_vocab=NER_vocab,
                                                           dropout_rate=FLAGS.dropout_rate, learning_rate=FLAGS.learning_rate, optimize_type=FLAGS.optimize_type,
@@ -975,25 +695,18 @@ def main(_):
 
                 with tf.Session() as sess:
                     sess.run(initializer)
-                    # if FLAGS.use_model_neg_sample == True:
-                    #     print("Restoring model from " + best_path)
-                    #     saver.restore(sess, best_path)
-                    #     print("DONE!")
 
 
                     print('Start the training loop.')
                     train_size = trainDataStream.get_num_batch()
                     max_steps = (train_size * FLAGS.max_epochs) // FLAGS.question_count_per_batch
-                    epoch_size = max_steps // (FLAGS.max_epochs*2) + 1
-                    #max_steps += (train_size * FLAGS.max_epochs) % FLAGS.question_count_per_batch
-                    #max_steps = 2
+                    epoch_size = max_steps // (FLAGS.max_epochs) + 1
+
                     total_loss = 0.0
                     start_time = time.time()
 
                     max_valid = 0
-                    flag_next_epoch = False
                     for step in range(max_steps):
-
                         # read data
                         _truth = []
                         _question_lengths = []
@@ -1003,16 +716,11 @@ def main(_):
                         _overlap = []
                         _question_count = []
                         _answer_count = []
-                        _hinge_truth = []
                         _real_answer_count_mask = []
 
                         _mask = []
                         _mask_topk = []
                         for i in range (FLAGS.question_count_per_batch):
-                            # if (step + 1) % trainDataStream.get_num_batch() == 0 or (step + 1) == max_steps:
-                            #     break
-                            if step != 0 and trainDataStream.cur_pointer < FLAGS.question_count_per_batch:
-                                flag_next_epoch = True
                             cur_batch, batch_index = trainDataStream.nextBatch()
                             (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
@@ -1029,6 +737,7 @@ def main(_):
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
                                              sent1_char_length_batch, sent2_char_length_batch,
                                              POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch)
+
                             _truth.append(label_id_batch)
                             _question_lengths.append(sent1_length_batch)
                             _passage_lengths.append(sent2_length_batch)
@@ -1037,17 +746,11 @@ def main(_):
                             _overlap.append(overlap_batch)
                             _question_count.append(trainDataStream.question_count(batch_index))
                             _answer_count.append(trainDataStream.answer_count(batch_index))
-                            #_hinge_truth.append(make_hinge_truth(label_id_batch, trainDataStream.question_count(batch_index),
-                            #                                                            trainDataStream.answer_count(
-                            #                                                                batch_index)))
                             _real_answer_count_mask.append(trainDataStream.real_answer_count(batch_index))
+
                             if FLAGS.prediction_mode == 'list_mle':
                                 _mask.append(get_mle_mask(len(label_id_batch)))
                                 _mask_topk.append(get_mle_mask_topk (FLAGS.topk , len (label_id_batch)))
-
-                            #print (label_id_batch)
-                            #print (_mask[i])
-                            #print (_mask_topk[i])
 
                         feed_dict = {
                                  train_graph.get_truth(): tuple(_truth),
@@ -1056,37 +759,16 @@ def main(_):
                                  train_graph.get_in_question_words(): tuple(_in_question_words),
                                  train_graph.get_in_passage_words(): tuple(_in_passage_words),
                                  train_graph.get_overlap(): tuple(_overlap)
-                                #train_graph.get_mask ():tuple(_mask),
-                                #train_graph.get_mask_topk ():(_mask_topk)
-        #                          train_graph.get_question_char_lengths(): sent1_char_length_batch,
-        #                          train_graph.get_passage_char_lengths(): sent2_char_length_batch,
-        #                          train_graph.get_in_question_chars(): char_matrix_idx_1_batch,
-        #                          train_graph.get_in_passage_chars(): char_matrix_idx_2_batch
                                  }
                         if FLAGS.prediction_mode == 'list_mle':
                             feed_dict[train_graph.get_mask()] = tuple(_mask)
                             feed_dict[train_graph.get_mask_topk()] = tuple(_mask_topk)
 
-
-                        # if char_vocab is not None and FLAGS.wo_char == False:
-                    #     feed_dict[train_graph.get_question_char_lengths()] = sent1_char_length_batch
-                    #     feed_dict[train_graph.get_passage_char_lengths()] = sent2_char_length_batch
-                    #     feed_dict[train_graph.get_in_question_chars()] = char_matrix_idx_1_batch
-                    #     feed_dict[train_graph.get_in_passage_chars()] = char_matrix_idx_2_batch
-                    #
-                    # if POS_vocab is not None:
-                    #     feed_dict[train_graph.get_in_question_poss()] = POS_idx_1_batch
-                    #     feed_dict[train_graph.get_in_passage_poss()] = POS_idx_2_batch
-                    #
-                    # if NER_vocab is not None:
-                    #     feed_dict[train_graph.get_in_question_ners()] = NER_idx_1_batch
-                    #     feed_dict[train_graph.get_in_passage_ners()] = NER_idx_2_batch
-
                         if FLAGS.is_answer_selection == True:
                             feed_dict[train_graph.get_question_count()] = tuple(_question_count)
                             feed_dict[train_graph.get_answer_count()] = tuple (_answer_count)
-                            #feed_dict[train_graph.get_hinge_truth()] = tuple (_hinge_truth)
                             feed_dict[train_graph.get_real_answer_count_mask()] = tuple (_real_answer_count_mask)
+
 
                         _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                         total_loss += loss_value
@@ -1100,7 +782,6 @@ def main(_):
 
                         # Save a checkpoint and evaluate the model periodically.
                         if (step+1) % epoch_size == 0 or (step + 1) == max_steps:
-                            flag_next_epoch = False
                             #print(total_loss)
                             # Print status to stdout.
                             duration = time.time() - start_time
@@ -1113,13 +794,6 @@ def main(_):
                             my_map, my_mrr = evaluate(devDataStream, valid_graph, sess,char_vocab=char_vocab,
                                                 POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
                             output_res_file.write("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
-                            #print ("dev map: {}".format(my_map))
-                            #print("Current accuracy is %.2f" % accuracy)
-
-                            #accuracy = my_map
-                            #if accuracy>best_accuracy:
-                            #    best_accuracy = accuracy
-                            #    saver.save(sess, best_path)
 
                             # Evaluate against the test set.
                             flag_valid = False
@@ -1132,87 +806,21 @@ def main(_):
                                 my_map, my_mrr, output_sentences, output_attention_weights = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid
                                                                             ,word_vocab=word_vocab)
-                                if my_map > best_test_acc and FLAGS.store_best == True:
-                                    best_test_acc = my_map
+                                if FLAGS.store_best == True:
                                     saver.save(sess, best_path)
-
-                                #tr_map, tr_mrr, train_sentences, _ = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                     #POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=True
-                                     #                                         ,word_vocab=word_vocab)
                             else:
                                 my_map,my_mrr = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid)
 
                             output_res_file.write("map: '{}', mrr: '{}\n\n".format(my_map, my_mrr))
 
-
-                            flag_valid = False
-                            #if FLAGS.is_server == False:
                             print ("test map: {}".format(my_map))
 
                             #Evaluate against the train set only for final epoch.
                             if (step + 1) == max_steps:
                                 output_res_file.write ('train- ')
-                                # my_map, my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                #     POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
-
-                                # my_map,my_mrr = evaluate(train_testDataStream, valid_graph, sess, char_vocab=char_vocab,
-                                #      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=False)
-
-
                                 output_res_file.write("map: '{}', mrr: '{}'\n".format(0.0, 0.0))#(tr_map, tr_mrr))
-                                print ("map: '{}', mrr: '{}'\n".format(my_map, my_mrr))
-
-
-
-
-            # print("Best accuracy on dev set is %.2f" % best_accuracy)
-            # # decoding
-            # print('Decoding on the test set:')
-            # init_scale = 0.01
-            # with tf.Graph().as_default():
-            #     initializer = tf.random_uniform_initializer(-init_scale, init_scale)
-            #     with tf.variable_scope("Model", reuse=False, initializer=initializer):
-            #         valid_graph = SentenceMatchModelGraph(num_classes, word_vocab=word_vocab, char_vocab=char_vocab, POS_vocab=POS_vocab, NER_vocab=NER_vocab,
-            #              dropout_rate=FLAGS.dropout_rate, learning_rate=FLAGS.learning_rate, optimize_type=FLAGS.optimize_type,
-            #              lambda_l2=FLAGS.lambda_l2, char_lstm_dim=FLAGS.char_lstm_dim, context_lstm_dim=FLAGS.context_lstm_dim,
-            #              aggregation_lstm_dim=FLAGS.aggregation_lstm_dim, is_training=False, MP_dim=FLAGS.MP_dim,
-            #              context_layer_num=FLAGS.context_layer_num, aggregation_layer_num=FLAGS.aggregation_layer_num,
-            #              fix_word_vec=FLAGS.fix_word_vec,with_filter_layer=FLAGS.with_filter_layer, with_highway=FLAGS.with_highway,
-            #              word_level_MP_dim=FLAGS.word_level_MP_dim,
-            #              with_match_highway=FLAGS.with_match_highway, with_aggregation_highway=FLAGS.with_aggregation_highway,
-            #              highway_layer_num=FLAGS.highway_layer_num, with_lex_decomposition=FLAGS.with_lex_decomposition,
-            #              lex_decompsition_dim=FLAGS.lex_decompsition_dim,
-            #              with_left_match=(not FLAGS.wo_left_match), with_right_match=(not FLAGS.wo_right_match),
-            #              with_full_match=(not FLAGS.wo_full_match), with_maxpool_match=(not FLAGS.wo_maxpool_match),
-            #              with_attentive_match=(not FLAGS.wo_attentive_match), with_max_attentive_match=(not FLAGS.wo_max_attentive_match),
-            #                                               with_bilinear_att=(not FLAGS.wo_bilinear_att)
-            #                                               , type1=FLAGS.type1, type2 = FLAGS.type2, type3=FLAGS.type3,
-            #                                               with_aggregation_attention=not FLAGS.wo_agg_self_att,
-            #                                               is_answer_selection= FLAGS.is_answer_selection,
-            #                                               is_shared_attention=FLAGS.is_shared_attention,
-            #                                               modify_loss=FLAGS.modify_loss,is_aggregation_lstm=FLAGS.is_aggregation_lstm,
-            #                                               max_window_size=FLAGS.max_window_size,
-            #                                               prediction_mode=FLAGS.prediction_mode,
-            #                                               context_lstm_dropout=not FLAGS.wo_lstm_drop_out,
-            #                                              is_aggregation_siamese=FLAGS.is_aggregation_siamese)
-            #
-            #     vars_ = {}
-            #     for var in tf.global_variables():
-            #         if "word_embedding" in var.name: continue
-            #         if not var.name.startswith("Model"): continue
-            #         vars_[var.name.split(":")[0]] = var
-            #     saver = tf.train.Saver(vars_)
-            #
-            #     sess = tf.Session()
-            #     sess.run(tf.global_variables_initializer())
-            #     step = 0
-            #     saver.restore(sess, best_path)
-            #
-            #     accuracy, mrr = evaluate(testDataStream, valid_graph, sess,char_vocab=char_vocab,POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab
-            #                         , mode='trec')
-            #     output_res_file.write("map for test set is %.2f\n" % accuracy)
-
+                                # just for backward compatiblity!
 
             for zj in output_sentences:
                 if sys.version_info[0] < 3:
@@ -1220,20 +828,9 @@ def main(_):
                 else:
                     output_sentence_file.write(zj)
 
-            #for zj in train_sentences:
-            #    if sys.version_info[0] < 3:
-            #        output_train_file.write(zj.encode('utf-8'))
-            #    else:
-            #        output_train_file.write(zj)
 
-            output_train_file.close()
             output_sentence_file.close()
             output_res_file.close()
-
-            if FLAGS.store_att == True:
-                for zj in output_attention_weights:
-                    output_attention_file.write(zj)
-                FLAGS.store_att = False
 
         FLAGS.start_batch += FLAGS.step_batch
 

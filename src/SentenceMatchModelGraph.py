@@ -371,18 +371,18 @@ class SentenceMatchModelGraph(object):
                                 hinget = tf.reshape(self.hinge_truth[i], [self.answer_count[i], self.answer_count[i]]) #[a, a]
                                 loss_list.append(self.check_pairs(hinget, logits, top_treshold, pos_count))
 
-
                     elif prediction_mode == 'list_mle':
                         if is_training == True:
-                            pos_mask = tf.maximum(self.mask[i], 0.0)
-                            neg_mask = 1 + self.mask[i] - 2.0 * pos_mask
+                            pos_mask = tf.maximum(self.mask[i], 0.0) #[a, a]
+                            neg_mask = 1 + self.mask[i] - 2.0 * pos_mask #[a, a]
                             #logits = tf.expand_dims(logits, 0)
-                            neg_exp = tf.multiply(neg_mask, tf.exp(logits))
-                            pos_exp = tf.exp(logits)
-                            neg_exp_sum = tf.reduce_sum(neg_exp, 1)
-                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp))  # + (1.0-has_pos_neg)))  # [a]
-                            fi = tf.multiply(fi, pos_mask)
-                            fi = tf.multiply(fi, self.mask_topk[i])
+                            neg_exp = tf.multiply(neg_mask, tf.exp(logits)) # [a, a] [logits : [1, a]]
+                            pos_exp = tf.exp(logits) #[1, a]
+                            neg_exp_sum = tf.reduce_sum(neg_exp, 1, keep_dims=True) #[1,a]
+                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[1,a]
+
+                            #fi = tf.multiply(fi, pos_mask) #[a, a]
+                            fi = tf.multiply(fi, self.mask_topk[i]) #[1,a]
                             fi = tf.reduce_sum(fi)
                             #loss_list.append(tf.divide(fi, tf.reduce_sum(self.mask[i])))
                             loss_list.append(fi)
@@ -399,7 +399,7 @@ class SentenceMatchModelGraph(object):
                         #             (float(max_answer_size) - tf.cast(self.answer_count[i], tf.float32))
                         # logits = logits / logits_sum
                         loss_list.append(tf.reduce_sum(
-                            tf.multiply(gold_matrix, tf.log(gold_matrix + eps)) - tf.multiply(gold_matrix,
+                            tf.multiply(gold_matrix, tf.log(gold_matrix)) - tf.multiply(gold_matrix,
                                                                                               tf.log(logits))
                         ))
 
