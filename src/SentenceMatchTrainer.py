@@ -356,7 +356,6 @@ def Generate_random_initialization(cnf):
         #     FLAGS.MP_dim = mp
 
         print (FLAGS)
-
     if cnf <= 10:
         FLAGS.type1 = 'w_mul'
     elif cnf <= 20:
@@ -884,7 +883,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
 
 
 
@@ -1019,7 +1018,7 @@ if __name__ == '__main__':
 
 
 
-    parser.add_argument('--run_id', default='10' , help = 'run_id')
+    parser.add_argument('--run_id', default='st_b' , help = 'run_id')
 
     #     print("CUDA_VISIBLE_DEVICES " + os.environ['CUDA_VISIBLE_DEVICES'])
     sys.stdout.flush()

@@ -209,6 +209,9 @@ class SentenceMatchModelGraph(object):
                     #                                                           output_size=context_lstm_dim)
             # ========Bilateral Matching=====
 
+                self.as_rep = in_question_repres
+
+
                 (match_representation, match_dim, self.attention_weights) = match_utils.bilateral_match_func2(in_question_repres, in_passage_repres,
                                 self.question_lengths[i], self.passage_lengths[i], question_mask, mask, MP_dim, input_dim,
                                 with_filter_layer, context_layer_num, context_lstm_dim,is_training,dropout_rate,
@@ -911,6 +914,16 @@ class SentenceMatchModelGraph(object):
         del self.__mask_topk
 
 
+
+    def get_as_rep(self):
+        return self.__as_rep
+
+    def set_as_rep(self, value):
+        self.__as_rep = value
+
+    def del_as_rep(self):
+        del self.__as_rep
+
     question_lengths = property(get_question_lengths, set_question_lengths, del_question_lengths, "question_lengths's docstring")
     passage_lengths = property(get_passage_lengths, set_passage_lengths, del_passage_lengths, "passage_lengths's docstring")
     truth = property(get_truth, set_truth, del_truth, "truth's docstring")
@@ -946,5 +959,5 @@ class SentenceMatchModelGraph(object):
                                       del_real_answer_count_mask, "asdfasdfa")
     mask = property(get_mask, set_mask, del_mask, "asdfasdfa")
     mask_topk = property(get_mask_topk, set_mask_topk, del_mask_topk, "asdfasdfa")
-
+    as_rep = property(get_as_rep, set_as_rep, del_as_rep, "sfa")
     

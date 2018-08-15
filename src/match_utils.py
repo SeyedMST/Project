@@ -244,17 +244,17 @@ def dot_att_weight(passage_rep, question_rep,input_dim , overlap, question_mask,
         return z1 #[M,N]
         #return tf.matmul(z1, q1) #[M,d]
     elems = (z, question_mask, overlap)
-    return tf.map_fn(single_instance, elems, dtype=tf.float32) #[bs, M, N]....#[bs, M, d]
+    return tf.reduce_sum(z, -1), tf.map_fn(single_instance, elems, dtype=tf.float32) #[bs, M, N]....#[bs, M, d]
 
 
 def dot_product(passage_rep, question_rep,input_dim , overlap, question_mask,clip_attention):
-    zz = dot_att_weight(passage_rep, question_rep,input_dim, overlap, question_mask, clip_attention) #[bs, M, N]
+    attention_weights, zz = dot_att_weight(passage_rep, question_rep,input_dim, overlap, question_mask, clip_attention) #[bs, M, N]
     def single_instance (x):
         z1 = x[0] #[M,N]
         q1 = x[1] #[N,d]
         return tf.matmul(z1, q1) #[M,d]
     elems = (zz, question_rep)
-    return zz, tf.map_fn(single_instance, elems, dtype=tf.float32) #[bs, M, d]
+    return attention_weights, tf.map_fn(single_instance, elems, dtype=tf.float32) #[bs, M, d]
 
 def linear (passage_rep, question_rep, w, b):
     # def single_instance (x):
@@ -322,6 +322,7 @@ def multi_bilinear_att (passage_rep, question_rep,num_att_type,input_dim , is_sh
     scope_name = 'bi_att_layer'
     if scope is not None: scope_name = scope
     h_rep_list = []
+    zz = None
     for i in range(num_att_type):
         if is_shared_attetention == True:
             cur_scope_name = scope_name + "-{}".format(i)
