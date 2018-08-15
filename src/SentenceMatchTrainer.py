@@ -434,7 +434,7 @@ def Get_Next_box_size (index):
                             # 								bod trec
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
-                #Fabl1- [100]
+                #fabl1- [100]
 
     if  (index > FLAGS.end_batch):
         return False
@@ -810,6 +810,7 @@ def main(_):
                             # Print status to stdout.
                             duration = time.time() - start_time
                             start_time = time.time()
+                            print (duration)
                             output_res_file.write('Step %d: loss = %.2f (%.3f sec)\n' % (step, total_loss, duration))
                             total_loss = 0.0
 
