@@ -68,7 +68,6 @@ def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_
 
 
 
-import nltk
 eps = 1e-8
 FLAGS = None
 
