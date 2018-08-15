@@ -352,52 +352,52 @@ def make_idx (label_vocab, label, word_vocab, sentence1, sentence2, char_vocab, 
     return (label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2)
 
 
-import nltk.corpus
-import nltk.tokenize.punkt
-import nltk.stem.snowball
-from nltk.corpus import wordnet
-import string
-
-# Get default English stopwords and extend with punctuation
-stopwords = nltk.corpus.stopwords.words('english')
-stopwords.extend(string.punctuation)
-stopwords.append('')
-
-def get_wordnet_pos(pos_tag):
-    if pos_tag[1].startswith('J'):
-        return (pos_tag[0], wordnet.ADJ)
-    elif pos_tag[1].startswith('V'):
-        return (pos_tag[0], wordnet.VERB)
-    elif pos_tag[1].startswith('N'):
-        return (pos_tag[0], wordnet.NOUN)
-    elif pos_tag[1].startswith('R'):
-        return (pos_tag[0], wordnet.ADV)
-    else:
-        return (pos_tag[0], wordnet.NOUN)
-
-# Create tokenizer and stemmer
-tokenizer = nltk.tokenize.SpaceTokenizer
-lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
-
-def is_ci_lemma_stopword_set_match(sentence1, sentence2):
-    """Check if a and b are matches."""
-    s1 = []
-    s2 = []
-    for word in re.split('\\s+', sentence1):
-        s1.append(word)
-    for word in re.split('\\s+', sentence2):
-        s2.append(word)
-    pos_a = map(get_wordnet_pos, nltk.pos_tag(s1))#(tokenizer.tokenize(sentence1, ' ')))
-    pos_b = map(get_wordnet_pos, nltk.pos_tag(s2))#(tokenizer.tokenize(sentence2, ' ')))
-    lemmae_a = [lemmatizer.lemmatize(token.strip(), pos) for token, pos in pos_a]
-    lemmae_b = [lemmatizer.lemmatize(token.strip(), pos) for token, pos in pos_b]
-    return lemmae_a, lemmae_b
+# import nltk.corpus
+# import nltk.tokenize.punkt
+# import nltk.stem.snowball
+# from nltk.corpus import wordnet
+# import string
+#
+# # Get default English stopwords and extend with punctuation
+# stopwords = nltk.corpus.stopwords.words('english')
+# stopwords.extend(string.punctuation)
+# stopwords.append('')
+#
+# def get_wordnet_pos(pos_tag):
+#     if pos_tag[1].startswith('J'):
+#         return (pos_tag[0], wordnet.ADJ)
+#     elif pos_tag[1].startswith('V'):
+#         return (pos_tag[0], wordnet.VERB)
+#     elif pos_tag[1].startswith('N'):
+#         return (pos_tag[0], wordnet.NOUN)
+#     elif pos_tag[1].startswith('R'):
+#         return (pos_tag[0], wordnet.ADV)
+#     else:
+#         return (pos_tag[0], wordnet.NOUN)
+#
+# # Create tokenizer and stemmer
+# tokenizer = nltk.tokenize.SpaceTokenizer
+# lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
+#
+# def is_ci_lemma_stopword_set_match(sentence1, sentence2):
+#     """Check if a and b are matches."""
+#     s1 = []
+#     s2 = []
+#     for word in re.split('\\s+', sentence1):
+#         s1.append(word)
+#     for word in re.split('\\s+', sentence2):
+#         s2.append(word)
+#     pos_a = map(get_wordnet_pos, nltk.pos_tag(s1))#(tokenizer.tokenize(sentence1, ' ')))
+#     pos_b = map(get_wordnet_pos, nltk.pos_tag(s2))#(tokenizer.tokenize(sentence2, ' ')))
+#     lemmae_a = [lemmatizer.lemmatize(token.strip(), pos) for token, pos in pos_a]
+#     lemmae_b = [lemmatizer.lemmatize(token.strip(), pos) for token, pos in pos_b]
+#     return lemmae_a, lemmae_b
 
 def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_vocab, is_word_overlap, is_lemma_overlap):
     n = len(sentence1_list)
     m = len(sentence2_list)
-    if is_word_overlap == True and is_lemma_overlap == True:
-        lemma1, lemma2 = is_ci_lemma_stopword_set_match(sentence1, sentence2)
+    # if is_word_overlap == True and is_lemma_overlap == True:
+    #     lemma1, lemma2 = is_ci_lemma_stopword_set_match(sentence1, sentence2)
     # if (len(lemma1) != n or len (lemma2) != m):
     #     print ('fuck')
     ans = []
@@ -405,7 +405,6 @@ def add_overlap (sentence1_list, sentence2_list, sentence1, sentence2, word_voca
         l = []
         for j in range(m):
             if is_word_overlap == True or is_lemma_overlap == True:
-                print ('fuck')
                 if is_lemma_overlap == False and sentence1_list[i] == sentence2_list[j]:
                     l.append(1)
                 elif is_lemma_overlap == True:
