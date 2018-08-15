@@ -106,7 +106,7 @@ class Vocab(object):
             parts = line.split('\t')
             cur_index = int(parts[0])
             word = parts[1]
-            vector = np.array(map(float,re.split('\\s+', parts[2])), dtype='float32')
+            vector = np.array(list(map(float,re.split('\\s+', parts[2]))), dtype='float32')
             self.word2id[word] = cur_index 
             self.id2word[cur_index] = word
             word_vecs[cur_index] = vector

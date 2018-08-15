@@ -541,13 +541,13 @@ def main(_):
         NER_vocab = None
 
 
-        label_vocab = Vocab(label_path, fileformat='txt2')
+        label_vocab =  Vocab(label_path, fileformat='txt2')
         char_vocab = Vocab(char_path, fileformat='txt2')
         if FLAGS.with_POS: POS_vocab = Vocab(POS_path, fileformat='txt2')
         if FLAGS.with_NER: NER_vocab = Vocab(NER_path, fileformat='txt2')
 
 
-        num_classes = label_vocab.size()
+        num_classes = 2# label_vocab.size()
 
         print('Build SentenceMatchDataStream ... ')
 
