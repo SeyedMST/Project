@@ -545,13 +545,11 @@ def main(_):
         os.makedirs(log_dir)
     path_prefix = log_dir + "/SentenceMatch.{}".format(FLAGS.suffix)
 
-    namespace_utils.save_namespace(FLAGS, path_prefix + ".config.json")
 
     # build vocabs
     while (Get_Next_box_size(FLAGS.start_batch) == True):
         word_vec_path = FLAGS.word_vec_path
         word_vocab = Vocab(word_vec_path, fileformat='txt3')
-        best_path = path_prefix + '.best.model'
         char_path = path_prefix + ".char_vocab"
         label_path = path_prefix + ".label_vocab"
         POS_path = path_prefix + ".POS_vocab"
@@ -621,6 +619,9 @@ def main(_):
         output_res_index = 1
 
         while Generate_random_initialization(output_res_index) == True:
+            namespace_utils.save_namespace(FLAGS, path_prefix + str (output_res_index) + ".config.json")
+            best_path = path_prefix +str (output_res_index) +  '.best.model'
+
             st_cuda = ''
             if FLAGS.is_server == True:
                 st_cuda = str(os.environ['CUDA_VISIBLE_DEVICES']) + '.'
