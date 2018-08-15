@@ -209,7 +209,7 @@ def MAP_MRR(logit, gold, candidate_answer_length, flag_valid, sent1s, sent2s, at
     if flag_valid == False:
         return (my_map,my_mrr)
     else:
-        return (my_map, my_mrr, output_sentences, output_attention_weights)
+        return (my_map, my_mrr, output_sentences)#, output_attention_weights)
 
 def Generate_random_initialization(cnf):
     if FLAGS.is_random_init == True:
@@ -357,12 +357,30 @@ def Generate_random_initialization(cnf):
 
         print (FLAGS)
 
-    if cnf == 300:
-        return False
-    else:
-        return True
+    if cnf <= 10:
+        FLAGS.type1 = 'w_mul'
+    elif cnf <= 20:
+        FLAGS.type1 = 'w_sub'
+    elif cnf <= 30:
+        FLAGS.type1 = 'w_sub_mul'
+    elif cnf <= 40: #no input proj
+        FLAGS.with_input_embedding = True
+    elif cnf <=50: #no output highway
+        FLAGS.with_input_embedding = False
+        FLAGS.with_output_highway = False
+    elif cnf <=60: # no mathching layer
+        FLAGS.with_output_highway = True
+        FLAGS.with_matching_layer = False
+    elif cnf <= 70: #Lstm Proj
+        FLAGS.with_matching_layer = True
+        #FLAGS.with_input_embedding = False
+        FLAGS.with_highway = False
 
-    #return True
+    if cnf > 80:
+        return False
+    return True
+
+        #return True
 
 
 def Get_Next_box_size (index):
@@ -414,7 +432,10 @@ def Get_Next_box_size (index):
 				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s] trec
 				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
                             # 								bod trec
-                #mle4- [,,,mle] #code mle ta hadi eslah shod. use box va ... ham raftan to baghali ha.
+                #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
+                # use box va ... ham raftan to baghali ha.
+                #Fabl1- [100]
+
     if  (index > FLAGS.end_batch):
         return False
     FLAGS.sampling = False
@@ -429,7 +450,6 @@ def Get_Next_box_size (index):
         FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
         FLAGS.new_list_wise = True
-        FLAGS.pos_avg = True
         #FLAGS.topk = 30
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -649,7 +669,10 @@ def main(_):
                                                           max_answer_size=FLAGS.max_answer_size, q_count=FLAGS.question_count_per_batch,
                                                           sampling=FLAGS.sampling, sampling_type=FLAGS.sampling_type,
                                                           sample_percent = FLAGS.sample_percent, top_treshold=FLAGS.top_treshold,
-                                                          pos_avg=FLAGS.pos_avg, margin=FLAGS.margin)
+                                                          pos_avg=FLAGS.pos_avg, margin=FLAGS.margin,
+                                                          with_input_embedding=FLAGS.with_input_embedding,
+                                                          with_output_highway = FLAGS.with_output_highway,
+                                                          with_matching_layer = FLAGS.with_matching_layer)
                     tf.summary.scalar("Training Loss", train_graph.get_loss()) # Add a scalar summary for the snapshot loss.
 
         #         with tf.name_scope("Valid"):
@@ -680,7 +703,9 @@ def main(_):
                                                           , unstack_cnn=FLAGS.unstack_cnn,with_context_self_attention=FLAGS.with_context_self_attention,
                                                           mean_max=FLAGS.mean_max, clip_attention=FLAGS.clip_attention
                                                           ,with_tanh=FLAGS.tanh, new_list_wise=FLAGS.new_list_wise,
-                                                          q_count=1, pos_avg = FLAGS.pos_avg)
+                                                          q_count=1, pos_avg = FLAGS.pos_avg, with_input_embedding=FLAGS.with_input_embedding
+                                                          ,with_output_highway = FLAGS.with_output_highway,
+                                                          with_matching_layer = FLAGS.with_matching_layer)
 
 
                 initializer = tf.global_variables_initializer()
@@ -802,7 +827,7 @@ def main(_):
 
                             output_res_file.write ('test- ')
                             if flag_valid == True:
-                                my_map, my_mrr, output_sentences, output_attention_weights = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                                my_map, my_mrr, output_sentences = evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
                                      POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab, flag_valid=flag_valid
                                                                             ,word_vocab=word_vocab)
                                 if FLAGS.store_best == True:
@@ -953,6 +978,11 @@ if __name__ == '__main__':
     parser.add_argument('--context_lstm_dim', type=int, default=100, help='Number of dimension for context representation layer.')
     parser.add_argument('--aggregation_lstm_dim', type=int, default=100, help='Number of dimension for aggregation layer.')
     parser.add_argument('--aggregation_layer_num', type=int, default=1, help='Number of LSTM layers for aggregation layer.')
+
+    parser.add_argument('--with_input_embedding', default=False, help = 'are aggregation wieghts on both sides shared or not' )
+    parser.add_argument('--with_output_highway', default=True, help = 'are aggregation wieghts on both sides shared or not' )
+    parser.add_argument('--with_matching_layer', default=True, help = 'are aggregation wieghts on both sides shared or not' )
+
 
 
     parser.add_argument('--word_overlap', default=False, help = 'are aggregation wieghts on both sides shared or not' )

@@ -29,7 +29,8 @@ class SentenceMatchModelGraph(object):
                  , prediction_mode = 'list_wise', context_lstm_dropout = True, is_aggregation_siamese = True, unstack_cnn = True,with_context_self_attention=False,
                  clip_attention = True, mean_max = True, with_tanh = True , new_list_wise=True, max_answer_size = 15,
                  q_count=2, pos_avg = True, sampling = False, sampling_type = 'attentive', sample_percent = 0.8,
-                 top_treshold = -1, margin = 0):
+                 top_treshold = -1, margin = 0, with_input_embedding = False ,with_output_highway = True,
+                 with_matching_layer=True):
 
         # ======word representation layer======
 
@@ -184,7 +185,7 @@ class SentenceMatchModelGraph(object):
                 question_mask = tf.sequence_mask(self.question_lengths[i], question_len, dtype=tf.float32) # [batch_size, question_len]
 
             # ======Highway layer======
-                if with_input_highway:
+                if with_input_highway == True and with_input_embedding == False:
                     with tf.variable_scope("input_highway"):
                         output_size = context_lstm_dim
                         flag_highway = False
@@ -218,11 +219,10 @@ class SentenceMatchModelGraph(object):
                                                                                       ,is_shared_attention, is_aggregation_lstm,
                                                                                       max_window_size, context_lstm_dropout,
                                                                                       is_aggregation_siamese,unstack_cnn, with_input_highway,with_context_self_attention,
-                                                                                      self.overlap[i], mean_max, clip_attention)
+                                                                                      self.overlap[i], mean_max, clip_attention, with_matching_layer)
                 #match_representation_list.append(match_representation)
             #========Prediction Layer=========
-                pred_highway = True
-                if pred_highway == False:
+                if with_output_highway == False:
                     w_0 = tf.get_variable("w_0", [match_dim, match_dim/2], dtype=tf.float32)
                     b_0 = tf.get_variable("b_0", [match_dim/2], dtype=tf.float32)
                     logits = tf.matmul(match_representation, w_0) + b_0
@@ -416,28 +416,15 @@ class SentenceMatchModelGraph(object):
                     gold_matrix = self.truth[i]
                     g1_matrix = tf.ceil(gold_matrix - eps)
                     g1_matrix = tf.cast(g1_matrix + eps, tf.int32)
-                    #self.prob = tf.nn.softmax(logits)
                     gold_matrix = tf.one_hot(g1_matrix, num_classes, dtype=tf.float32)            #         gold_matrix = tf.one_hot(self.truth, num_classes)
-                    #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, gold_matrix))
                     loss_list.append(tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=gold_matrix)))
-        #         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, tf.cast(self.truth, tf.int64), name='cross_entropy_per_example')
-        #         self.loss = tf.reduce_mean(cross_entropy, name='cross_entropy')
-                    #correct = tf.nn.in_top_k(logits, self.truth, 1)
-                    #self.eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
-                    #self.predictions = tf.arg_max(self.prob, 1)
-                    #self.predictions = tf.argmax(self.prob, 1)
+
 
                 tf.get_variable_scope().reuse_variables()
 
         #print (len (loss_list))
         self.loss = tf.stack (loss_list, 0)
-        if pos_avg == True or pos_avg == False: #this change for #divcount
-            self.loss = tf.reduce_mean(self.loss, 0)
-        else:
-            pos_cnt = tf.stack(pos_list, 0)
-            pos_cnt = tf.reduce_sum(pos_cnt)
-            self.loss = tf.reduce_sum(self.loss)
-            self.loss = tf.divide(self.loss , pos_cnt)
+        self.loss = tf.reduce_mean(self.loss, 0)
         self.score = tf.concat(score_list, 0)
         self.prob = tf.concat(prob_list, 0)
 
