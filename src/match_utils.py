@@ -609,8 +609,8 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
     passage_self_att = 0
 
     if with_matching_layer == False:
-        question_aware_representatins.append(in_question_repres)
-        passage_aware_representatins.append(in_passage_repres)
+        question_aware_representatins.append(in_passage_repres)
+        passage_aware_representatins.append(in_question_repres)
         question_aware_dim = input_dim
         passage_aware_dim = input_dim
         attention_weights = None
