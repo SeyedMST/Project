@@ -208,6 +208,8 @@ class SentenceMatchModelGraph(object):
                     #         in_passage_repres = match_utils.highway_layer(in_passage_repres, input_size=output_size, scope='s1',
                     #                                                           output_size=context_lstm_dim)
             # ========Bilateral Matching=====
+                elif with_input_highway == True and with_input_embedding == True:
+                    context_lstm_dim = input_dim
 
                 self.as_rep = in_question_repres
 

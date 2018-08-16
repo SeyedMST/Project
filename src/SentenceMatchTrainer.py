@@ -356,26 +356,25 @@ def Generate_random_initialization(cnf):
         #     FLAGS.MP_dim = mp
 
         print (FLAGS)
-    if cnf <= 10:
-        FLAGS.type1 = 'w_mul'
-    elif cnf <= 20:
-        FLAGS.type1 = 'w_sub'
-    elif cnf <= 30:
-        FLAGS.type1 = 'w_sub_mul'
-    elif cnf <= 40: #no input proj
+    # if cnf <= 10:
+    #     FLAGS.type1 = 'w_mul'
+    # elif cnf <= 20:
+    #     FLAGS.type1 = 'w_sub'
+    # elif cnf <= 30:
+    #     FLAGS.type1 = 'w_sub_mul'
+    if cnf <= 10: #no input proj
         FLAGS.with_input_embedding = True
-    elif cnf <=50: #no output highway
+    elif cnf <=20: #no output highway
         FLAGS.with_input_embedding = False
         FLAGS.with_output_highway = False
-    elif cnf <=60: # no mathching layer
+    elif cnf <=30: # no mathching layer
         FLAGS.with_output_highway = True
         FLAGS.with_matching_layer = False
-    elif cnf <= 70: #Lstm Proj
+    elif cnf <= 40: #Lstm Proj
         FLAGS.with_matching_layer = True
         #FLAGS.with_input_embedding = False
         FLAGS.with_highway = False
-
-    if cnf > 80:
+    if cnf > 40:
         return False
     return True
 
@@ -433,7 +432,8 @@ def Get_Next_box_size (index):
                             # 								bod trec
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
-                #fabl1- [100]
+                #fabl1- [100] [mul, sub, submul. 30]
+                #fabl2-
 
     if  (index > FLAGS.end_batch):
         return False
