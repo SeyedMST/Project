@@ -416,14 +416,13 @@ def sim_mul(h_rep, passage_rep, mp_dim, scope, input_dim):
     in_mul = tf.reshape(in_mul, [batch_size , passage_len, mp_dim, -1])
     return tf.reduce_mean(in_mul, 3) #[bs, M, mp]
 
-def sim_sub(h_rep, passage_rep, mp_dim, scope, input_dim):
-    in_sub = tf.subtract(h_rep, passage_rep)
-    in_mul = tf.abs(in_sub)#tf.multiply(in_sub, in_sub)
-    input_shape = tf.shape(in_mul)
-    batch_size = input_shape[0]
-    passage_len = input_shape[1]
-    in_mul = tf.reshape(in_mul, [batch_size , passage_len, mp_dim, -1])
-    return tf.reduce_mean(in_mul, 3) #[bs, M, mp]
+def sim_sub(h_rep, passage_rep, mp_dim, scope, input_dim, activation):
+    in_mul = tf.multiply(h_rep, passage_rep)
+    in_sub = sub(h_rep, passage_rep)
+    in_val = tf.concat([in_mul, in_sub], 2) #[bs, M, 2d]
+    in_val = cal_wxb(in_val, scope + 'sub', mp_dim + mp_dim//2, input_dim * 2,activation)
+    return in_val
+
 
 
 def sim_layer (h_rep, passage_rep, mp_dim, scope, sim_type, input_dim,activation):
@@ -442,7 +441,7 @@ def sim_layer (h_rep, passage_rep, mp_dim, scope, sim_type, input_dim,activation
     elif sim_type == 'mul':
         return sim_mul(h_rep, passage_rep, mp_dim, scope,input_dim)
     elif sim_type == 'sub':
-        return sim_sub(h_rep, passage_rep, mp_dim, scope, input_dim)
+        return sim_sub(h_rep, passage_rep, mp_dim, scope, input_dim, activation)
     else:
         print ("there is no true sim type")
         return None
@@ -610,8 +609,8 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
     passage_self_att = 0
 
     if with_matching_layer == False:
-        question_aware_representatins.extend(in_question_repres)
-        passage_aware_representatins.extend(in_passage_repres)
+        question_aware_representatins.append(in_question_repres)
+        passage_aware_representatins.append(in_passage_repres)
         question_aware_dim = input_dim
         passage_aware_dim = input_dim
     else:

@@ -108,7 +108,7 @@ def collect_vocabs(train_path, with_POS=False, with_NER=False):
 
 def evaluate(dataStream, valid_graph, sess, outpath=None,
              label_vocab=None, mode='trec',char_vocab=None, POS_vocab=None, NER_vocab=None, flag_valid = False,word_vocab = None
-             ):
+             ,show_attention = False):
     #if outpath is not None: outfile = open(outpath, 'wt')
     #subfile = ''
     #goldfile = ''
@@ -145,18 +145,15 @@ def evaluate(dataStream, valid_graph, sess, outpath=None,
                     valid_graph.get_overlap():overlap_batch,
                 }
 
-        if FLAGS.is_answer_selection == True:
-            feed_dict[valid_graph.get_question_count()] = 0
-            feed_dict[valid_graph.get_answer_count()] = 0
+        feed_dict[valid_graph.get_question_count()] = 0
+        feed_dict[valid_graph.get_answer_count()] = 0
 
 
         scores.append(sess.run(valid_graph.get_score(), feed_dict=feed_dict))
         labels.append (label_id_batch)
-        if flag_valid == True:
+        if flag_valid == True or flag_valid == False:
             sent1s.append(sent1_batch)
             sent2s.append(sent2_batch)
-            if FLAGS.store_att == True:
-                atts.extend(np.split(sess.run(valid_graph.get_attention_weights(), feed_dict=feed_dict),len(sent1_batch)))
 
     scores = np.concatenate(scores)
     labels = np.concatenate(labels)
@@ -354,7 +351,6 @@ def Generate_random_initialization(cnf):
         #     while (clstm*2) % mp != 0:
         #         mp -= 10
         #     FLAGS.MP_dim = mp
-
         print (FLAGS)
     # if cnf <= 10:
     #     FLAGS.type1 = 'w_mul'
@@ -362,21 +358,21 @@ def Generate_random_initialization(cnf):
     #     FLAGS.type1 = 'w_sub'
     # elif cnf <= 30:
     #     FLAGS.type1 = 'w_sub_mul'
-
-    # if cnf <= 10: #no input proj
-    #     FLAGS.with_input_embedding = #trec test: True 27839
-
-    if cnf <=10: #no output highway
-        FLAGS.with_input_embedding = False
-        FLAGS.with_output_highway = False
-    elif cnf <=20: # no mathching layer
+    # elif cnf <= 40: #no input proj
+    #     FLAGS.with_input_embedding = True#trec test: True 27839
+    # elif cnf <=50: #no output highway
+    #     FLAGS.with_input_embedding = False
+    #     FLAGS.with_output_highway = False
+    if cnf <=10: # no mathching layer
         FLAGS.with_output_highway = True
         FLAGS.with_matching_layer = False
-    elif cnf <= 30: #Lstm Proj
+    if cnf <= 20:
         FLAGS.with_matching_layer = True
-        #FLAGS.with_input_embedding = False
+        FLAGS.type1 = 'sub'
+    if cnf <= 30: #Lstm Proj
+        FLAGS.type1 = 'w_sub_mul'
         FLAGS.with_highway = False
-    if cnf > 30:
+    if cnf > 40:
         return False
     return True
 
@@ -436,7 +432,8 @@ def Get_Next_box_size (index):
                 # use box va ... ham raftan to baghali ha.
                 #fabl1- [100] [mul, sub, submul. 30]
                 #fabl2- [just word embeding]
-                #fabl3-
+                #fabl3- [no final highway]
+                #fabl4- [no mathching, sub, lstm]
 
     if  (index > FLAGS.end_batch):
         return False
