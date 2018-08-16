@@ -613,6 +613,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
         passage_aware_representatins.append(in_passage_repres)
         question_aware_dim = input_dim
         passage_aware_dim = input_dim
+        attention_weights = None
     else:
         with tf.variable_scope('context_MP_matching'):
             for i in range(context_layer_num): # support multiple context layer
