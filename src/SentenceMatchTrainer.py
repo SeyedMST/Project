@@ -372,7 +372,7 @@ def Generate_random_initialization(cnf):
     if cnf <= 30: #Lstm Proj
         FLAGS.type1 = 'w_sub_mul'
         FLAGS.with_highway = False
-    if cnf > 40:
+    if cnf > 30:
         return False
     return True
 
