@@ -352,27 +352,29 @@ def Generate_random_initialization(cnf):
         #         mp -= 10
         #     FLAGS.MP_dim = mp
         print (FLAGS)
-    # if cnf <= 10:
-    #     FLAGS.type1 = 'w_mul'
-    # elif cnf <= 20:
-    #     FLAGS.type1 = 'w_sub'
-    # elif cnf <= 30:
-    #     FLAGS.type1 = 'w_sub_mul'
-    # elif cnf <= 40: #no input proj
-    #     FLAGS.with_input_embedding = True#trec test: True 27839
-    # elif cnf <=50: #no output highway
-    #     FLAGS.with_input_embedding = False
-    #     FLAGS.with_output_highway = False
-    if cnf <=10: # no mathching layer
+    if cnf <= 10:
+        FLAGS.type1 = 'w_mul'
+    elif cnf <= 20:
+        FLAGS.type1 = 'w_sub'
+    elif cnf <= 30:
+        FLAGS.type1 = 'w_sub_mul'
+    elif cnf <=40:
+        FLAGS.type1 = 'sub'
+    elif cnf <= 50: #no input proj
+        FLAGS.type1 = 'w_sub_mul'
+        FLAGS.with_input_embedding = True#trec test: True 27839
+    elif cnf <=60: #no output highway
+        FLAGS.with_input_embedding = False
+        FLAGS.with_output_highway = False
+    elif cnf <=70: # no mathching layer
         FLAGS.with_output_highway = True
         FLAGS.with_matching_layer = False
-    if cnf <= 20:
+    elif cnf <= 80:
         FLAGS.with_matching_layer = True
-        FLAGS.type1 = 'sub'
-    if cnf <= 30: #Lstm Proj
-        FLAGS.type1 = 'w_sub_mul'
+    elif cnf <= 90: #Lstm Proj
         FLAGS.with_highway = False
-    if cnf > 30:
+
+    if cnf > 90:
         return False
     return True
 
@@ -434,6 +436,7 @@ def Get_Next_box_size (index):
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm]
+                #finable [hame baraie wiki]
 
     if  (index > FLAGS.end_batch):
         return False
@@ -884,7 +887,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
 
 
 
