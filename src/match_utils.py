@@ -647,15 +647,6 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                                                 context_lstm_cell_fw, context_lstm_cell_bw, in_passage_repres, dtype=tf.float32,
                                                 sequence_length=passage_lengths) # [batch_size, passage_len, context_lstm_dim]
                             in_passage_repres = tf.concat([passage_context_representation_fw, passage_context_representation_bw], 2)
-                        if i == 0:
-                            with tf.variable_scope ("context_self"):
-                                passage_self_att = self_attention(passage_context_representation_fw=passage_context_representation_fw,
-                                           pasage_context_representation_bw=passage_context_representation_bw,
-                                           mask=mask, input_dim=context_lstm_dim * 2)
-                                tf.get_variable_scope().reuse_variables()
-                                question_self_att = self_attention(passage_context_representation_fw=question_context_representation_fw,
-                                       pasage_context_representation_bw=question_context_representation_bw,
-                                       mask=question_mask, input_dim=context_lstm_dim * 2)
                     else:
                         passage_context_representation_fw = in_passage_repres
                         passage_context_representation_bw = None
