@@ -884,7 +884,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
 
 
 
