@@ -288,7 +288,7 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     instances = []
     for i in range(len(question)):
         instances.append((question[i], answer[i], label[i], real_answer_length[i]))
-    random.shuffle(instances)  # random works inplace and returns None
+    #random.shuffle(instances)  # random works inplace and returns None
 
     #pos_count_list = sorted(pos_count_list, reverse=True)
     if is_training == True:

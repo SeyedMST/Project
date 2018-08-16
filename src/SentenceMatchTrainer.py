@@ -352,23 +352,27 @@ def Generate_random_initialization(cnf):
         #         mp -= 10
         #     FLAGS.MP_dim = mp
         print (FLAGS)
-    if cnf <=10: # no mathching layer
-        FLAGS.with_output_highway = True
-        FLAGS.with_matching_layer = False
-    elif cnf <= 20:
-        FLAGS.with_matching_layer = True
-        FLAGS.type1 = 'sub'
-    elif cnf <= 30: #Lstm Proj
-        FLAGS.type1 = 'w_sub_mul'
-        FLAGS.with_highway = False
-    if cnf > 30:
+    # if cnf <=10: # no mathching layer
+    #     FLAGS.with_output_highway = True
+    #     FLAGS.with_matching_layer = False
+    # elif cnf <= 20:
+    #     FLAGS.with_matching_layer = True
+    #     FLAGS.type1 = 'sub'
+    # elif cnf <= 30: #Lstm Proj
+    #     FLAGS.type1 = 'w_sub_mul'
+    #     FLAGS.with_highway = False
+    # if cnf > 30:
+    #     return False
+
+    FLAGS.with_input_embedding = True
+    if cnf == 2:
         return False
     return True
 
 
-    if cnf > 90:
-        return False
-    return True
+        # if cnf > 90:
+    #     return False
+    #return True
 
         #return True
 
@@ -427,8 +431,7 @@ def Get_Next_box_size (index):
                 #fabl1- [100] [mul, sub, submul. 30]
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
-                #fabl4- [no mathching, sub, lstm]
-                #finable [hame baraie wiki]
+                #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
 
     if  (index > FLAGS.end_batch):
         return False
@@ -614,8 +617,8 @@ def main(_):
         output_res_index = 1
 
         while Generate_random_initialization(output_res_index) == True:
-            namespace_utils.save_namespace(FLAGS, path_prefix + str (output_res_index) + ".config.json")
-            best_path = path_prefix +str (output_res_index) +  '.best.model'
+            namespace_utils.save_namespace(FLAGS, path_prefix + FLAGS.run_id + str (output_res_index) + ".config.json")
+            best_path = path_prefix + FLAGS.run_id + str (output_res_index) +  '.best.model'
 
             st_cuda = ''
             if FLAGS.is_server == True:
@@ -879,7 +882,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
 
 
 
