@@ -428,13 +428,14 @@ def Get_Next_box_size (index):
 				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s] trec
 				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
                             # 								bod trec
-                #epoch5- [,,,listmle]
+                #epoch5- [pointwise,,,listmle] trec wiki
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
                 #fabl1- [100] [mul, sub, submul. 30]
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
+
 
     if  (index > FLAGS.end_batch):
         return False
@@ -448,7 +449,7 @@ def Get_Next_box_size (index):
         # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.prediction_mode = 'point_wise'
         FLAGS.new_list_wise = True
         #FLAGS.topk = 30
     if index == 1:
