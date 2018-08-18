@@ -131,11 +131,6 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
 
 
 
-
-
-
-
-
 def show_weights(dataStream, valid_graph, sess, outpath=None,
              label_vocab=None, mode='trec', char_vocab=None, POS_vocab=None, NER_vocab=None, flag_valid=False,
              word_vocab=None
@@ -185,17 +180,18 @@ def show_weights(dataStream, valid_graph, sess, outpath=None,
             for j in range (len (att_scores)):
                 s1 = re.split('\\s+', sent1_batch[j])
                 s2 = re.split('\\s+', sent2_batch[j])
-                print (sent1_batch[j])
-                print (sent2_batch[j])
-                print (att_scores [j])
-                fig, ax = plt.subplots()
+                if label_id_batch [j] == 1:
+                    print (sent1_batch[j])
+                    print (sent2_batch[j])
+                    print (att_scores [j])
+                    fig, ax = plt.subplots()
 
-                im, cbar = heatmap(np.transpose(att_scores [j]), s1, s2, ax=ax,
-                                   cmap="YlGn", cbarlabel="attetnion score")
-                #texts = annotate_heatmap(im, valfmt="{x:.1f} t")
+                    im, cbar = heatmap(np.transpose(att_scores [j]), s1, s2, ax=ax,
+                                       cmap="YlGn", cbarlabel="attetnion score")
+                    #texts = annotate_heatmap(im, valfmt="{x:.1f} t")
 
-                fig.tight_layout()
-                plt.show()
+                    fig.tight_layout()
+                    plt.show()
 
 
 
@@ -210,7 +206,7 @@ if __name__ == '__main__':
                         help='word embedding file for the input file.')
     #parser.add_argument('--mode', type=str, default="prediction", help='prediction or probs')
     parser.add_argument('--is_trec', type=bool, default=False, help='prediction or probs')
-    parser.add_argument('--index', type=str, default='29', help='prediction or probs')
+    parser.add_argument('--index', type=str, default='we1-1', help='prediction or probs') #29 # 'we1-1'
 
 
 

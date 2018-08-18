@@ -19,13 +19,15 @@ import namespace_utils
 def sort_mle (label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
                                              sent1_char_length_batch, sent2_char_length_batch,
-                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch):
+                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch,
+              flag_shuffle = True):
     l = []
     for i in range(len(label_id_batch)):
         l.append((label_batch[i], sent1_batch[i], sent2_batch[i], label_id_batch[i], word_idx_1_batch[i], word_idx_2_batch[i],
                   sent1_length_batch[i], sent2_length_batch[i],
                                              overlap_batch[i]))
-    random.shuffle(l)
+    if flag_shuffle == True:
+        random.shuffle(l)
     l = sorted(l, key=lambda instance: (instance[3]), reverse=True)  # sort based on len (answer[i])
     label_batch = []
     sent1_batch = []
@@ -266,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4]#[4]
+        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [7]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -364,8 +366,8 @@ def Generate_random_initialization(cnf):
     # if cnf > 30:
     #     return False
 
-    FLAGS.with_input_embedding = True
-    if cnf == 2:
+    #FLAGS.with_input_embedding = True
+    if cnf == 20:
         return False
     return True
 
@@ -426,6 +428,7 @@ def Get_Next_box_size (index):
 				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s] trec
 				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
                             # 								bod trec
+                #epoch5- [,,,listmle]
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
                 #fabl1- [100] [mul, sub, submul. 30]
@@ -758,7 +761,8 @@ def main(_):
                                  POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch) = sort_mle(label_batch, sent1_batch, sent2_batch, label_id_batch, word_idx_1_batch, word_idx_2_batch,
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
                                              sent1_char_length_batch, sent2_char_length_batch,
-                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch)
+                                             POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch,
+                                                                                                        flag_shuffle=False)
 
                             _truth.append(label_id_batch)
                             _question_lengths.append(sent1_length_batch)
