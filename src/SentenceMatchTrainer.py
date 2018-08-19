@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4]#[4]
+        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [7]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -367,9 +367,32 @@ def Generate_random_initialization(cnf):
     #     return False
 
     #FLAGS.with_input_embedding = True
-    if cnf == 100:
+
+    FLAGS.test_train = True
+    if cnf <= 3:
+        FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = True
+    elif cnf <= 6:
+        FLAGS.new_list_wise = False
+    elif cnf <= 9:
+        FLAGS.prediction_mode = 'real_list_net'
+    elif cnf <= 12:
+        FLAGS.prediction_mode = 'point_wise'
+    elif cnf <= 15:
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.flag_shuffle = False
+    elif cnf <= 18:
+        FLAGS.flag_shuffle = True
+    else:
         return False
     return True
+
+    # if cnf == 100:
+    #     return False
+    # return True
+
+
 
 
         # if cnf > 90:
@@ -428,14 +451,15 @@ def Get_Next_box_size (index):
 				#epoch2- [,list_net(0-1),real_list_net, list_mle(pl) (ep = 10, lr= 0.001) [,s] trec
 				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
                             # 								bod trec
-                #epoch5- [pointwise,,,listmle] trec wiki
+				
+                #epoch5- [pointwise,,,listmle] trec wiki	#epoch55-[pointwise] wiki
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
                 #fabl1- [100] [mul, sub, submul. 30]
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
-
+    FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
         return False
@@ -763,7 +787,7 @@ def main(_):
                                              char_matrix_idx_1_batch, char_matrix_idx_2_batch, sent1_length_batch, sent2_length_batch,
                                              sent1_char_length_batch, sent2_char_length_batch,
                                              POS_idx_1_batch, POS_idx_2_batch, NER_idx_1_batch, NER_idx_2_batch, overlap_batch,
-                                                                                                        flag_shuffle=False)
+                                                                                                        flag_shuffle=FLAGS.flag_shuffle)
 
                             _truth.append(label_id_batch)
                             _question_lengths.append(sent1_length_batch)
