@@ -368,7 +368,6 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    FLAGS.test_train = True
     if cnf <= 3:
         FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
@@ -459,6 +458,7 @@ def Get_Next_box_size (index):
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
+                #train1-
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -466,7 +466,11 @@ def Get_Next_box_size (index):
     FLAGS.sampling = False
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
-    FLAGS.test_train = False
+
+
+
+    FLAGS.test_train = True
+
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         # FLAGS.pos_avg = True
