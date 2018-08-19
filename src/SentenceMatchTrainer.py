@@ -367,7 +367,7 @@ def Generate_random_initialization(cnf):
     #     return False
 
     #FLAGS.with_input_embedding = True
-    if cnf == 20:
+    if cnf == 100:
         return False
     return True
 
