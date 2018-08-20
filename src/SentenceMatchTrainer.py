@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [7]#[4]
+        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -378,13 +378,13 @@ def Generate_random_initialization(cnf):
     #     FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
     #     FLAGS.prediction_mode = 'point_wise'
-    if cnf <= 3:
-        FLAGS.prediction_mode = 'list_mle'
-        FLAGS.flag_shuffle = False
-    elif cnf <= 6:
-        FLAGS.flag_shuffle = True
-    else:
-        return False
+    # if cnf <= 3:
+    #     FLAGS.prediction_mode = 'list_mle'
+    #     FLAGS.flag_shuffle = False
+    # elif cnf <= 6:
+    #     FLAGS.flag_shuffle = True
+    # else:
+    #     return False
     return True
 
     # if cnf == 100:
@@ -451,14 +451,16 @@ def Get_Next_box_size (index):
 				#epoch3- [,lis_net(0-1)] // [,d] # baraie inke bebinam ro dbrg kolan kharabe ia epoch1-1 eshtebah
                             # 								bod trec
 				
-                #epoch5- [pointwise,,,listmle] trec wiki	#epoch55-[pointwise] wiki
                 #mle4- [poset,,,mle] #code mle tamiz tar shod ghabli ham dorost bod.
                 # use box va ... ham raftan to baghali ha.
                 #fabl1- [100] [mul, sub, submul. 30]
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
-                #train1-
+                # epoch5- [pointwise,,,listmle] trec wiki(20 runs)	#epoch55-[pointwise] wiki (100 runs)
+
+                #train1- [poset, zero, listnet, pointwise] 1-3,4-6,7-9,10-12
+                #last_run1- [poset, zero]
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -469,7 +471,7 @@ def Get_Next_box_size (index):
 
 
 
-    FLAGS.test_train = True
+    FLAGS.test_train = False
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -477,7 +479,7 @@ def Get_Next_box_size (index):
         # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'point_wise'
+        FLAGS.prediction_mode = 'list_wise'
         FLAGS.new_list_wise = True
         #FLAGS.topk = 30
     if index == 1:
