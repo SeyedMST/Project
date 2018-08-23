@@ -368,22 +368,22 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    # if cnf <= 3:
-    #     FLAGS.pos_avg = True
-    #     FLAGS.prediction_mode = 'list_wise'
-    #     FLAGS.new_list_wise = True
-    # elif cnf <= 6:
-    #     FLAGS.new_list_wise = False
-    # elif cnf <= 9:
-    #     FLAGS.prediction_mode = 'real_list_net'
+    if cnf <= 5:
+        FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = True
+    elif cnf <= 10:
+        FLAGS.new_list_wise = False
+    elif cnf <= 15:
+        FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
     #     FLAGS.prediction_mode = 'point_wise'
     #
-    if cnf <= 3:
-        FLAGS.prediction_mode = 'list_mle'
-        FLAGS.flag_shuffle = False
-    elif cnf <= 6:
-        FLAGS.flag_shuffle = True
+    # if cnf <= 3:
+    #     FLAGS.prediction_mode = 'list_mle'
+    #     FLAGS.flag_shuffle = False
+    # elif cnf <= 6:
+    #     FLAGS.flag_shuffle = True
     else:
         return False
     return True
@@ -464,6 +464,7 @@ def Get_Next_box_size (index):
                 #train2- [mle, pl]
                 #last_run1- [poset, zero]
                 #
+                # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
