@@ -368,23 +368,24 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    # if cnf <= 3:
-    #     FLAGS.pos_avg = True
-    #     FLAGS.prediction_mode = 'list_wise'
-    #     FLAGS.new_list_wise = True
-    # elif cnf <= 6:
-    #     FLAGS.new_list_wise = False
-    # elif cnf <= 9:
-    #     FLAGS.prediction_mode = 'real_list_net'
-    # elif cnf <= 12:
-    #     FLAGS.prediction_mode = 'point_wise'
+    if cnf <= 3:
+        FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = True
+    elif cnf <= 6:
+        FLAGS.new_list_wise = False
+    elif cnf <= 9:
+        FLAGS.prediction_mode = 'real_list_net'
+    elif cnf <= 12:
+        FLAGS.prediction_mode = 'point_wise'
+    #
     # if cnf <= 3:
     #     FLAGS.prediction_mode = 'list_mle'
     #     FLAGS.flag_shuffle = False
     # elif cnf <= 6:
     #     FLAGS.flag_shuffle = True
-    # else:
-    #     return False
+    else:
+        return False
     return True
 
     # if cnf == 100:
@@ -460,7 +461,9 @@ def Get_Next_box_size (index):
                 # epoch5- [pointwise,,,listmle] trec wiki(20 runs)	#epoch55-[pointwise] wiki (100 runs)
 
                 #train1- [poset, zero, listnet, pointwise] 1-3,4-6,7-9,10-12
+                #train2- [mle, pl]
                 #last_run1- [poset, zero]
+                #
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -471,7 +474,7 @@ def Get_Next_box_size (index):
 
 
 
-    FLAGS.test_train = False
+    FLAGS.test_train = True
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -894,6 +897,8 @@ def main(_):
 
 
 if __name__ == '__main__':
+
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--is_trec',default=False, help='is trec or wiki?')

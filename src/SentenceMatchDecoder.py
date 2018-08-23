@@ -198,6 +198,45 @@ def show_weights(dataStream, valid_graph, sess, outpath=None,
 
 
 if __name__ == '__main__':
+
+
+
+    epoch = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # map_listnet =[0.730, 0.740, 0.780, 0.784, 0.797, 0.802, 0.818, 0.812, 0.821, 0.819]
+    # map_listmle =[0.704, 0.721, 0.757, 0.664, 0.633, 0.660, 0.622, 0.648, 0.616, 0.630]
+    # map_zero = [0.740, 0.751, 0.792, 0.795, 0.801, 0.817, 0.824, 0.842, 0.855, 0.840]
+    # map_lambmle = [0.742, 0.775, 0.801, 0.819, 0.826, 0.827, 0.839, 0.859, 0.848, 0.846]
+    # map_listpl = [0.644, 0.696, 0.711, 0.698, 0.755, 0.763, 0.776, 0.776, 0.798, 0.793]
+
+    #train:
+    # map_lambmle = [0.816, 0.861, 0.882, 0.893, 0.914, 0.922, 0.933, 0.946, 0.954, 0.965]
+    # map_zero = [0.812, 0.849, 0.866, 0.875, 0.889, 0.904, 0.907, 0.923, 0.932, 0.935]
+    # map_listnet = [0.76, 0.821, 0.849, 0.849, 0.885, 0.894, 0.901, 0.914, 0.921, 0.926]
+    # map_pointwise = [0.776, 0.802, 0.827, 0.844, 0.857, 0.867, 0.875, 0.891, 0.897, 0.905]
+    # map_listmle = [0.634, 0.632, 0.631, 0.585, 0.582, 0.595, 0.559, 0.567, 0.538, 0.59]
+    # map_listpl = [0.686, 0.75, 0.782, 0.789, 0.815, 0.823, 0.831, 0.84, 0.848, 0.848]
+
+    #[0.809, 0.828, 0.834, 0.84, 0.84, 0.841, 0.838, 0.837, 0.835, 0.834]
+
+    [0.762, 0.786, 0.802, 0.81, 0.816, 0.821, 0.821, 0.821, 0.821, 0.822, 0.821, 0.82, 0.821, 0.815, 0.814]
+
+    #[0.807, 0.827, 0.834, 0.836, 0.812, 0.815, 0.808, 0.816, 0.81, 0.806]
+    [0.753, 0.785, 0.803, 0.808, 0.789, 0.793, 0.799, 0.799, 0.803, 0.805]
+
+    #[0.785, 0.8, 0.806, 0.807, 0.809, 0.802, 0.803, 0.798, 0.798, 0.795]
+    [0.733, 0.759, 0.777, 0.788, 0.794, 0.793, 0.793, 0.791, 0.793, 0.794]
+
+    plt.plot (epoch, map_lambmle, label = 'LambMLE', marker = 's', color = 'r', linestyle='-')
+    plt.plot (epoch, map_zero, label = 'ZeroListNet', marker = 's', color = 'b', linestyle='-')
+    plt.plot (epoch, map_listnet, label = 'ListNet', marker = 's', color = 'g', linestyle='-')
+    plt.plot (epoch, map_listpl, label = 'ListPL', marker = 's', color = 'm', linestyle='-')
+    plt.plot (epoch, map_listmle, label = 'ListMLE', marker = 's', color = 'y', linestyle='-')
+
+    plt.xlabel('epoch')
+    plt.ylabel('MAP')
+    plt.legend()
+    plt.show()
+
     parser = argparse.ArgumentParser()
     #parser.add_argument('--model_prefix', type=str, required=True, help='Prefix to the models.')
     parser.add_argument('--in_path', type=str, default= "../in_path.txt", help='the path to the test file.')
@@ -207,6 +246,7 @@ if __name__ == '__main__':
     #parser.add_argument('--mode', type=str, default="prediction", help='prediction or probs')
     parser.add_argument('--is_trec', type=bool, default=False, help='prediction or probs')
     parser.add_argument('--index', type=str, default='we1-1', help='prediction or probs') #29 # 'we1-1'
+
 
 
 
@@ -223,7 +263,7 @@ if __name__ == '__main__':
     word_vec_path = args.word_vec_path
     out_json_path = None
     dump_prob_path = None
-    
+
     # load the configuration file
     print('Loading configurations.')
     FLAGS = namespace_utils.load_namespace(path_prefix + args.index+ ".config.json")
@@ -262,7 +302,7 @@ if __name__ == '__main__':
     print('word_vocab: {}'.format(word_vocab.word_vecs.shape))
     print('label_vocab: {}'.format(label_vocab.word_vecs.shape))
     num_classes = label_vocab.size()
-    
+
     POS_vocab = None
     NER_vocab = None
     char_vocab = None
@@ -270,7 +310,7 @@ if __name__ == '__main__':
     # if with_NER: NER_vocab = Vocab(model_prefix + ".NER_vocab", fileformat='txt2')
     char_vocab = Vocab(path_prefix + ".char_vocab", fileformat='txt2')
     #print('char_vocab: {}'.format(char_vocab.word_vecs.shape))
-    
+
     print('Build SentenceMatchDataStream ... ')
     testDataStream = SentenceMatchTrainer.SentenceMatchDataStream(in_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
@@ -341,7 +381,7 @@ if __name__ == '__main__':
             if not var.name.startswith("Model"): continue
             vars_[var.name.split(":")[0]] = var
         saver = tf.train.Saver(vars_)
-                
+
         sess = tf.Session()
         sess.run(tf.global_variables_initializer())
         step = 0
