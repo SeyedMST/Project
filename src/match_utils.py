@@ -802,7 +802,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
             my_scope = 'left_cnn_agg'
             my_reuse = True
             with tf.variable_scope ('left_cnn_agg'):
-                conv_out, agg_dim = conv_aggregate(pa_aggregation_input, aggregation_lstm_dim, MP_dim, sim_len,is_training,dropout_rate
+                conv_out, agg_dim = conv_aggregate(pa_aggregation_input, aggregation_lstm_dim, matching_dim, sim_len,is_training,dropout_rate
                                                ,max_window_size, context_layer_num,unstack_cnn)
                 aggregation_representation.append(conv_out)
                 aggregation_dim += agg_dim
@@ -810,7 +810,7 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                 my_scope = 'right_cnn_agg'
                 my_reuse = False
             with tf.variable_scope(my_scope, reuse=my_reuse):
-                conv_out, agg_dim = conv_aggregate(qa_aggregation_input, aggregation_lstm_dim, MP_dim, sim_len, is_training, dropout_rate
+                conv_out, agg_dim = conv_aggregate(qa_aggregation_input, aggregation_lstm_dim, matching_dim, sim_len, is_training, dropout_rate
                                                    ,max_window_size, context_layer_num,unstack_cnn)
                 aggregation_representation.append(conv_out)
                 aggregation_dim += agg_dim

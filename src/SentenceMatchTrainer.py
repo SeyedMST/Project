@@ -473,12 +473,12 @@ def Get_Next_box_size (index):
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
                 # epoch5- [pointwise,,,listmle] trec wiki(20 runs)	#epoch55-[pointwise] wiki (100 runs)
 
-                #train1- [poset, zero, listnet, pointwise] 1-3,4-6,7-9,10-12
-                #train2- [mle, pl]
+                #train1- [poset, zero, listnet, pointwise] 1-3,4-6,7-9,10-12 wiki trec
+                #train2- [mle, pl] wiki trec
                 #last_run1- [poset, zero]
                 #
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
-                #my_abl1 []
+                #my_abl1 [cnn, bilinear, lstm]
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
