@@ -580,7 +580,7 @@ def match_passage_with_question(passage_context_representation_fw, passage_conte
                                          num_call, with_bilinear_att, with_match_highway
                                          , overlap, question_mask,clip_attention)
         all_question_aware_representatins.append(outputs)
-        if type1 is not None: dim += MP_dim
+        if type1 is not None: dim += MP_dim + MP_dim//2
         if type2 is not None: dim += MP_dim
         if type3 is not None: dim += MP_dim
         dim += 5 #overlap
@@ -863,7 +863,7 @@ def conv_pooling (passage_rep, window_size, mp_dim, filter_count, scope):
 
 
 def conv_aggregate(qa_aggregation_input, aggregation_lstm_dim, mp_dim, sim_len, is_training, dropout_rate, max_window_size
-                   , c_lstm_layer, unstack_cnn = True):
+                   , c_lstm_layer, unstack_cnn = False):
     qa_shape = tf.shape(qa_aggregation_input)  # [bs, M, MP*sim_len]
     batch_size = qa_shape[0]
     passage_length = qa_shape[1]

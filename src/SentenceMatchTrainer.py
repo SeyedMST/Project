@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [7]#[4]
+        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -368,14 +368,27 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 5:
-        FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
-    elif cnf <= 10:
-        FLAGS.new_list_wise = False
-    elif cnf <= 15:
-        FLAGS.prediction_mode = 'real_list_net'
+    if cnf <= 10:
+        FLAGS.max_window_size = 3
+        FLAGS.aggregation_lstm_dim = 150
+        FLAGS.is_aggregation_lstm = False
+    elif cnf <= 20:
+        FLAGS.is_aggregation_lstm = True
+        FLAGS.aggregation_lstm_dim = 70
+        FLAGS.attention_type = 'bilinear'
+    elif cnf <= 30:
+        FLAGS.is_aggregation_lstm = True
+        FLAGS.aggregation_lstm_dim = 70
+        FLAGS.with_highway = False
+        FLAGS.context_lstm_dim = 75
+    # if cnf <= 5:
+    #     FLAGS.pos_avg = True
+    #     FLAGS.prediction_mode = 'list_wise'
+    #     FLAGS.new_list_wise = True
+    # elif cnf <= 10:
+    #     FLAGS.new_list_wise = False
+    # elif cnf <= 15:
+    #     FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
     #     FLAGS.prediction_mode = 'point_wise'
     #
@@ -465,6 +478,7 @@ def Get_Next_box_size (index):
                 #last_run1- [poset, zero]
                 #
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
+                #my_abl1 []
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -475,7 +489,7 @@ def Get_Next_box_size (index):
 
 
 
-    FLAGS.test_train = True
+    FLAGS.test_train = False
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
