@@ -368,27 +368,27 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 10:
-        FLAGS.max_window_size = 3
-        FLAGS.aggregation_lstm_dim = 150
-        FLAGS.is_aggregation_lstm = False
-    elif cnf <= 20:
-        FLAGS.is_aggregation_lstm = True
-        FLAGS.aggregation_lstm_dim = 70
-        FLAGS.attention_type = 'bilinear'
-    elif cnf <= 30:
-        FLAGS.is_aggregation_lstm = True
-        FLAGS.aggregation_lstm_dim = 70
-        FLAGS.with_highway = False
-        FLAGS.context_lstm_dim = 75
-    # if cnf <= 5:
-    #     FLAGS.pos_avg = True
-    #     FLAGS.prediction_mode = 'list_wise'
-    #     FLAGS.new_list_wise = True
-    # elif cnf <= 10:
-    #     FLAGS.new_list_wise = False
-    # elif cnf <= 15:
-    #     FLAGS.prediction_mode = 'real_list_net'
+    # if cnf <= 10:
+    #     FLAGS.max_window_size = 3
+    #     FLAGS.aggregation_lstm_dim = 150
+    #     FLAGS.is_aggregation_lstm = False
+    # elif cnf <= 20:
+    #     FLAGS.is_aggregation_lstm = True
+    #     FLAGS.aggregation_lstm_dim = 70
+    #     FLAGS.attention_type = 'bilinear'
+    # elif cnf <= 30:
+    #     FLAGS.is_aggregation_lstm = True
+    #     FLAGS.aggregation_lstm_dim = 70
+    #     FLAGS.with_highway = False
+    #     FLAGS.context_lstm_dim = 75
+    if cnf <= 5:
+        FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_wise'
+        FLAGS.new_list_wise = True
+    elif cnf <= 10:
+        FLAGS.new_list_wise = False
+    elif cnf <= 15:
+        FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
     #     FLAGS.prediction_mode = 'point_wise'
     #
@@ -479,6 +479,7 @@ def Get_Next_box_size (index):
                 #
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
                 #my_abl1 [cnn, bilinear, lstm]
+                # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -489,7 +490,7 @@ def Get_Next_box_size (index):
 
 
 
-    FLAGS.test_train = False
+    FLAGS.test_train = True
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -617,10 +618,13 @@ def main(_):
         num_classes = 2# label_vocab.size()
 
         print('Build SentenceMatchDataStream ... ')
+        isShuffle = True
+        if FLAGS.test_train == True:
+            isShuffle = False
 
         trainDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
-                                                  batch_size=FLAGS.batch_size, isShuffle=True, isLoop=True, isSort=True,
+                                                  batch_size=FLAGS.batch_size, isShuffle=isShuffle, isLoop=True, isSort=True,
                                                   max_char_per_word=FLAGS.max_char_per_word, max_sent_length=FLAGS.max_sent_length,
                                                   is_as=FLAGS.is_answer_selection, is_word_overlap=FLAGS.word_overlap,
                                                   is_lemma_overlap= FLAGS.lemma_overlap,
