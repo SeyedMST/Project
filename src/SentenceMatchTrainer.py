@@ -389,14 +389,13 @@ def Generate_random_initialization(cnf):
         FLAGS.new_list_wise = False
     elif cnf <= 15:
         FLAGS.prediction_mode = 'real_list_net'
-    # elif cnf <= 12:
-    #     FLAGS.prediction_mode = 'point_wise'
-    #
-    # if cnf <= 3:
-    #     FLAGS.prediction_mode = 'list_mle'
-    #     FLAGS.flag_shuffle = False
-    # elif cnf <= 6:
-    #     FLAGS.flag_shuffle = True
+    elif cnf <= 18:
+        FLAGS.prediction_mode = 'point_wise'
+    elif cnf <= 21:
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.flag_shuffle = False
+    elif cnf <= 24:
+        FLAGS.flag_shuffle = True
     else:
         return False
     return True
