@@ -381,20 +381,20 @@ def Generate_random_initialization(cnf):
     #     FLAGS.aggregation_lstm_dim = 70
     #     FLAGS.with_highway = False
     #     FLAGS.context_lstm_dim = 75
-    if cnf <= 5:
+    if cnf <= 3:
         FLAGS.pos_avg = True
         FLAGS.prediction_mode = 'list_wise'
         FLAGS.new_list_wise = True
-    elif cnf <= 10:
+    elif cnf <= 6:
         FLAGS.new_list_wise = False
-    elif cnf <= 15:
+    elif cnf <= 9:
         FLAGS.prediction_mode = 'real_list_net'
-    elif cnf <= 18:
+    elif cnf <= 12:
         FLAGS.prediction_mode = 'point_wise'
-    elif cnf <= 21:
+    elif cnf <= 15:
         FLAGS.prediction_mode = 'list_mle'
         FLAGS.flag_shuffle = False
-    elif cnf <= 24:
+    elif cnf <= 18:
         FLAGS.flag_shuffle = True
     else:
         return False
