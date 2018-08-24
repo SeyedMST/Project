@@ -458,7 +458,7 @@ class SentenceMatchDataStream(object):
                  is_word_overlap = True, is_lemma_overlap = True,
                  min_answer_size = 0, max_answer_size = 20000, add_neg_sample_count = False, neg_sample_count = 50,
                  use_top_negs = False, train_from_path = True, use_box = False,
-                 sample_neg_from_question = False, equal_box_per_batch = False):
+                 sample_neg_from_question = False, equal_box_per_batch = False, is_training = False):
         instances = []
         batch_spans = []
         self.batch_as_len = []
@@ -467,7 +467,7 @@ class SentenceMatchDataStream(object):
         self.real_candidate_answer_length = []
         if (is_as == True):
             instances, r, self.candidate_answer_length, real_answer_length = wikiQaGenerate(inpath,label_vocab, word_vocab, char_vocab, max_sent_length, batch_size,
-                                          is_training=isShuffle, min_answer_size=min_answer_size,
+                                          is_training=is_training, min_answer_size=min_answer_size,
                                                                         max_answer_size = max_answer_size,
                                                                         add_neg_sample_count=add_neg_sample_count
                                                                         , neg_sample_count = neg_sample_count,
@@ -477,7 +477,7 @@ class SentenceMatchDataStream(object):
                                                                         equal_box_per_batch = equal_box_per_batch)
 
 
-            if isShuffle == True:
+            if is_training == True:
                 batch_spans = r[0]
                 self.batch_question_count = r[1]
                 self.batch_as_len = r[2]

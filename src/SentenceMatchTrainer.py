@@ -631,7 +631,7 @@ def main(_):
                                                   use_box = FLAGS.use_box,
                                                   sample_neg_from_question = FLAGS.nsfq,
                                                   equal_box_per_batch = FLAGS.equal_box_per_batch,
-                                                  ) # box is just used for training
+                                                  is_training = True) # box is just used for training
 
 
         train_testDataStream = SentenceMatchDataStream(train_path, word_vocab=word_vocab, char_vocab=char_vocab,
