@@ -190,7 +190,6 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     if 'trec' in filename:
         is_trec = True
 
-
     data = open (filename, 'r')
     question_dic = {}
     negative_answers = []
@@ -254,9 +253,20 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     #pos_count_list = []
 
     biger_than_max = 0
+    q_type = {}
+    q_type_pos = {}
+    q_type_len = {}
     for item in question_dic.values():
+
         good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
         good_length = len(good_answer)
+        first_word = item ["question"][0].split()[0]
+        q_type.setdefault(first_word,0)
+        q_type_pos.setdefault(first_word, 0)
+        q_type_len.setdefault(first_word, 0)
+        q_type [first_word] += 1
+        q_type_pos [first_word] += good_length
+        q_type_len[first_word] += len (item["question"])
         #pos_count_list.append(good_length)
         bad_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 0]
         pos_neg_pair_count += good_length * len (bad_answer)
@@ -271,6 +281,9 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         pairs_count += len(temp_answer)
 
 
+    print (q_type)
+    print(q_type_pos)
+    print (q_type_len)
 
     print ("total_pair_count ",total_pair_count , " pos_neg_pair_count ", pos_neg_pair_count,
            'biger_than_max', biger_than_max)
@@ -350,7 +363,6 @@ def make_idx (label_vocab, label, word_vocab, sentence1, sentence2, char_vocab, 
         word_idx_2 = word_idx_2[:max_sent_length]
         char_matrix_idx_2 = char_matrix_idx_2[:max_sent_length]
     return (label_id, word_idx_1, word_idx_2, char_matrix_idx_1, char_matrix_idx_2)
-
 
 # import nltk.corpus
 # import nltk.tokenize.punkt
@@ -447,8 +459,6 @@ def mask_real_answer_length(real_answer_length, start, end, answer_count):
         for j in range(l[i]):
             mask [i][j] = 1.0
     return mask
-
-
 
 
 

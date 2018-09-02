@@ -816,10 +816,10 @@ def bilateral_match_func2(in_question_repres, in_passage_repres,
                 aggregation_dim += agg_dim
     #
 
-    if with_context_self_attention == True:
-        aggregation_representation.append(tf.subtract(question_self_att , passage_self_att))
-        aggregation_representation.append(tf.multiply(question_self_att , passage_self_att))
-        aggregation_dim += 4*context_lstm_dim
+    # if with_context_self_attention == True:
+    #     aggregation_representation.append(tf.subtract(question_self_att , passage_self_att))
+    #     aggregation_representation.append(tf.multiply(question_self_att , passage_self_att))
+    #     aggregation_dim += 4*context_lstm_dim
     aggregation_representation = tf.concat(aggregation_representation, 1) # [batch_size, aggregation_dim]
 
     # ======Highway layer======

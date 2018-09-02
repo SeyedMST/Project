@@ -368,41 +368,51 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    # if cnf <= 10:
-    #     FLAGS.max_window_size = 3
-    #     FLAGS.aggregation_lstm_dim = 150
-    #     FLAGS.is_aggregation_lstm = False
-    # elif cnf <= 20:
-    #     FLAGS.is_aggregation_lstm = True
-    #     FLAGS.aggregation_lstm_dim = 70
-    #     FLAGS.attention_type = 'bilinear'
-    # elif cnf <= 30:
-    #     FLAGS.is_aggregation_lstm = True
-    #     FLAGS.aggregation_lstm_dim = 70
-    #     FLAGS.with_highway = False
-    #     FLAGS.context_lstm_dim = 75
-    if cnf <= 3:
-        FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
-    elif cnf <= 6:
-        FLAGS.new_list_wise = False
-    elif cnf <= 9:
-        FLAGS.prediction_mode = 'real_list_net'
-    elif cnf <= 12:
-        FLAGS.prediction_mode = 'point_wise'
+    if cnf <= 5:
+        FLAGS.max_window_size = 5
+        FLAGS.aggregation_lstm_dim = 100
+        FLAGS.is_aggregation_lstm = False
+    elif cnf <= 10:
+        FLAGS.is_aggregation_lstm = True
+        FLAGS.aggregation_lstm_dim = 70
+        FLAGS.attention_type = 'bilinear'
     elif cnf <= 15:
-        FLAGS.prediction_mode = 'list_mle'
-        FLAGS.flag_shuffle = False
-    elif cnf <= 18:
-        FLAGS.flag_shuffle = True
+        FLAGS.is_aggregation_lstm = True
+        FLAGS.aggregation_lstm_dim = 70
+        FLAGS.with_highway = False
+        FLAGS.context_lstm_dim = 150
+        FLAGS.attention_type = 'dot_product'
+    elif cnf <=20:
+        FLAGS.with_highway = True
     else:
         return False
+
+    # if cnf <= 3:
+    #     FLAGS.pos_avg = True
+    #     FLAGS.prediction_mode = 'list_wise'
+    #     FLAGS.new_list_wise = True
+    # elif cnf <= 6:
+    #     FLAGS.new_list_wise = False
+    # elif cnf <= 9:
+    #     FLAGS.prediction_mode = 'real_list_net'
+    # elif cnf <= 12:
+    #     FLAGS.prediction_mode = 'point_wise'
+    # elif cnf <= 15:
+    #     FLAGS.prediction_mode = 'list_mle'
+    #     FLAGS.flag_shuffle = False
+    # elif cnf <= 18:
+    #     FLAGS.flag_shuffle = True
+    # else:
+    #     return False
     return True
 
     # if cnf == 100:
     #     return False
     # return True
+
+
+
+
 
 
 
@@ -479,6 +489,7 @@ def Get_Next_box_size (index):
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
                 #my_abl1 [cnn, bilinear, lstm]
                 # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
+                # tt3- [] 1-3, 4-6, ...
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -489,7 +500,7 @@ def Get_Next_box_size (index):
 
 
 
-    FLAGS.test_train = True
+    FLAGS.test_train = False
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -919,7 +930,7 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
@@ -940,7 +951,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_model_neg_sample',default=False, type= bool, help='do we have cuda visible devices?')
     parser.add_argument('--neg_sample_count',default=100, type= int, help='do we have cuda visible devices?')
-    parser.add_argument('--store_best',default=True, type = bool, help='do we have cuda visible devices?')
+    parser.add_argument('--store_best',default=False, type = bool, help='do we have cuda visible devices?')
 
 
 

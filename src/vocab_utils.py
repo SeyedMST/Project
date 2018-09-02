@@ -633,7 +633,7 @@ if __name__ == '__main__':
 
     out_path1 = '../data/glove/my_glove.6B.50d.txt'
     out_path2 = '../data/glove/my_glove.840B.300d.txt'
-    make_data_glove(vec_path1, sentence_path_list, out_path1)
+   # make_data_glove(vec_path1, sentence_path_list, out_path1)
     make_data_glove(vec_path2, sentence_path_list, out_path2)
     '''# load word vectors
     print('Loading word vectors ... ', end='')
