@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [7]#[4]
+        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -368,24 +368,6 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 5:
-        FLAGS.max_window_size = 5
-        FLAGS.aggregation_lstm_dim = 100
-        FLAGS.is_aggregation_lstm = False
-    elif cnf <= 10:
-        FLAGS.is_aggregation_lstm = True
-        FLAGS.aggregation_lstm_dim = 70
-        FLAGS.attention_type = 'bilinear'
-    elif cnf <= 15:
-        FLAGS.is_aggregation_lstm = True
-        FLAGS.aggregation_lstm_dim = 70
-        FLAGS.with_highway = False
-        FLAGS.context_lstm_dim = 150
-        FLAGS.attention_type = 'dot_product'
-    elif cnf <=20:
-        FLAGS.with_highway = True
-    else:
-        return False
     # if cnf <= 3:
     #     FLAGS.pos_avg = True
     #     FLAGS.prediction_mode = 'list_wise'
@@ -860,9 +842,9 @@ def main(_):
 
                         _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                         total_loss += loss_value
-                        #if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
-                        #    print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
-                        #                               ,trainDataStream.answer_count(batch_index), loss_value))
+                        if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
+                            print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
+                                                       ,trainDataStream.answer_count(batch_index), loss_value))
 
                         if step % 50==0:
                             print('{} '.format(step), end="")
