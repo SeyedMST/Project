@@ -495,8 +495,8 @@ def Get_Next_box_size (index):
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
         FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = False
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.flag_shuffle = True
         #FLAGS.topk = 15
     if index == 2:
         #FLAGS.sampling = False
