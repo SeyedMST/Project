@@ -386,7 +386,6 @@ def Generate_random_initialization(cnf):
         FLAGS.with_highway = True
     else:
         return False
-
     # if cnf <= 3:
     #     FLAGS.pos_avg = True
     #     FLAGS.prediction_mode = 'list_wise'
@@ -464,7 +463,8 @@ def Get_Next_box_size (index):
     #az inja be bad listnet dorost shode
     #list = [100, 100, 100] #loss1- [point-wise, list_wise, list_wise] sadegh
     #az inja be bad sampling = False beshe
-    list = [100, 100, 100, 100, 100]  #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False wiki dbrg
+    list = [100, 100, 100, 100, 100]
+    #glove5- [(glove5-0)pos_avg = True, (glove51)kl, pos_avg=True] sampling = False wiki dbrg
                             #mle1- [poset, list_net(0-1), real_list_net, margine=1 neg, margin=1 pos] wiki [s,s,s,s,d]
                             #mle2- [poset, list_net(0-1), real_list_net] [s,s,d] trec
 				#mle3- [poset, list_net(0-1) [d,d]
@@ -480,7 +480,7 @@ def Get_Next_box_size (index):
                 #fabl2- [just word embeding]
                 #fabl3- [no final highway]
                 #fabl4- [no mathching, sub, lstm] store_best = False for wiki and trec
-                # epoch5- [pointwise,,,listmle] trec wiki(20 runs)	#epoch55-[pointwise] wiki (100 runs)
+                #epoch5- [pointwise,,,listmle] trec wiki(20 runs)	#epoch55-[pointwise] wiki (100 runs)
 
                 #train1- [poset, zero, listnet, pointwise] 1-3,4-6,7-9,10-12 wiki trec
                 #train2- [mle, pl] wiki trec
@@ -489,7 +489,7 @@ def Get_Next_box_size (index):
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
                 #my_abl1 [cnn, bilinear, lstm]
                 # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
-                # tt3- [] 1-3, 4-6, ...
+                # tt3- [] 1-3, 4-6, ... poset, zero , net, point, mle, pl
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -498,8 +498,6 @@ def Get_Next_box_size (index):
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
 
-
-
     FLAGS.test_train = False
 
     if index == 0:
@@ -507,9 +505,10 @@ def Get_Next_box_size (index):
         # FLAGS.pos_avg = True
         # FLAGS.prediction_mode = 'point_wise'
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
-        FLAGS.pos_avg = True
-        FLAGS.prediction_mode = 'list_wise'
-        FLAGS.new_list_wise = True
+        #FLAGS.pos_avg = True
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.flag_shuffle = False
+        #FLAGS.new_list_wise = True
         #FLAGS.topk = 30
     if index == 1:
         FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -926,11 +925,8 @@ def main(_):
 
 
 if __name__ == '__main__':
-
-
-
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:

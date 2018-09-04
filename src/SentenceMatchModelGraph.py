@@ -383,11 +383,14 @@ class SentenceMatchModelGraph(object):
                             #logits = tf.expand_dims(logits, 0)
                             neg_exp = tf.multiply(neg_mask, tf.exp(logits)) # [a, a] [logits : [1, a]]
                             pos_exp = tf.exp(logits) #[1, a]
-                            neg_exp_sum = tf.reduce_sum(neg_exp, 1, keep_dims=True) #[1,a]
-                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #[1,a]
+                            pos_exp = tf.reshape(pos_exp, [-1]) #[a]
+                            neg_exp_sum = tf.reduce_sum(neg_exp, 1) #[1,a] #[a, 1] #a
+                            print (neg_exp_sum)
+                            fi = tf.log(1 + tf.divide(neg_exp_sum, pos_exp)) #a
+                            print (fi)
 
                             #fi = tf.multiply(fi, pos_mask) #[a, a]
-                            fi = tf.multiply(fi, self.mask_topk[i]) #[1,a]
+                            #fi = tf.multiply(fi, self.mask_topk[i]) #[1,a]
                             fi = tf.reduce_sum(fi)
                             #loss_list.append(tf.divide(fi, tf.reduce_sum(self.mask[i])))
                             loss_list.append(fi)

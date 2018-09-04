@@ -256,10 +256,14 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
     q_type = {}
     q_type_pos = {}
     q_type_len = {}
+    good_len_list = []
+    good_len_max = 0
     for item in question_dic.values():
-
         good_answer = [item["answer"][i] for i in range(len(item["question"])) if item["label"][i] == 1]
         good_length = len(good_answer)
+        good_len_list.append(good_length)
+        if good_length > good_len_max:
+            good_len_max = good_length
         first_word = item ["question"][0].split()[0]
         q_type.setdefault(first_word,0)
         q_type_pos.setdefault(first_word, 0)
@@ -308,17 +312,23 @@ def wikiQaGenerate(filename, label_vocab, word_vocab, char_vocab, max_sent_lengt
         batches = make_batches_as(instances, batch_size, max_answer_size, is_training, equal_box_per_batch)
     else:
         batches = make_batches(pairs_count,batch_size)
-    show_plot = False
+    # show_plot = True
     # if show_plot == True:
-    #     sum_len = np.zeros((max_answer_size-1))
-    #     for x in instances:
-    #         sum_len [len (x[1])-2] += 1
-    #     x = np.arange(2, max_answer_size+1)
+    #     import matplotlib
+    #     import matplotlib.pyplot as plt
+    #     #sum_len = np.zeros((max_answer_size-1))
+    #     sum_len = np.zeros((good_len_max))
+    #     for x in good_len_list:
+    #         #sum_len [len (x[1])-2] += 1
+    #         sum_len[x - 1] += 1
+    #     #x = np.arange(2, max_answer_size+1)
+    #     print (list(sum_len))
+    #     x = np.arange(1, good_len_max + 1)
     #     fig, ax = plt.subplots()
     #     ax.plot(x, sum_len)
     #
-    #     ax.set(xlabel='time (s)', ylabel='voltage (mV)',
-    #            title='About as simple as it gets, folks')
+    #     ax.set(xlabel='Positives', ylabel='Question Count')
+    #           # ,title='About as simple as it gets, folks')
     #     ax.grid()
     #
     #     fig.savefig("test.png")

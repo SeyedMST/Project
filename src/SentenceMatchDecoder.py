@@ -203,6 +203,32 @@ def show_weights(dataStream, valid_graph, sess, outpath=None,
 if __name__ == '__main__':
 
     epoch = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    pos_trec = [352.0, 191.0, 130.0, 95.0, 60.0, 45.0, 32.0, 32.0, 33.0, 18.0, 20.0, 23.0, 13.0, 15.0, 10.0, 13.0, 4.0, 10.0, 9.0,
+     4.0, 6.0, 3.0, 5.0, 2.0, 6.0, 1.0, 4.0, 0.0, 1.0, 0.0, 1.0, 0.0, 3.0, 3.0, 2.0, 3.0, 1.0, 2.0, 0.0, 3.0, 1.0, 1.0,
+     1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+
+    pos_wiki = [734.0, 98.0, 20.0, 1.0, 1.0, 1.0, 2.0]
+
+    map_listpl = [4759762.387, 4751877.19, 4749028.117, 4742046.493, 4736566.713, 4731218.37, 4730733.15, 4725699.15, 4768785.58, 4567046.867]
+    map_listmle = [4754315.949, 4766392.034, 4697314.583, 4730979.343, 4691711.086, 4668025.715, 4680640.321, 4652065.742, 4652879.819, 4533239.929]
+
+    # epoch = []
+    # for i in range (len(pos_trec)):
+    #     epoch.append(i + 1)
+    # while len(pos_wiki) < len(pos_trec):
+    #     pos_wiki.append(0)
+    # plt.plot (epoch, pos_trec, label = 'QASent', marker = None, color = 'r', linestyle=None)
+    # plt.plot (epoch, pos_wiki, label = 'WikiQA', marker = None, color = 'b', linestyle='-.')
+    #
+    # plt.xlabel('Positive Answers Count')
+    # plt.ylabel('Question Count')
+    # plt.legend()
+    # plt.show()
+
+
+    #TREC:
+
     # map_listnet =[0.730, 0.740, 0.780, 0.784, 0.797, 0.802, 0.818, 0.812, 0.821, 0.819]
     # map_listmle =[0.704, 0.721, 0.757, 0.664, 0.633, 0.660, 0.622, 0.648, 0.616, 0.630]
     # map_zero = [0.740, 0.751, 0.792, 0.795, 0.801, 0.817, 0.824, 0.842, 0.855, 0.840]
@@ -225,17 +251,28 @@ if __name__ == '__main__':
     # map_listmle = [0.668, 0.682, 0.681, 0.69, 0.657, 0.619, 0.617, 0.614, 0.584, 0.587]
     #
     #
-    # plt.plot (epoch, map_lambmle, label = 'LambMLE', marker = 's', color = 'r', linestyle='-')
-    # plt.plot (epoch, map_zero, label = 'ZeroListNet', marker = 's', color = 'b', linestyle='-')
-    # plt.plot (epoch, map_listnet, label = 'ListNet', marker = 's', color = 'g', linestyle='-')
-    # plt.plot (epoch, map_pointwise, label = 'Pointwise', marker = 's', color = 'p', linestyle='-')
-    # plt.plot (epoch, map_listpl, label = 'ListPL', marker = 's', color = 'm', linestyle='-')
-    # plt.plot (epoch, map_listmle, label = 'ListMLE', marker = 's', color = 'y', linestyle='-')
+
+    #WIKI:
+    map_lambmle = [0.73, 0.794, 0.856, 0.907, 0.945, 0.963, 0.965, 0.979, 0.985, 0.986]
+                  #[0.729, 0.784, 0.851, 0.905, 0.949, 0.964, 0.966, 0.98, 0.988, 0.986]
+    map_zero = [0.720, 0.786, 0.855, 0.899, 0.932, 0.951, 0.967, 0.973, 0.981, 0.982]
+               #[0.735, 0.808, 0.863, 0.916, 0.942, 0.954, 0.974, 0.978, 0.984, 0.98]
+    map_listnet = [0.705, 0.756, 0.823, 0.878, 0.91, 0.936, 0.952, 0.966, 0.968, 0.978]
+    map_pointwise = [0.671, 0.715, 0.762, 0.813, 0.837, 0.866, 0.895, 0.921, 0.935, 0.944]
+    map_listpl = [0.587, 0.604, 0.62, 0.642, 0.673, 0.692, 0.699, 0.712, 0.728, 0.754]
+    map_listmle = [0.625, 0.63, 0.664, 0.651, 0.677, 0.681, 0.663, 0.687, 0.668, 0.698]
+
+    plt.plot (epoch, map_lambmle, label = 'LambMLE', marker = 's', color = 'r', linestyle='-')
+    plt.plot (epoch, map_zero, label = 'ZeroListNet', marker = 's', color = 'b', linestyle='-')
+    plt.plot (epoch, map_listnet, label = 'ListNet', marker = 's', color = 'g', linestyle='-')
+    #plt.plot (epoch, map_pointwise, label = 'Pointwise', marker = 's', color = 'p', linestyle='-')
+    plt.plot (epoch, map_listpl, label = 'ListPL', marker = 's', color = 'm', linestyle='-')
+    plt.plot (epoch, map_listmle, label = 'ListMLE', marker = 's', color = 'y', linestyle='-')
     #
-    # plt.xlabel('epoch')
-    # plt.ylabel('MAP')
-    # plt.legend()
-    # plt.show()
+    plt.xlabel('epoch')
+    plt.ylabel('MAP')
+    plt.legend()
+    plt.show()
 
     parser = argparse.ArgumentParser()
     #parser.add_argument('--model_prefix', type=str, required=True, help='Prefix to the models.')
@@ -312,9 +349,17 @@ if __name__ == '__main__':
     #print('char_vocab: {}'.format(char_vocab.word_vecs.shape))
 
     print('Build SentenceMatchDataStream ... ')
+
+    devDataStream = SentenceMatchTrainer.SentenceMatchDataStream("../dev.txt", word_vocab=word_vocab, char_vocab=char_vocab,
+                                                  POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
+                                                  batch_size=10, isShuffle=False, isLoop=True, isSort=True,
+                                                  max_char_per_word=20, max_sent_length=100,
+                                                  is_as=True, is_word_overlap=False,
+                                                  is_lemma_overlap= False)
+
     testDataStream = SentenceMatchTrainer.SentenceMatchDataStream(in_path, word_vocab=word_vocab, char_vocab=char_vocab,
                                                   POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab,
-                                                  batch_size=1, isShuffle=False, isLoop=True, isSort=True,
+                                                  batch_size=10, isShuffle=False, isLoop=True, isSort=True,
                                                   max_char_per_word=20, max_sent_length=100,
                                                   is_as=True, is_word_overlap=False,
                                                   is_lemma_overlap= False)
@@ -391,8 +436,37 @@ if __name__ == '__main__':
 
 
 
-        show_weights(testDataStream, valid_graph, sess, outpath='', label_vocab=label_vocab,mode='',
-                                                 char_vocab=char_vocab, POS_vocab=POS_vocab, NER_vocab=NER_vocab
-                     ,show_attention=True)
+        # show_weights(testDataStream, valid_graph, sess, outpath='', label_vocab=label_vocab,mode='',
+        #                                          char_vocab=char_vocab, POS_vocab=POS_vocab, NER_vocab=NER_vocab
+        #              ,show_attention=True)
 
+        #95
+        for i in range (95, 96):
+            char_vocab = Vocab(path_prefix + ".char_vocab", fileformat='txt2')
+            devDataStream = SentenceMatchTrainer.SentenceMatchDataStream("../dev.txt", word_vocab=word_vocab,
+                                                                         char_vocab=char_vocab,
+                                                                         POS_vocab=POS_vocab, NER_vocab=NER_vocab,
+                                                                         label_vocab=label_vocab,
+                                                                         batch_size=i, isShuffle=False, isLoop=True,
+                                                                         isSort=True,
+                                                                         max_char_per_word=20, max_sent_length=100,
+                                                                         is_as=True, is_word_overlap=False,
+                                                                         is_lemma_overlap=False)
 
+            testDataStream = SentenceMatchTrainer.SentenceMatchDataStream(in_path, word_vocab=word_vocab,
+                                                                          char_vocab=char_vocab,
+                                                                          POS_vocab=POS_vocab, NER_vocab=NER_vocab,
+                                                                          label_vocab=label_vocab,
+                                                                          batch_size=i, isShuffle=False, isLoop=True,
+                                                                          isSort=True,
+                                                                          max_char_per_word=20, max_sent_length=100,
+                                                                          is_as=True, is_word_overlap=False,
+                                                                          is_lemma_overlap=False)
+            char_vocab = None
+            my_map, my_mrr = SentenceMatchTrainer.evaluate(devDataStream, valid_graph, sess, char_vocab=char_vocab,
+                              POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+            print ("*****************************************")
+            print (my_map, my_mrr)
+            my_map, my_mrr = SentenceMatchTrainer.evaluate(testDataStream, valid_graph, sess, char_vocab=char_vocab,
+                              POS_vocab=POS_vocab, NER_vocab=NER_vocab, label_vocab=label_vocab)
+            print (my_map, my_mrr)
