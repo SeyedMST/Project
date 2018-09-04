@@ -368,10 +368,10 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 2:
+    if cnf <= 3:
         FLAGS.prediction_mode = 'list_mle'
         FLAGS.flag_shuffle = False
-    elif cnf <= 4:
+    elif cnf <= 6:
         FLAGS.flag_shuffle = True
 # elif cnf <= 9:
     #     FLAGS.prediction_mode = 'real_list_net'
@@ -465,6 +465,8 @@ def Get_Next_box_size (index):
                 #my_abl1 [cnn, bilinear, lstm]
                 # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
                 # tt3- [] 1-3, 4-6, ... poset, zero , net, point, mle, pl
+                # tt9- [mle, pl] 1-2, 3-4
+                # te9- [mle, pl] 1-3, 4-6
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
@@ -473,7 +475,7 @@ def Get_Next_box_size (index):
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
 
-    FLAGS.test_train = True
+    FLAGS.test_train = False
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -901,7 +903,7 @@ def main(_):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_trec',default=False, help='is trec or wiki?')
+    parser.add_argument('--is_trec',default=True, help='is trec or wiki?')
     FLAGS, unparsed = parser.parse_known_args()
     is_trec = FLAGS.is_trec
     if is_trec == 'True' or is_trec == True:
