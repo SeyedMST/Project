@@ -842,9 +842,9 @@ def main(_):
 
                         _, loss_value = sess.run([train_graph.get_train_op(), train_graph.get_loss()], feed_dict=feed_dict)
                         total_loss += loss_value
-                        if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
-                            print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
-                                                       ,trainDataStream.answer_count(batch_index), loss_value))
+                        #if FLAGS.is_answer_selection == True and FLAGS.is_server == False:
+                        #    print ("q: {} a: {} loss_value: {}".format(trainDataStream.question_count(batch_index)
+                        #                               ,trainDataStream.answer_count(batch_index), loss_value))
 
                         if step % 50==0:
                             print('{} '.format(step), end="")
@@ -856,7 +856,7 @@ def main(_):
                             # Print status to stdout.
                             duration = time.time() - start_time
                             start_time = time.time()
-                            print (duration)
+                            print (duration, step, "Loss: ", total_loss)
                             output_res_file.write('Step %d: loss = %.2f (%.3f sec)\n' % (step, total_loss, duration))
                             total_loss = 0.0
 
