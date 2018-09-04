@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4]#[4]
+        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [1]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -368,13 +368,12 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    # if cnf <= 3:
-    #     FLAGS.pos_avg = True
-    #     FLAGS.prediction_mode = 'list_wise'
-    #     FLAGS.new_list_wise = True
-    # elif cnf <= 6:
-    #     FLAGS.new_list_wise = False
-    # elif cnf <= 9:
+    if cnf <= 2:
+        FLAGS.prediction_mode = 'list_mle'
+        FLAGS.flag_shuffle = False
+    elif cnf <= 4:
+        FLAGS.flag_shuffle = True
+# elif cnf <= 9:
     #     FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
     #     FLAGS.prediction_mode = 'point_wise'
@@ -383,19 +382,13 @@ def Generate_random_initialization(cnf):
     #     FLAGS.flag_shuffle = False
     # elif cnf <= 18:
     #     FLAGS.flag_shuffle = True
-    # else:
-    #     return False
+    else:
+        return False
     return True
 
     # if cnf == 100:
     #     return False
     # return True
-
-
-
-
-
-
 
 
         # if cnf > 90:
@@ -480,7 +473,7 @@ def Get_Next_box_size (index):
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
 
-    FLAGS.test_train = False
+    FLAGS.test_train = True
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
@@ -769,7 +762,7 @@ def main(_):
                     print('Start the training loop.')
                     train_size = trainDataStream.get_num_batch()
                     max_steps = (train_size * FLAGS.max_epochs) // FLAGS.question_count_per_batch
-                    epoch_size = max_steps // (FLAGS.max_epochs) + 1
+                    epoch_size = max_steps // (FLAGS.max_epochs) #+ 1
 
                     total_loss = 0.0
                     start_time = time.time()
