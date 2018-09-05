@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [4]#[4]
+        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [7]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -368,10 +368,10 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 10:
+    if cnf <= 5:
         FLAGS.prediction_mode = 'list_mle'
         FLAGS.flag_shuffle = True
-    elif cnf <= 20:
+    elif cnf <= 10:
         #FLAGS.prediction_mode = 'real_list_net'
         FLAGS.flag_shuffle = False
 
@@ -464,11 +464,14 @@ def Get_Next_box_size (index):
                 #last_run1- [poset, zero]
                 #
                 # tt1- [poset, zero, listnet] 1-5, 6-10, 11-15
-                #my_abl1 [cnn, bilinear, lstm]
+                # my_abl1 [cnn, bilinear, lstm]
                 # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
                 # tt3- [] 1-3, 4-6, ... poset, zero , net, point, mle, pl
                 # tt9- [mle, pl] 1-2, 3-4  Trec:1159
-                # te9- [mle, pl] 1-3, 4-6
+                # te9- [mle, pl] 1-3, 4-6 q_cnt = 1
+                # tt7- [mle, pl] 1-10, 11-20 wiki
+                # tt6- [mle, pl] 1-5, 6-10 trec
+
     FLAGS.flag_shuffle = True
 
     if  (index > FLAGS.end_batch):
