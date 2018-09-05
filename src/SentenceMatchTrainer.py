@@ -268,8 +268,8 @@ def Generate_random_initialization(cnf):
         #
         MP_dim = [70]#[30, 50, 70]#[20,50,100]#[x for x in range (20, 610, 10)]
         # learning_rate = [0.002]#[0.001, 0.002, 0.003, 0.004]
-        dropout_rate = [0.2] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
-        question_count_per_batch = [1]#[4]
+        dropout_rate = [0.25] #[0.25]   #[0.1, 0.2, 0.25]#[x/100.0 for x in xrange (2, 30, 2)]
+        question_count_per_batch = [4]#[4]
 
         # char_lstm_dim = [80] #[x for x in range(40, 110, 10)]
         # char_emb_dim = [40] #[x for x in range (20, 110, 10)]
@@ -370,9 +370,9 @@ def Generate_random_initialization(cnf):
 
     if cnf <= 3:
         FLAGS.prediction_mode = 'list_mle'
-        FLAGS.flag_shuffle = False
-    elif cnf <= 6:
         FLAGS.flag_shuffle = True
+    elif cnf <= 6:
+        FLAGS.prediction_mode = 'real_list_net'
 # elif cnf <= 9:
     #     FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
@@ -465,7 +465,7 @@ def Get_Next_box_size (index):
                 #my_abl1 [cnn, bilinear, lstm]
                 # tt2- [poset, zero, listnet] 1-5, 6-10, 11-15
                 # tt3- [] 1-3, 4-6, ... poset, zero , net, point, mle, pl
-                # tt9- [mle, pl] 1-2, 3-4
+                # tt9- [mle, pl] 1-2, 3-4  Trec:1159
                 # te9- [mle, pl] 1-3, 4-6
     FLAGS.flag_shuffle = True
 
