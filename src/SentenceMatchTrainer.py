@@ -368,11 +368,13 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 2:
+    if cnf <= 10:
         FLAGS.prediction_mode = 'list_mle'
         FLAGS.flag_shuffle = True
-    elif cnf <= 4:
-        FLAGS.prediction_mode = 'real_list_net'
+    elif cnf <= 20:
+        #FLAGS.prediction_mode = 'real_list_net'
+        FLAGS.flag_shuffle = False
+
 # elif cnf <= 9:
     #     FLAGS.prediction_mode = 'real_list_net'
     # elif cnf <= 12:
