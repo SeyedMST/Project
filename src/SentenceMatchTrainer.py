@@ -368,10 +368,10 @@ def Generate_random_initialization(cnf):
 
     #FLAGS.with_input_embedding = True
 
-    if cnf <= 3:
+    if cnf <= 2:
         FLAGS.prediction_mode = 'list_mle'
         FLAGS.flag_shuffle = True
-    elif cnf <= 6:
+    elif cnf <= 4:
         FLAGS.prediction_mode = 'real_list_net'
 # elif cnf <= 9:
     #     FLAGS.prediction_mode = 'real_list_net'
@@ -475,7 +475,7 @@ def Get_Next_box_size (index):
     FLAGS.sample_percent = list [index]
     FLAGS.margin = 0
 
-    FLAGS.test_train = False
+    FLAGS.test_train = True
 
     if index == 0:
         # FLAGS.word_vec_path = "../data/glove/my_glove.840B.300d.txt"
